@@ -2,8 +2,13 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// The production origin. Set SITE_URL at build time for the real domain.
-const SITE = process.env.SITE_URL ?? 'https://eliteeveningdesign.com';
+// The production origin, used for canonical URLs, Open Graph and the sitemap.
+// SITE_URL wins; on Render the service URL is picked up automatically; the
+// placeholder is only ever used for local builds.
+const SITE =
+  process.env.SITE_URL ??
+  process.env.RENDER_EXTERNAL_URL ??
+  'https://eliteeveningdesign.com';
 
 export default defineConfig({
   site: SITE,

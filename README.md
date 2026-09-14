@@ -36,6 +36,10 @@ SITE_URL=https://your-real-domain.com npm run build
 Or change the fallback in `astro.config.mjs`. Until then it builds against the
 placeholder `https://eliteeveningdesign.com`.
 
+On **Render** the service URL is detected automatically via `RENDER_EXTERNAL_URL`,
+so a deploy is correct out of the box. Once a custom domain is attached, set
+`SITE_URL` on the service to that domain so canonical URLs point at it.
+
 ---
 
 ## Where things live
