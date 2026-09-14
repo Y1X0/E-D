@@ -35,6 +35,27 @@ const toPhoto = (img: any, locale: Locale, fallbackAlt: string, tone?: Photo['to
   tone,
 });
 
+/**
+ * The designed placeholder plates for a line, from the repository.
+ *
+ * A collection or a look in the studio can hold no photograph yet — that is the
+ * normal state of a new entry, and it is the state the studio was seeded in.
+ * The layout still needs a plate in each position, so it falls back to the same
+ * tonal panel the site has always used rather than collapsing to a gap.
+ */
+const placeholders = (slug: string, look?: number): Photo[] => {
+  if (look === undefined) return (localCollections.find((c) => c.slug === slug)?.plates ?? []).map((p) => ({ ...p }));
+  const key = `${slug}-${String(look).padStart(2, '0')}`;
+  return (localLooks.find((l) => l.slug === key)?.plates ?? []).map((p) => ({ ...p }));
+};
+
+const photos = (rows: any[] | undefined, locale: Locale, tones: readonly Photo['tone'][], fallback: Photo[]): Photo[] => {
+  const kept = (rows ?? []).filter((p) => p?.asset);
+  return kept.length
+    ? kept.map((p, i) => toPhoto(p, locale, '', tones[i % tones.length]))
+    : fallback;
+};
+
 /** The content committed in the repository — the site's behaviour today. */
 function localContent(locale: Locale): SiteContent {
   const dict = t(locale);
@@ -87,8 +108,8 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
   }
   if (!reported) {
     reported = true;
-    const photos = data.collections.filter((c: any) => c.cover?.asset).length;
-    console.log(`[content] Sanity: ${data.collections.length} collections, ${data.looks?.length ?? 0} looks, ${photos} with a cover photograph.`);
+    const withCover = data.collections.filter((c: any) => c.cover?.asset).length;
+    console.log(`[content] Sanity: ${data.collections.length} collections, ${data.looks?.length ?? 0} looks, ${withCover} with a cover photograph.`);
   }
 
   const dict = t(locale);
@@ -100,9 +121,10 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       kicker: pick(c.kicker, locale) || fallback?.kicker || '',
       summary: pick(c.summary, locale) || fallback?.summary || '',
       intro: (c.intro ?? []).map((p: any) => pick(p, locale)).filter(Boolean),
-      cover: toPhoto(c.cover, locale, pick(c.name, locale) || '', 'linen'),
-      plates: (c.plates ?? []).map((p: any, i: number) =>
-        toPhoto(p, locale, '', (['paper', 'shadow', 'linen', 'ink'] as const)[i % 4])),
+      cover: c.cover?.asset
+        ? toPhoto(c.cover, locale, pick(c.name, locale) || '', 'linen')
+        : { ...(localCollections.find((x) => x.slug === c.slug)?.cover ?? { alt: '', ratio: '2/3' as Ratio, tone: 'linen' as const }) },
+      plates: photos(c.plates, locale, ['paper', 'shadow', 'linen', 'ink'] as const, placeholders(c.slug)),
     };
   });
 
@@ -116,8 +138,7 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       index: n,
       collection: l.collection,
       note: pick(l.note, locale) || fallback?.[n - 1] || '',
-      plates: (l.photos ?? []).map((p: any, i: number) =>
-        toPhoto(p, locale, '', (['linen', 'shadow', 'paper'] as const)[i % 3])),
+      plates: photos(l.photos, locale, ['linen', 'shadow', 'paper'] as const, placeholders(l.collection, n)),
     };
   });
 

@@ -4,7 +4,9 @@ import { findImage } from '~/lib/images';
 import { imageUrl } from '~/lib/sanity';
 import type { Photo } from '~/content/types';
 
-interface Props extends Photo {
+interface Props extends Omit<Photo, 'ratio'> {
+  /** Aspect of the frame. Defaults to the portrait plate the layouts assume. */
+  ratio?: Photo['ratio'];
   /** Responsive `sizes`; set it per layout so the browser fetches the right file. */
   sizes?: string;
   /** Above the fold — loads eagerly at high priority. */
@@ -13,7 +15,7 @@ interface Props extends Photo {
 }
 
 const {
-  sanity, src, alt, ratio, tone = 'paper', focus,
+  sanity, src, alt, ratio = '2/3', tone = 'paper', focus,
   sizes = '(max-width: 760px) 92vw, 46vw',
   priority = false,
   class: klass = '',

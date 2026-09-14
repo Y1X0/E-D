@@ -12,7 +12,8 @@ interface Props {
 }
 const { locale, look, collectionName, sizes = '(max-width: 720px) 86vw, (max-width: 1100px) 44vw, 30vw', priority = false } = Astro.props;
 const dict = t(locale);
-const plate = look.plates[0];
+// A look the atelier has only written a note for still holds its place in the grid.
+const plate = look.plates[0] ?? { alt: '', ratio: '2/3' as const, tone: 'linen' as const };
 ---
 
 <article class="lookcard">
