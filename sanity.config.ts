@@ -17,19 +17,19 @@ export default defineConfig({
     structureTool({
       structure: (S) =>
         S.list()
-          .title('Atelier')
+          .title('الأتيليه')
           .items([
             S.listItem()
-              .title('Collections')
-              .child(S.documentTypeList('collection').title('Collections')),
+              .title('الصور والتشكيلات')
+              .child(S.documentTypeList('collection').title('التشكيلات').defaultOrdering([{ field: 'order', direction: 'asc' }])),
             S.listItem()
-              .title('Looks')
-              .child(S.documentTypeList('look').title('Looks')),
+              .title('الإطلالات')
+              .child(S.documentTypeList('look').title('الإطلالات').defaultOrdering([{ field: 'number', direction: 'asc' }])),
             S.divider(),
             S.listItem()
-              .title('Settings')
+              .title('إعدادات الأتيليه')
               .child(
-                S.document().schemaType('siteSettings').documentId('siteSettings').title('Atelier settings'),
+                S.document().schemaType('siteSettings').documentId('siteSettings').title('إعدادات الأتيليه'),
               ),
           ]),
     }),

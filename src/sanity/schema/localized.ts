@@ -2,23 +2,25 @@ import { defineField, defineType } from 'sanity';
 
 /**
  * The atelier publishes in three languages, so any field a visitor reads is an
- * object with one value per language rather than a bare string. English is
- * required; the other two fall back to it when left empty.
+ * object with one value per language rather than a bare string. Arabic comes
+ * first because that is the language the panel is used in; any language left
+ * empty falls back to the copy that ships with the site.
  */
 export const LANGS = [
-  { id: 'en', title: 'English' },
-  { id: 'he', title: 'עברית' },
   { id: 'ar', title: 'العربية' },
+  { id: 'he', title: 'עברית' },
+  { id: 'en', title: 'English' },
 ] as const;
 
+// No language is required: a line written in Arabic alone publishes fine, and
+// any language left empty falls back to the copy that ships with the site.
 const localeFields = (rows?: number) =>
-  LANGS.map((lang, i) =>
+  LANGS.map((lang) =>
     defineField({
       name: lang.id,
       title: lang.title,
       type: rows ? 'text' : 'string',
       ...(rows ? { rows } : {}),
-      ...(i === 0 ? { validation: (r: any) => r.required() } : {}),
     }),
   );
 
@@ -50,23 +52,24 @@ export const photo = defineType({
   fields: [
     defineField({
       name: 'alt',
-      title: 'Description (for screen readers and search)',
+      title: 'وصف الصورة · Description',
       type: 'localeString',
-      description: 'Describe the garment, not the file — "Bias-cut evening gown, full length".',
+      description: 'اختياري — يقرأه محرك البحث وقارئ الشاشة. صِفي الفستان لا الملف.',
+      options: { collapsible: true, collapsed: true },
     }),
     defineField({
       name: 'ratio',
-      title: 'Crop',
+      title: 'شكل القصّ · Crop',
       type: 'string',
       initialValue: '2/3',
       options: {
         list: [
-          { title: 'Tall — 2:3 (portrait, least cropping)', value: '2/3' },
-          { title: 'Portrait — 3:4', value: '3/4' },
-          { title: 'Portrait — 4:5', value: '4/5' },
-          { title: 'Square — 1:1', value: '1/1' },
-          { title: 'Landscape — 3:2', value: '3/2' },
-          { title: 'Wide — 16:9', value: '16/9' },
+          { title: 'طولية 2:3 — الأقل قصّاً', value: '2/3' },
+          { title: 'طولية 3:4', value: '3/4' },
+          { title: 'طولية 4:5', value: '4/5' },
+          { title: 'مربّعة 1:1', value: '1/1' },
+          { title: 'عرضية 3:2', value: '3/2' },
+          { title: 'عريضة 16:9', value: '16/9' },
         ],
       },
     }),

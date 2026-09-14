@@ -1,102 +1,131 @@
 import { defineArrayMember, defineField, defineType } from 'sanity';
 
-/** The three lines the atelier works in. Ordered as they appear on the site. */
+/**
+ * The panel is used from a phone, by the person who sews the dresses. So every
+ * document opens on its photographs: drop a picture in, press Publish, done.
+ * The words sit in a second tab, and the things that should almost never change
+ * — the web address, the position — in a third.
+ */
+const PHOTOS = { name: 'photos', title: 'الصور · Photos', default: true };
+const WORDS = { name: 'words', title: 'النصوص · Words' };
+const SETUP = { name: 'setup', title: 'إعدادات · Setup' };
+
+/** A line of work — bridal, evening, couture, boutique. */
 export const collection = defineType({
   name: 'collection',
-  title: 'Collection',
+  title: 'التشكيلة · Collection',
   type: 'document',
+  groups: [PHOTOS, WORDS, SETUP],
   fields: [
     defineField({
-      name: 'slug', title: 'Web address', type: 'slug',
-      options: { source: 'name.en', maxLength: 40 },
-      validation: (r) => r.required(),
-      description: 'Changing this changes the page URL. Leave it alone unless you mean to.',
+      name: 'cover', title: 'الصورة الرئيسية · Cover photograph', type: 'photo', group: 'photos',
     }),
-    defineField({ name: 'order', title: 'Position', type: 'number', initialValue: 1, validation: (r) => r.required() }),
-    defineField({ name: 'name', title: 'Name', type: 'localeString', validation: (r) => r.required() }),
-    defineField({ name: 'kicker', title: 'Line under the name', type: 'localeString' }),
-    defineField({ name: 'summary', title: 'Short summary', type: 'localeText' }),
     defineField({
-      name: 'intro', title: 'Introduction', type: 'array',
-      of: [defineArrayMember({ type: 'localeText' })],
-      description: 'One or two paragraphs, shown at the top of the collection page.',
-    }),
-    defineField({ name: 'cover', title: 'Cover photograph', type: 'photo' }),
-    defineField({
-      name: 'plates', title: 'More photographs', type: 'array',
+      name: 'plates', title: 'صور إضافية · More photographs', type: 'array',
       of: [defineArrayMember({ type: 'photo' })],
       options: { layout: 'grid' },
+      group: 'photos',
+      description: 'اسحبي الصور هنا. بدون صور تبقى الألواح المرسومة كما هي.',
+    }),
+    defineField({ name: 'name', title: 'الاسم · Name', type: 'localeString', group: 'words' }),
+    defineField({ name: 'kicker', title: 'سطر تحت الاسم · Line under the name', type: 'localeString', group: 'words' }),
+    defineField({ name: 'summary', title: 'وصف قصير · Short summary', type: 'localeText', group: 'words' }),
+    defineField({
+      name: 'intro', title: 'المقدمة · Introduction', type: 'array',
+      of: [defineArrayMember({ type: 'localeText' })],
+      group: 'words',
+      description: 'فقرة أو فقرتان في أعلى صفحة التشكيلة.',
+    }),
+    defineField({
+      name: 'slug', title: 'عنوان الصفحة · Web address', type: 'slug',
+      options: { source: 'name.en', maxLength: 40 },
+      validation: (r) => r.required(),
+      group: 'setup',
+      description: 'تغييره يغيّر رابط الصفحة. اتركيه كما هو. للخطوط الجاهزة: bridal · evening · couture · boutique',
+    }),
+    defineField({
+      name: 'order', title: 'الترتيب · Position', type: 'number', initialValue: 1,
+      validation: (r) => r.required(), group: 'setup',
     }),
   ],
   orderings: [{ title: 'Position', name: 'order', by: [{ field: 'order', direction: 'asc' }] }],
-  preview: { select: { title: 'name.en', subtitle: 'kicker.en', media: 'cover' } },
+  preview: {
+    select: { en: 'name.en', ar: 'name.ar', he: 'name.he', subtitle: 'slug.current', media: 'cover' },
+    prepare: ({ en, ar, he, subtitle, media }) => ({ title: ar || en || he || 'بلا اسم', subtitle, media }),
+  },
 });
 
 /** An individual piece. Numbered rather than named, as the atelier shows them. */
 export const look = defineType({
   name: 'look',
-  title: 'Look',
+  title: 'الإطلالة · Look',
   type: 'document',
+  groups: [PHOTOS, WORDS, SETUP],
   fields: [
     defineField({
-      name: 'collection', title: 'Collection', type: 'reference',
-      to: [{ type: 'collection' }], validation: (r) => r.required(),
-    }),
-    defineField({
-      name: 'number', title: 'Number', type: 'number',
-      validation: (r) => r.required().min(1),
-      description: 'Shown as "Look 01". Each collection numbers its own looks.',
-    }),
-    defineField({ name: 'note', title: 'One-line note', type: 'localeText' }),
-    defineField({
-      name: 'photos', title: 'Photographs', type: 'array',
+      name: 'photos', title: 'الصور · Photographs', type: 'array',
       of: [defineArrayMember({ type: 'photo' })],
       options: { layout: 'grid' },
-      description: 'The first photograph is the one shown on cards and in the gallery.',
+      group: 'photos',
+      description: 'الصورة الأولى هي التي تظهر في البطاقات والمعرض.',
+    }),
+    defineField({ name: 'note', title: 'سطر واحد عن القطعة · One-line note', type: 'localeText', group: 'words' }),
+    defineField({
+      name: 'collection', title: 'التشكيلة · Collection', type: 'reference',
+      to: [{ type: 'collection' }], validation: (r) => r.required(), group: 'setup',
+    }),
+    defineField({
+      name: 'number', title: 'الرقم · Number', type: 'number', initialValue: 1,
+      validation: (r) => r.required().min(1), group: 'setup',
+      description: 'تظهر بصيغة "إطلالة ٠١". كل تشكيلة ترقّم إطلالاتها وحدها.',
     }),
   ],
   orderings: [{ title: 'Number', name: 'number', by: [{ field: 'number', direction: 'asc' }] }],
   preview: {
-    select: { n: 'number', c: 'collection.name.en', media: 'photos.0' },
-    prepare: ({ n, c, media }) => ({ title: `Look ${String(n ?? 0).padStart(2, '0')}`, subtitle: c, media }),
+    select: { n: 'number', ar: 'collection.name.ar', en: 'collection.name.en', media: 'photos.0' },
+    prepare: ({ n, ar, en, media }) => ({
+      title: `إطلالة ${String(n ?? 0).padStart(2, '0')}`,
+      subtitle: ar || en,
+      media,
+    }),
   },
 });
 
 /** One-of-a-kind settings. */
 export const siteSettings = defineType({
   name: 'siteSettings',
-  title: 'Atelier settings',
+  title: 'إعدادات الأتيليه · Atelier settings',
   type: 'document',
   groups: [
-    { name: 'brand', title: 'Brand', default: true },
-    { name: 'contact', title: 'Contact' },
-    { name: 'home', title: 'Home page' },
+    { name: 'contact', title: 'التواصل · Contact', default: true },
+    { name: 'home', title: 'الصفحة الرئيسية · Home' },
+    { name: 'brand', title: 'النصوص · Words' },
   ],
   fields: [
-    defineField({ name: 'tagline', title: 'Tagline', type: 'localeString', group: 'brand' }),
-    defineField({ name: 'booking', title: 'Booking button', type: 'localeString', group: 'brand' }),
     defineField({
-      name: 'hero', title: 'Home page photograph', type: 'photo', group: 'home',
-      description: 'A wide, high-resolution frame. Leave empty for the dark typographic opening.',
-    }),
-    defineField({ name: 'instagramHandle', title: 'Instagram handle', type: 'string', group: 'contact' }),
-    defineField({
-      name: 'phone', title: 'Telephone', type: 'string', group: 'contact',
-      description: 'As it should read, e.g. +972 53-468-0084. Clear it to hide the row.',
+      name: 'phone', title: 'الهاتف · Telephone', type: 'string', group: 'contact',
+      description: 'كما يُقرأ، مثل ‎+972 53-468-0084. امسحيه ليختفي السطر.',
     }),
     defineField({
-      name: 'whatsapp', title: 'WhatsApp number', type: 'string', group: 'contact',
-      description: 'Digits only, with the country code: 972534680084. Clear it to hide the row.',
+      name: 'whatsapp', title: 'واتساب · WhatsApp', type: 'string', group: 'contact',
+      description: 'أرقام فقط مع رمز الدولة: 972534680084. امسحيه ليختفي السطر.',
     }),
-    defineField({ name: 'email', title: 'Email', type: 'string', group: 'contact' }),
+    defineField({ name: 'email', title: 'البريد · Email', type: 'string', group: 'contact' }),
+    defineField({ name: 'instagramHandle', title: 'إنستغرام · Instagram handle', type: 'string', group: 'contact' }),
+    defineField({ name: 'street', title: 'الشارع · Street', type: 'string', group: 'contact' }),
+    defineField({ name: 'city', title: 'المدينة · City', type: 'string', group: 'contact' }),
+    defineField({ name: 'streetLocal', title: 'الشارع بالعبرية · Street (Hebrew)', type: 'string', group: 'contact' }),
+    defineField({ name: 'cityLocal', title: 'المدينة بالعبرية · City (Hebrew)', type: 'string', group: 'contact' }),
     defineField({
-      name: 'formEndpoint', title: 'Enquiry form endpoint', type: 'url', group: 'contact',
-      description: 'Optional. Without it the form hands enquiries to Instagram.',
+      name: 'formEndpoint', title: 'رابط نموذج الطلبات · Enquiry form endpoint', type: 'url', group: 'contact',
+      description: 'اختياري. بدونه يذهب الطلب إلى إنستغرام.',
     }),
-    defineField({ name: 'street', title: 'Street', type: 'string', group: 'contact' }),
-    defineField({ name: 'city', title: 'City', type: 'string', group: 'contact' }),
-    defineField({ name: 'streetLocal', title: 'Street (Hebrew)', type: 'string', group: 'contact' }),
-    defineField({ name: 'cityLocal', title: 'City (Hebrew)', type: 'string', group: 'contact' }),
+    defineField({
+      name: 'hero', title: 'صورة الصفحة الرئيسية · Home page photograph', type: 'photo', group: 'home',
+      description: 'صورة عريضة وعالية الدقة. اتركيها فارغة لتبقى الافتتاحية الداكنة.',
+    }),
+    defineField({ name: 'tagline', title: 'الجملة تحت الاسم · Tagline', type: 'localeString', group: 'brand' }),
+    defineField({ name: 'booking', title: 'زر الحجز · Booking button', type: 'localeString', group: 'brand' }),
   ],
-  preview: { prepare: () => ({ title: 'Atelier settings' }) },
+  preview: { prepare: () => ({ title: 'إعدادات الأتيليه' }) },
 });
