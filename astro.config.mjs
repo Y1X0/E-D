@@ -10,6 +10,9 @@ const SITE =
   process.env.RENDER_EXTERNAL_URL ??
   'https://eliteeveningdesign.com';
 
+// Surfaced in the build log so the deployed origin is always verifiable.
+console.log(`[site] canonical origin: ${SITE}`);
+
 export default defineConfig({
   site: SITE,
   trailingSlash: 'ignore',
