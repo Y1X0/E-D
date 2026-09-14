@@ -1,0 +1,112 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import SiteHeader from '~/components/SiteHeader.astro';
+import SiteFooter from '~/components/SiteFooter.astro';
+import { site } from '~/config/site';
+import '~/styles/app.css';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Use the title exactly as given, without appending the house name. */
+  titleExact?: boolean;
+  /** 'over' floats the header on a dark hero. */
+  variant?: 'over' | 'solid';
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+  /** Page-specific structured data, merged with the house Organization node. */
+  schema?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title, description, titleExact = false,
+  variant = 'solid', image = site.ogImage,
+  type = 'website', noindex = false, schema,
+} = Astro.props;
+
+const fullTitle = titleExact ? title : `${title} — ${site.name}`;
+const canonical = new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', site.url).href;
+const ogImage = new URL(image, site.url).href;
+
+const organization = {
+  '@type': 'Organization',
+  '@id': `${site.url}/#organization`,
+  name: site.name,
+  alternateName: site.shortName,
+  url: site.url,
+  slogan: site.tagline,
+  description: `${site.name} — made-to-measure ${site.lines.join(', ').toLowerCase()} dressmaking. ${site.tagline}.`,
+  logo: { '@type': 'ImageObject', url: new URL('/brand/icon-512.png', site.url).href, width: 512, height: 512 },
+  image: ogImage,
+  sameAs: [site.instagram.url],
+};
+
+const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} — ${site.tagline}`} />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="theme-color" content="#f5f0e7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#131110" media="(prefers-color-scheme: dark)" />
+
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <link rel="preload" href="/fonts/cormorant-garamond-300-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/jost-300-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <ClientRouter />
+    <script set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })} type="application/ld+json" is:inline />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <SiteHeader variant={variant} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+    <script>import '~/scripts/ui';</script>
+  </body>
+</html>
+
+<style is:global>
+  main:focus { outline: none; }
+  /* page transition: a short cross-fade, nothing theatrical */
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: vt-out .22s var(--ease) both; }
+  ::view-transition-new(root) { animation: vt-in .34s var(--ease) both; }
+  @keyframes vt-out { to { opacity: 0; } }
+  @keyframes vt-in { from { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  }
+</style>

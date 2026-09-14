@@ -1,0 +1,215 @@
+---
+import { site } from '~/config/site';
+import { collections } from '~/data/collections';
+
+const { formEndpoint, email } = site.contact;
+---
+
+<form
+  class="form"
+  method="post"
+  action={formEndpoint || undefined}
+  data-endpoint={formEndpoint}
+  data-email={email}
+  data-instagram={site.instagram.url}
+  data-handle={site.instagram.handle}
+>
+  <div class="form__grid">
+    <p class="field">
+      <label class="label" for="f-name">Name</label>
+      <input id="f-name" name="name" type="text" autocomplete="name" required />
+    </p>
+
+    <p class="field">
+      <label class="label" for="f-contact">Email or phone</label>
+      <input id="f-contact" name="contact" type="text" autocomplete="email" required
+             placeholder="However you would like to be reached" />
+    </p>
+
+    <p class="field">
+      <label class="label" for="f-type">Enquiry</label>
+      <span class="select">
+        <select id="f-type" name="enquiry">
+          {collections.map((c) => <option value={c.name}>{c.name}</option>)}
+          <option value="Something else">Something else</option>
+        </select>
+      </span>
+    </p>
+
+    <p class="field">
+      <label class="label" for="f-date">Date of the occasion <span class="field__opt">optional</span></label>
+      <input id="f-date" name="date" type="date" />
+    </p>
+
+    <p class="field field--wide">
+      <label class="label" for="f-message">Tell the atelier about the dress</label>
+      <textarea id="f-message" name="message" rows="4"
+                placeholder="The occasion, the feeling you are after, anything you already know you want."></textarea>
+    </p>
+  </div>
+
+  <div class="form__foot">
+    <button class="cta cta--solid form__send" type="submit">
+      Send enquiry <span class="arw" aria-hidden="true">&#8594;</span>
+    </button>
+    <p class="form__note">
+      The atelier replies personally. Nothing is stored beyond what you write here.
+    </p>
+  </div>
+
+  <div class="form__status" role="status" aria-live="polite" hidden></div>
+</form>
+
+<style>
+  .form { display: flex; flex-direction: column; gap: 2.25rem; }
+
+  .form__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.85rem 2.5rem;
+  }
+  .field { display: flex; flex-direction: column; gap: .7rem; margin: 0; }
+  .field--wide { grid-column: 1 / -1; }
+  .field__opt { text-transform: none; letter-spacing: .04em; color: var(--ink-muted); }
+
+  .field input,
+  .field textarea,
+  .select select {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    padding: .55rem 0 .8rem;
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 300;
+    color: var(--ink);
+    border-radius: 0;
+    transition: border-color .4s var(--ease);
+  }
+  .field textarea { resize: vertical; min-height: 6.5rem; line-height: 1.65; }
+  .field input::placeholder,
+  .field textarea::placeholder { color: color-mix(in srgb, var(--ink-muted) 62%, transparent); }
+  .field input:hover, .field textarea:hover, .select select:hover { border-bottom-color: var(--ink-muted); }
+  .field input:focus, .field textarea:focus, .select select:focus { border-bottom-color: var(--gold); }
+  .field input:focus-visible, .field textarea:focus-visible, .select select:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 4px;
+  }
+
+  .select { position: relative; display: block; }
+  .select select { appearance: none; cursor: pointer; padding-right: 2rem; }
+  .select::after {
+    content: '';
+    position: absolute;
+    right: .35rem; top: 50%;
+    width: .5rem; height: .5rem;
+    border-right: 1px solid var(--ink-muted);
+    border-bottom: 1px solid var(--ink-muted);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+
+  .form__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+  }
+  .form__send[disabled] { opacity: .55; pointer-events: none; }
+  .form__note {
+    font-size: var(--t-small);
+    color: var(--ink-muted);
+    max-width: 38ch;
+    line-height: 1.6;
+  }
+
+  .form__status {
+    padding: 1.4rem 1.6rem;
+    border: 1px solid var(--line-gold);
+    background: color-mix(in srgb, var(--gold) 7%, transparent);
+    font-size: var(--t-small);
+    line-height: 1.65;
+  }
+  .form__status[hidden] { display: none; }
+  .form__status :global(a) { color: var(--gold-ink); text-decoration: underline; text-underline-offset: .25em; }
+  .form__status :global(strong) { font-weight: 400; }
+
+  @media (max-width: 700px) {
+    .form__grid { grid-template-columns: 1fr; gap: 1.6rem; }
+  }
+</style>
+
+<script>
+  function initForm() {
+    const form = document.querySelector<HTMLFormElement>('.form');
+    if (!form || form.dataset.bound === 'true') return;
+    form.dataset.bound = 'true';
+
+    const status = form.querySelector<HTMLElement>('.form__status')!;
+    const button = form.querySelector<HTMLButtonElement>('.form__send')!;
+    const { endpoint, email, instagram, handle } = form.dataset as Record<string, string>;
+
+    const show = (html: string) => {
+      status.innerHTML = html;
+      status.hidden = false;
+      status.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+
+    const summarise = (d: FormData) =>
+      [
+        `Enquiry: ${d.get('enquiry')}`,
+        `Name: ${d.get('name')}`,
+        `Contact: ${d.get('contact')}`,
+        d.get('date') ? `Date of occasion: ${d.get('date')}` : '',
+        '',
+        String(d.get('message') || ''),
+      ].filter(Boolean).join('\n');
+
+    form.addEventListener('submit', async (e) => {
+      if (!form.reportValidity()) return;
+      const data = new FormData(form);
+
+      // 1. A real endpoint is configured — post it.
+      if (endpoint) {
+        e.preventDefault();
+        button.disabled = true;
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { Accept: 'application/json' },
+            body: data,
+          });
+          if (!res.ok) throw new Error(String(res.status));
+          form.reset();
+          show('<strong>Thank you.</strong> Your enquiry has reached the atelier. You will hear back personally.');
+        } catch {
+          show(`<strong>That did not send.</strong> Please try again, or message the atelier on <a href="${instagram}" target="_blank" rel="noopener noreferrer">Instagram</a>.`);
+        } finally {
+          button.disabled = false;
+        }
+        return;
+      }
+
+      // 2. A published address — hand the enquiry to the mail client.
+      if (email) {
+        e.preventDefault();
+        const subject = `Enquiry — ${data.get('enquiry')}`;
+        window.location.href =
+          `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summarise(data))}`;
+        show('<strong>Your email is opening.</strong> Send the message from there and the atelier will reply.');
+        return;
+      }
+
+      // 3. Nothing published yet — Instagram is the atelier's live channel.
+      e.preventDefault();
+      show(
+        `<strong>Instagram is the fastest way through.</strong> The atelier takes enquiries by direct message at ` +
+        `<a href="${instagram}" target="_blank" rel="noopener noreferrer">@${handle}</a> — ` +
+        `bring the details you have written here and you will get a personal reply.`,
+      );
+    });
+  }
+
+  document.addEventListener('astro:page-load', initForm);
+</script>

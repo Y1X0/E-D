@@ -1,0 +1,36 @@
+---
+import { site } from '~/config/site';
+---
+
+<section class="ig ink" aria-labelledby="ig-h">
+  <div class="wrap ig__in">
+    <img class="ig__seal reveal" src="/brand/seal.webp" width="112" height="112" alt="" loading="lazy" decoding="async" />
+    <p class="label eyebrow reveal" style="--reveal-delay:60ms">The atelier, day to day</p>
+    <h2 class="t-display ig__h reveal" id="ig-h" style="--reveal-delay:100ms">
+      Follow the work <span class="t-italic ig__accent">in progress</span>
+    </h2>
+    <p class="lead ig__lead reveal" style="--reveal-delay:140ms">
+      New pieces, fittings and fabric are shared first on Instagram — and it is the quickest
+      way to reach the atelier directly.
+    </p>
+    <a
+      class="cta ig__cta reveal"
+      style="--reveal-delay:180ms"
+      href={site.instagram.url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      @{site.instagram.handle} <span class="arw" aria-hidden="true">&#8599;</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .ig { padding-block: var(--section); text-align: center; }
+  .ig__in { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
+  .ig__seal { width: 84px; height: 84px; border-radius: 50%; margin-bottom: .5rem; }
+  .ig__h { margin: 0; max-width: 16ch; }
+  .ig__accent { color: var(--gold-lit); }
+  .ig__lead { max-width: 52ch; }
+  .ig__cta { margin-top: 1rem; }
+</style>

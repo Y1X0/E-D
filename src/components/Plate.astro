@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import { findImage } from '~/lib/images';
+import type { Plate } from '~/data/types';
+
+interface Props extends Plate {
+  /** Responsive `sizes`; set it per layout so the browser fetches the right file. */
+  sizes?: string;
+  /** Above the fold — loads eagerly at high priority. */
+  priority?: boolean;
+  class?: string;
+}
+
+const {
+  src, alt, ratio, tone = 'paper', focus,
+  sizes = '(max-width: 760px) 92vw, 46vw',
+  priority = false,
+  class: klass = '',
+} = Astro.props;
+
+const img = findImage(src);
+const style = [
+  `--ratio:${ratio.replace('/', ' / ')}`,
+  focus ? `--focus:${focus}` : '',
+].filter(Boolean).join(';');
+---
+
+<div
+  class:list={['plate', !img && 'plate--empty', klass]}
+  data-tone={tone}
+  style={style}
+  aria-hidden={img ? undefined : 'true'}
+>
+  {img && (
+    <Image
+      src={img}
+      alt={alt}
+      widths={[420, 700, 1000, 1400, 1900]}
+      sizes={sizes}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+    />
+  )}
+</div>

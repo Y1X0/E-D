@@ -1,0 +1,182 @@
+---
+import Wordmark from './Wordmark.astro';
+import { nav, site } from '~/config/site';
+
+interface Props {
+  /** 'over' floats the header on a dark hero; 'solid' sits on paper. */
+  variant?: 'over' | 'solid';
+}
+const { variant = 'solid' } = Astro.props;
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isCurrent = (href: string) => path === href || (href !== '/' && path.startsWith(href + '/'));
+---
+
+<header class="hdr" data-variant={variant} data-solid={variant === 'solid' ? 'true' : 'false'}>
+  <div class="hdr__in">
+    <Wordmark class="hdr__mark" />
+
+    <nav class="hdr__nav" aria-label="Primary">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <button class="hdr__toggle" type="button" aria-expanded="false" aria-controls="menu">
+      <span class="hdr__bars" aria-hidden="true"><i></i><i></i></span>
+      <span class="sr-only">Menu</span>
+    </button>
+  </div>
+</header>
+
+<div class="menu ink" id="menu" hidden>
+  <nav class="menu__nav" aria-label="Primary, expanded">
+    <ul>
+      {nav.map((item, i) => (
+        <li style={`--i:${i}`}>
+          <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+  <div class="menu__foot" style={`--i:${nav.length}`}>
+    <a class="link" href={site.instagram.url} rel="me noopener noreferrer" target="_blank">
+      Instagram <span class="arw" aria-hidden="true">&#8599;</span>
+    </a>
+    <p class="label">{site.tagline}</p>
+  </div>
+</div>
+
+<style>
+  .hdr {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 100;
+    transition: background-color .45s var(--ease), color .45s var(--ease), border-color .45s var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+  .hdr[data-variant='over'] { color: var(--on-ink); }
+  .hdr[data-solid='true'] {
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: var(--ink);
+    border-bottom-color: var(--line);
+  }
+
+  .hdr__in {
+    max-width: var(--container);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    transition: height .45s var(--ease);
+  }
+  .hdr[data-solid='true'] .hdr__in { height: calc(var(--header-h) * .84); }
+
+  .hdr__mark { --wm-size: clamp(.82rem, 1.35vw, 1rem); }
+  .hdr[data-variant='over'][data-solid='false'] :global(.hdr__mark) { --wm-sub: var(--gold-lit); }
+
+  .hdr__nav ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.5rem, 2.8vw, 3rem);
+    list-style: none;
+    margin: 0; padding: 0;
+  }
+  .hdr__nav a {
+    position: relative;
+    font-size: var(--t-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    padding-block: .4rem;
+    white-space: nowrap;
+  }
+  .hdr__nav a::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform .45s var(--ease);
+  }
+  .hdr__nav a:hover::after,
+  .hdr__nav a[aria-current='page']::after { transform: scaleX(1); transform-origin: left; }
+  .hdr__nav a[aria-current='page'] { color: var(--gold-ink); }
+  .hdr[data-variant='over'][data-solid='false'] .hdr__nav a[aria-current='page'] { color: var(--gold-lit); }
+
+  .hdr__toggle { display: none; padding: .75rem; margin-right: -.75rem; }
+  .hdr__bars { display: block; width: 26px; }
+  .hdr__bars i {
+    display: block;
+    height: 1px;
+    background: currentColor;
+    transition: transform .45s var(--ease), opacity .3s var(--ease);
+  }
+  .hdr__bars i + i { margin-top: 7px; }
+  .hdr__toggle[aria-expanded='true'] .hdr__bars i:first-child { transform: translateY(4px) rotate(45deg); }
+  .hdr__toggle[aria-expanded='true'] .hdr__bars i:last-child { transform: translateY(-4px) rotate(-45deg); }
+
+  /* ---- overlay menu ---- */
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    background: var(--ink-900);
+    color: var(--on-ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3rem;
+    padding: calc(var(--header-h) + 2rem) var(--gutter) 2.5rem;
+    opacity: 0;
+    transition: opacity .4s var(--ease);
+  }
+  .menu[hidden] { display: none; }
+  .menu.is-open { opacity: 1; }
+
+  .menu__nav ul { list-style: none; margin: 0; padding: 0; }
+  .menu__nav li { overflow: hidden; }
+  .menu__nav li + li { margin-top: .15em; }
+  .menu__nav a {
+    display: block;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 11vw, 3.6rem);
+    line-height: 1.18;
+    letter-spacing: -.015em;
+    transform: translateY(105%);
+    transition: transform .7s var(--ease) calc(var(--i) * 55ms + 60ms);
+  }
+  .menu.is-open .menu__nav a { transform: none; }
+  .menu__nav a[aria-current='page'] { color: var(--gold-lit); font-style: italic; }
+
+  .menu__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line-on-ink);
+    opacity: 0;
+    transition: opacity .5s var(--ease) calc(var(--i) * 55ms + 120ms);
+  }
+  .menu.is-open .menu__foot { opacity: 1; }
+
+  @media (max-width: 900px) {
+    .hdr__nav { display: none; }
+    .hdr__toggle { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu__nav a, .menu__foot { transform: none; opacity: 1; transition: none; }
+  }
+</style>

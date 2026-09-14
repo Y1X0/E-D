@@ -1,0 +1,127 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import InquiryForm from '~/components/InquiryForm.astro';
+import { site, contactChannels } from '~/config/site';
+
+const channels = contactChannels();
+
+const schema = {
+  '@type': 'ContactPage',
+  name: `Contact — ${site.name}`,
+  url: `${site.url}/contact`,
+  description: 'Enquire about a made-to-measure commission.',
+  isPartOf: { '@id': `${site.url}/#website` },
+  mainEntity: { '@id': `${site.url}/#organization` },
+};
+---
+
+<Base
+  title="Contact"
+  description="Enquire about a bridal, evening or couture commission with Elite Evening Design. Book your dream dress."
+  schema={schema}
+>
+  <PageHero
+    eyebrow="Enquiries"
+    title="Book your"
+    accent="dream dress"
+    lead="Tell the atelier about the occasion and the dress you have in mind. Every enquiry is answered personally."
+  />
+
+  <div class="section contact">
+    <div class="wrap contact__in">
+      <!-- ——— direct channels ——— -->
+      <aside class="contact__aside reveal" aria-labelledby="direct-h">
+        <h2 class="label eyebrow" id="direct-h">Speak to the atelier</h2>
+
+        <ul class="channels">
+          {channels.map((ch) => (
+            <li class="channel">
+              <a
+                class="channel__a"
+                href={ch.href}
+                {...ch.id === 'instagram' || ch.id === 'whatsapp'
+                  ? { target: '_blank', rel: 'noopener noreferrer' }
+                  : {}}
+              >
+                <span class="label channel__label">{ch.label}</span>
+                <span class="channel__value">{ch.value}</span>
+                <span class="channel__note">{ch.note}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div class="contact__hours">
+          <h3 class="label">Appointments</h3>
+          <p>
+            Consultations and fittings are by appointment. Send an enquiry and the atelier will
+            arrange a time with you directly.
+          </p>
+        </div>
+      </aside>
+
+      <!-- ——— enquiry form ——— -->
+      <section class="contact__form reveal" style="--reveal-delay:90ms" aria-labelledby="form-h">
+        <h2 class="t-h2 contact__h" id="form-h">Send an enquiry</h2>
+        <p class="contact__sub">
+          A few details are enough to begin. Nothing is required beyond a way to reach you.
+        </p>
+        <InquiryForm />
+      </section>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .contact__in {
+    display: grid;
+    grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: start;
+  }
+
+  .contact__aside { display: flex; flex-direction: column; gap: 2.25rem; }
+
+  .channels { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .channel { border-bottom: 1px solid var(--line); }
+  .channel__a {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    padding-block: 1.35rem;
+    transition: padding-left .5s var(--ease);
+  }
+  .channel__a:hover { padding-left: .6rem; }
+  .channel__label { color: var(--ink-muted); }
+  .channel__value {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+    font-weight: 300;
+    line-height: 1.2;
+  }
+  .channel__a:hover .channel__value { color: var(--gold-ink); }
+  .channel__note { font-size: var(--t-small); color: var(--ink-muted); }
+
+  .contact__hours p { margin-top: .9rem; font-size: var(--t-small); color: var(--ink-muted); line-height: 1.7; max-width: 38ch; }
+
+  .contact__h { margin: 0 0 .85rem; }
+  .contact__sub { color: var(--ink-muted); max-width: 46ch; margin-bottom: clamp(2rem, 4vh, 2.75rem); }
+
+  @media (max-width: 900px) {
+    .contact__in { grid-template-columns: 1fr; gap: 3.5rem; }
+  }
+</style>
+
+<script>
+  /* A look page can arrive with ?enquiry=Bridal — preselect that line. */
+  function preselect() {
+    const wanted = new URLSearchParams(window.location.search).get('enquiry');
+    if (!wanted) return;
+    const select = document.querySelector<HTMLSelectElement>('#f-type');
+    if (!select) return;
+    const match = Array.from(select.options).find((o) => o.value === wanted);
+    if (match) select.value = match.value;
+  }
+  document.addEventListener('astro:page-load', preselect);
+</script>

@@ -1,0 +1,41 @@
+---
+interface Props {
+  eyebrow?: string;
+  title: string;
+  /** Rendered in italic display face, appended to the title. */
+  accent?: string;
+  lead?: string;
+  href?: string;
+  linkLabel?: string;
+  align?: 'start' | 'center';
+}
+const {
+  eyebrow, title, accent, lead, href, linkLabel = 'Discover',
+  align = 'start',
+} = Astro.props;
+---
+
+<div class:list={['shead', `shead--${align}`, 'reveal']}>
+  {eyebrow && <p class="label eyebrow shead__eyebrow">{eyebrow}</p>}
+  <h2 class="t-h2 shead__title">
+    <span class="wipe"><span>{title}</span></span>
+    {accent && <span class="wipe" style="--reveal-delay:90ms"><span class="t-italic shead__accent">{accent}</span></span>}
+  </h2>
+  {lead && <p class="lead shead__lead">{lead}</p>}
+  {href && (
+    <a class="link shead__link" href={href}>
+      {linkLabel} <span class="arw" aria-hidden="true">&#8594;</span>
+    </a>
+  )}
+</div>
+
+<style>
+  .shead { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .shead--center { align-items: center; text-align: center; }
+  .shead--center .shead__lead { margin-inline: auto; }
+  .shead__eyebrow { margin: 0; }
+  .shead__title { margin: 0; }
+  .shead__accent { color: var(--gold-ink); }
+  .shead__lead { margin: 0; }
+  .shead__link { margin-top: .35rem; }
+</style>

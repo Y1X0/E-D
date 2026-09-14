@@ -1,0 +1,37 @@
+---
+interface Props { href?: string | null; class?: string; }
+const { href = '/', class: klass = '' } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag class:list={['wordmark', klass]} {...href ? { href } : {}}>
+  <span class="wordmark__name">Elite Evening</span>
+  <span class="wordmark__sub">Design</span>
+</Tag>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .28em;
+    font-family: var(--serif);
+    font-weight: 300;
+    line-height: 1;
+    text-transform: uppercase;
+    color: inherit;
+  }
+  .wordmark__name {
+    font-size: var(--wm-size, 1.02rem);
+    letter-spacing: .17em;
+    text-indent: .17em;
+  }
+  .wordmark__sub {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: calc(var(--wm-size, 1.02rem) * .49);
+    letter-spacing: .42em;
+    text-indent: .42em;
+    color: var(--wm-sub, var(--gold-ink));
+  }
+</style>

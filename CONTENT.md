@@ -1,0 +1,127 @@
+# Adding content
+
+Everything on the site is plain TypeScript in `src/data/` plus image files in
+`src/assets/images/`. No CMS, no database.
+
+---
+
+## 1. Adding photography
+
+The Instagram profile carries no posts yet, so the site ships with **no photography**.
+Every image position is already built and laid out — each one currently renders a
+designed stand-in panel (a woven tone with the ED monogram blind-embossed into it)
+instead of a broken image or a grey box.
+
+To add a real photograph:
+
+**Step 1** — drop the file into `src/assets/images/`, in any folder structure you like:
+
+```
+src/assets/images/bridal/look-01.jpg
+src/assets/images/hero/hero.jpg
+```
+
+**Step 2** — add a `src` to the matching entry in `src/data/`, written relative to
+`src/assets/images/`:
+
+```ts
+// before
+{ alt: 'Bridal gown by Elite Evening Design', ratio: '3/4', tone: 'linen' }
+
+// after
+{ src: 'bridal/look-01.jpg', alt: 'Bridal gown, full length', ratio: '3/4', tone: 'linen' }
+```
+
+That is the whole job. On the next build Astro will:
+
+- generate responsive WebP variants at 420 / 700 / 1000 / 1400 / 1900 px,
+- set intrinsic `width`/`height` so the page never jumps as it loads,
+- lazy-load anything below the fold,
+- activate the `alt` text and the fullscreen viewer for that image.
+
+**The hero** is a special case: it looks for `hero/hero.jpg` by name. Add that one file
+and the homepage opening becomes a full-bleed cinematic image, with the type and its
+scrim already sitting correctly on top. Use a wide, high-resolution frame (2400 px or
+more across) with space in the upper-left for the headline.
+
+### Image guidance
+
+| | |
+|---|---|
+| **Format** | JPEG or PNG — Astro converts to WebP itself. Do not pre-compress hard. |
+| **Size** | Upload the largest you have. 1600 px on the short edge or more. |
+| **Ratio** | Set `ratio` to match how you want it cropped — the file itself is never stretched. |
+| **Cropping** | Plates crop with `object-fit: cover`, centred. Use `focus` to move the crop, e.g. `focus: '50% 25%'` to favour the top (a face or neckline). |
+| **Alt text** | Describe the garment, not the file: *"Bias-cut evening gown, full length"*. |
+
+### The fields on an image
+
+```ts
+{
+  src:   'bridal/look-01.jpg',   // optional — omit for a stand-in panel
+  alt:   'Bridal gown, full length',
+  ratio: '3/4',                  // '2/3' '3/4' '4/5' '1/1' '5/4' '3/2' '16/9'
+  tone:  'linen',                // stand-in panel weight: 'paper' 'linen' 'shadow' 'ink'
+  focus: '50% 30%',              // optional focal point for the crop
+}
+```
+
+`tone` only matters while there is no photograph — it sets how light or dark the
+stand-in panel is, which is what gives the grids their rhythm. Once `src` is set the
+tone is invisible.
+
+---
+
+## 2. Editing the words
+
+| File | What it holds |
+|---|---|
+| `src/config/site.ts` | Brand name, tagline, lines, Instagram, contact channels |
+| `src/data/collections.ts` | The three lines: names, kickers, summaries, intro paragraphs |
+| `src/data/looks.ts` | Individual looks and their one-line notes |
+| `src/data/bespoke.ts` | The five stages of a commission |
+| `src/pages/*.astro` | Page-specific headings and body copy |
+
+### What is factual and what is house voice
+
+Taken directly from the atelier's logo and Instagram profile — **do not change these
+unless the brand changes**:
+
+- the name *Elite Evening Design*
+- the tagline *"Where elegance meets luxury"*
+- the three lines *Bridal · Evening · Couture*
+- the call to action *"Book your dream dress"*
+- the handle *@eliteevening.design*
+
+Everything else — the introductions, the collection descriptions, the look notes, the
+five bespoke stages, the About page — is **house voice written to sound like the
+brand**, and it is yours to rewrite. It deliberately contains no awards, no client
+names, no prices, no locations, no dates and no years of experience, because none has
+been published. If you add any of those, add facts you can stand behind.
+
+### Naming looks
+
+Looks are numbered (*Look 01*, *Look 02*) rather than named, because no design names
+have been published. To use real names, add a `name` to the entries in
+`src/data/looks.ts` and render it in place of `lookTitle(look)` in
+`src/components/LookCard.astro` and `src/pages/looks/[slug].astro`.
+
+---
+
+## 3. Adding a fourth line
+
+1. Add an entry to `collections` in `src/data/collections.ts`.
+2. Add its look notes to `NOTES` in `src/data/looks.ts`, keyed by the same slug.
+
+The route, the navigation, the gallery filter, the footer, the sitemap and the
+structured data all pick it up automatically.
+
+---
+
+## 4. Before going live
+
+- [ ] Set the real domain (`SITE_URL`, see README).
+- [ ] Add the hero photograph and at least one image per collection.
+- [ ] Fill in whichever contact channels are real, in `src/config/site.ts`.
+- [ ] Point the enquiry form at an endpoint, or add an email address.
+- [ ] Re-read the About and Bespoke copy and make it true to how you actually work.

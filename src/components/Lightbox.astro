@@ -1,0 +1,156 @@
+---
+/**
+ * Fullscreen viewer. It binds only to plates that hold a real photograph,
+ * so it stays inert until photography is added.
+ */
+---
+
+<div class="lb" hidden aria-hidden="true">
+  <div class="lb__scrim" data-lb-close></div>
+  <div class="lb__panel" role="dialog" aria-modal="true" aria-label="Image viewer">
+    <figure class="lb__fig"><img class="lb__img" src="" alt="" /></figure>
+    <p class="label lb__count" aria-live="polite"></p>
+    <button class="lb__btn lb__btn--prev" type="button" data-lb-prev>
+      <span aria-hidden="true">&#8592;</span><span class="sr-only">Previous image</span>
+    </button>
+    <button class="lb__btn lb__btn--next" type="button" data-lb-next>
+      <span aria-hidden="true">&#8594;</span><span class="sr-only">Next image</span>
+    </button>
+    <button class="lb__btn lb__btn--close" type="button" data-lb-close>
+      <span aria-hidden="true">&#215;</span><span class="sr-only">Close viewer</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .lb { position: fixed; inset: 0; z-index: 150; opacity: 0; transition: opacity .35s var(--ease); }
+  .lb[hidden] { display: none; }
+  .lb.is-open { opacity: 1; }
+
+  .lb__scrim { position: absolute; inset: 0; background: color-mix(in srgb, #0b0a09 94%, transparent); }
+  .lb__panel { position: absolute; inset: 0; display: grid; place-items: center; padding: clamp(3rem, 8vw, 5rem) clamp(1rem, 5vw, 4rem); }
+
+  .lb__fig { margin: 0; max-width: min(100%, 1100px); max-height: 100%; }
+  .lb__img {
+    max-width: 100%;
+    max-height: calc(100vh - clamp(6rem, 16vw, 10rem));
+    width: auto; height: auto;
+    object-fit: contain;
+    transform: scale(.985);
+    transition: transform .45s var(--ease);
+  }
+  .lb.is-open .lb__img { transform: none; }
+
+  .lb__count {
+    position: absolute;
+    left: 50%; bottom: clamp(1rem, 3vh, 2rem);
+    transform: translateX(-50%);
+    color: var(--on-ink-muted);
+  }
+
+  .lb__btn {
+    position: absolute;
+    display: grid; place-items: center;
+    width: 3rem; height: 3rem;
+    color: var(--on-ink);
+    font-size: 1.4rem;
+    border: 1px solid color-mix(in srgb, #efe9de 22%, transparent);
+    transition: background-color .35s var(--ease), border-color .35s var(--ease);
+  }
+  .lb__btn:hover { background: color-mix(in srgb, #efe9de 12%, transparent); border-color: color-mix(in srgb, #efe9de 46%, transparent); }
+  .lb__btn:focus-visible { outline: 2px solid var(--gold-lit); outline-offset: 3px; }
+  .lb__btn--prev { left: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
+  .lb__btn--next { right: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
+  .lb__btn--close { right: clamp(.75rem, 2.5vw, 2rem); top: clamp(.75rem, 2.5vw, 2rem); }
+
+  @media (max-width: 640px) {
+    .lb__btn { width: 2.6rem; height: 2.6rem; }
+    .lb__btn--prev { left: .6rem; }
+    .lb__btn--next { right: .6rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lb, .lb__img { transition: none; }
+  }
+</style>
+
+<script>
+  function initLightbox() {
+    const lb = document.querySelector<HTMLElement>('.lb');
+    if (!lb || lb.dataset.bound === 'true') return;
+
+    // Only plates that actually contain a photograph are zoomable.
+    const sources = Array.from(document.querySelectorAll<HTMLElement>('[data-zoom]'))
+      .map((el) => el.querySelector('img'))
+      .filter((img): img is HTMLImageElement => !!img);
+    if (!sources.length) return;
+
+    lb.dataset.bound = 'true';
+    const img = lb.querySelector<HTMLImageElement>('.lb__img')!;
+    const count = lb.querySelector<HTMLElement>('.lb__count')!;
+    const closeBtns = lb.querySelectorAll<HTMLElement>('[data-lb-close]');
+    const single = sources.length < 2;
+    lb.querySelector<HTMLElement>('[data-lb-prev]')!.hidden = single;
+    lb.querySelector<HTMLElement>('[data-lb-next]')!.hidden = single;
+
+    let i = 0;
+    let opener: HTMLElement | null = null;
+
+    const paint = () => {
+      const s = sources[i];
+      img.src = s.currentSrc || s.src;
+      img.alt = s.alt;
+      count.textContent = single ? '' : `${i + 1} / ${sources.length}`;
+    };
+    const open = (n: number, from: HTMLElement) => {
+      i = n; opener = from; paint();
+      lb.hidden = false;
+      lb.setAttribute('aria-hidden', 'false');
+      document.documentElement.style.overflow = 'hidden';
+      requestAnimationFrame(() => lb.classList.add('is-open'));
+      lb.querySelector<HTMLElement>('.lb__btn--close')!.focus({ preventScroll: true });
+    };
+    const close = () => {
+      lb.classList.remove('is-open');
+      lb.setAttribute('aria-hidden', 'true');
+      document.documentElement.style.overflow = '';
+      const done = () => { lb.hidden = true; img.src = ''; };
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ? done() : window.setTimeout(done, 340);
+      opener?.focus({ preventScroll: true });
+    };
+    const step = (d: number) => { i = (i + d + sources.length) % sources.length; paint(); };
+
+    sources.forEach((s, n) => {
+      const host = s.closest<HTMLElement>('[data-zoom]')!;
+      host.style.cursor = 'zoom-in';
+      if (!host.hasAttribute('tabindex') && !host.closest('a')) {
+        host.tabIndex = 0;
+        host.setAttribute('role', 'button');
+        host.setAttribute('aria-label', `Open image: ${s.alt}`);
+      }
+      host.addEventListener('click', () => open(n, host));
+      host.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(n, host); }
+      });
+    });
+
+    closeBtns.forEach((b) => b.addEventListener('click', close));
+    lb.querySelector('[data-lb-prev]')!.addEventListener('click', () => step(-1));
+    lb.querySelector('[data-lb-next]')!.addEventListener('click', () => step(1));
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft' && !single) step(-1);
+      if (e.key === 'ArrowRight' && !single) step(1);
+      // keep focus inside the dialog
+      if (e.key === 'Tab') {
+        const f = Array.from(lb.querySelectorAll<HTMLElement>('button')).filter((b) => !b.hidden);
+        if (!f.length) return;
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    });
+  }
+
+  document.addEventListener('astro:page-load', initLightbox);
+</script>

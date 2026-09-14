@@ -1,0 +1,50 @@
+---
+interface Props {
+  eyebrow: string;
+  title: string;
+  accent?: string;
+  lead?: string;
+  /** Small meta line under the lead, e.g. a count. */
+  meta?: string;
+}
+const { eyebrow, title, accent, lead, meta } = Astro.props;
+---
+
+<header class="phero">
+  <div class="wrap phero__in">
+    <p class="label eyebrow phero__eyebrow">{eyebrow}</p>
+    <h1 class="t-display phero__h">
+      <span class="wipe"><span>{title}</span></span>
+      {accent && <span class="wipe" style="--reveal-delay:90ms"><span class="t-italic phero__accent">{accent}</span></span>}
+    </h1>
+    {lead && <p class="lead phero__lead">{lead}</p>}
+    {meta && <p class="label phero__meta">{meta}</p>}
+  </div>
+  <div class="wrap"><span class="phero__rule draw"></span></div>
+</header>
+
+<style>
+  .phero { padding-top: calc(var(--header-h) + clamp(3rem, 9vh, 6.5rem)); }
+  .phero__in { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .phero__eyebrow { margin: 0; animation: pf .7s var(--ease) both; }
+  .phero__h { margin: 0; max-width: 18ch; }
+  .phero__accent { color: var(--gold-ink); }
+  .phero__lead { animation: pf .8s var(--ease) .18s both; }
+  .phero__meta { animation: pf .8s var(--ease) .26s both; }
+  .phero__rule {
+    display: block;
+    height: 1px;
+    background: var(--line);
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+  }
+  /* the h1 lines wipe in on load rather than on scroll */
+  .phero__h .wipe > * { transform: none; animation: pw .95s var(--ease) both; }
+  .phero__h .wipe:nth-child(2) > * { animation-delay: .1s; }
+
+  @keyframes pw { from { transform: translate3d(0, 106%, 0); } to { transform: none; } }
+  @keyframes pf { from { opacity: 0; transform: translate3d(0, 14px, 0); } to { opacity: 1; transform: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phero__eyebrow, .phero__lead, .phero__meta, .phero__h .wipe > * { animation: none; opacity: 1; transform: none; }
+  }
+</style>

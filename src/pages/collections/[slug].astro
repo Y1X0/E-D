@@ -1,0 +1,171 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import Plate from '~/components/Plate.astro';
+import LookCard from '~/components/LookCard.astro';
+import Lightbox from '~/components/Lightbox.astro';
+import { collections } from '~/data/collections';
+import { looksIn } from '~/data/looks';
+import { site } from '~/config/site';
+
+export function getStaticPaths() {
+  return collections.map((collection) => ({
+    params: { slug: collection.slug },
+    props: { collection },
+  }));
+}
+
+const { collection } = Astro.props;
+const looks = looksIn(collection.slug);
+const others = collections.filter((c) => c.slug !== collection.slug);
+
+const schema = {
+  '@type': 'CollectionPage',
+  name: `${collection.name} — ${site.name}`,
+  url: `${site.url}/collections/${collection.slug}`,
+  description: collection.summary,
+  isPartOf: { '@id': `${site.url}/#website` },
+  about: { '@id': `${site.url}/#organization` },
+};
+---
+
+<Base
+  title={collection.name}
+  description={`${collection.summary} Made to measure by ${site.name}.`}
+  schema={schema}
+>
+  <PageHero
+    eyebrow={`Collections — ${collection.name}`}
+    title={collection.kicker}
+    lead={collection.summary}
+    meta={`${looks.length} looks`}
+  />
+
+  <!-- ——— the collection's own statement, set beside a lead image ——— -->
+  <section class="section section--tight intro" aria-label={`About the ${collection.name} line`}>
+    <div class="wrap intro__in">
+      <div class="intro__media reveal" data-zoom>
+        <Plate {...collection.cover} sizes="(max-width: 900px) 90vw, 46vw" priority />
+      </div>
+      <div class="intro__text reveal" style="--reveal-delay:90ms">
+        {collection.intro.map((p) => <p>{p}</p>)}
+        <a class="link intro__link" href="/bespoke">
+          How a commission works <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ——— editorial run ——— -->
+  <section class="section--tight run" aria-label={`${collection.name} imagery`}>
+    <div class="wrap run__grid">
+      {collection.plates.map((p, i) => (
+        <figure class="run__item reveal" style={`--reveal-delay:${(i % 2) * 80}ms`} data-zoom>
+          <Plate {...p} sizes="(max-width: 720px) 90vw, 46vw" />
+        </figure>
+      ))}
+    </div>
+  </section>
+
+  <!-- ——— the looks ——— -->
+  <section class="section looks" aria-labelledby="looks-h">
+    <div class="wrap">
+      <div class="looks__head reveal">
+        <h2 class="t-h2" id="looks-h">The looks</h2>
+        <p class="label">{collection.name}</p>
+      </div>
+      <div class="looks__grid">
+        {looks.map((l, i) => (
+          <LookCard look={l} collectionName={collection.name} delay={(i % 3) * 90} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ——— continue ——— -->
+  <section class="section--tight next ink" aria-labelledby="next-h">
+    <div class="wrap next__in">
+      <h2 class="label eyebrow" id="next-h">Continue</h2>
+      <ul class="next__list">
+        {others.map((c) => (
+          <li>
+            <a class="next__a" href={`/collections/${c.slug}`}>
+              <span class="t-h2 next__name">{c.name}</span>
+              <span class="next__kicker">{c.kicker}</span>
+              <span class="arw next__arw" aria-hidden="true">&#8594;</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <Lightbox />
+</Base>
+
+<style>
+  .intro__in {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .intro__text p { color: var(--ink-muted); max-width: 50ch; }
+  .intro__text p + p { margin-top: 1.1em; }
+  .intro__link { margin-top: 1.75rem; }
+
+  .run__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    align-items: start;
+  }
+  .run__item { margin: 0; }
+  .run__item:nth-child(2n) { margin-top: clamp(2rem, 7vw, 5rem); }
+
+  .looks__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(2.5rem, 6vh, 4rem);
+  }
+  .looks__head h2 { margin: 0; }
+  .looks__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 3.5vw, 3rem);
+  }
+
+  .next__list { list-style: none; margin: 2rem 0 0; padding: 0; border-top: 1px solid var(--line-on-ink); }
+  .next__a {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 1.5rem;
+    padding-block: clamp(1.5rem, 3.5vh, 2.25rem);
+    border-bottom: 1px solid var(--line-on-ink);
+    transition: padding-left .5s var(--ease);
+  }
+  .next__a:hover { padding-left: .75rem; }
+  .next__name { font-family: var(--serif); font-weight: 300; }
+  .next__kicker { color: var(--on-ink-muted); font-size: var(--t-small); }
+  .next__arw { transition: transform .5s var(--ease); color: var(--gold-lit); }
+  .next__a:hover .next__arw { transform: translateX(.4rem); }
+
+  @media (max-width: 980px) {
+    .looks__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 820px) {
+    .intro__in { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 620px) {
+    .run__grid { grid-template-columns: 1fr; }
+    .run__item:nth-child(2n) { margin-top: 0; }
+    .looks__grid { grid-template-columns: 1fr; gap: 2.75rem; }
+    .next__a { grid-template-columns: 1fr auto; }
+    .next__kicker { display: none; }
+  }
+</style>

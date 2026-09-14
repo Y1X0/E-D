@@ -1,0 +1,124 @@
+---
+import { Image } from 'astro:assets';
+import { findImage } from '~/lib/images';
+import { site } from '~/config/site';
+
+/**
+ * Drop a photograph at `src/assets/images/hero/hero.jpg` and the hero becomes
+ * a full-bleed cinematic image. Until then it holds as a dark typographic
+ * opening — no stretched stand-in, no empty frame.
+ */
+const img = findImage('hero/hero.jpg');
+---
+
+<section class="hero ink" data-hero>
+  <div class="hero__bg" aria-hidden="true">
+    {img && (
+      <Image src={img} alt="" widths={[720, 1100, 1500, 2000, 2600]} sizes="100vw"
+             loading="eager" decoding="sync" fetchpriority="high" />
+    )}
+  </div>
+
+  <div class="wrap hero__in">
+    <p class="label eyebrow hero__eyebrow">{site.lines.join(' · ')}</p>
+
+    <h1 class="t-hero hero__h">
+      <span class="sr-only">{site.name} — {site.tagline}</span>
+      <span class="hero__l hero__l--1" aria-hidden="true">Where elegance</span>
+      <span class="hero__l hero__l--2" aria-hidden="true">meets <em>luxury</em></span>
+    </h1>
+
+    <div class="hero__acts">
+      <a class="cta cta--solid hero__cta" href="/contact">
+        {site.bookingPhrase} <span class="arw" aria-hidden="true">&#8594;</span>
+      </a>
+      <a class="cta hero__cta hero__cta--2" href="/collections">Explore the collections</a>
+    </div>
+  </div>
+
+  <a class="hero__cue" href="#opening">
+    <span class="label">Scroll</span>
+    <span class="hero__cue-line" aria-hidden="true"></span>
+    <span class="sr-only">Scroll to the introduction</span>
+  </a>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 600px;
+    height: min(100svh, 960px);
+    display: grid;
+    align-items: center;
+    background: var(--ink-900);
+    color: var(--on-ink);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  .hero__bg { position: absolute; inset: 0; z-index: -2; }
+  .hero__bg :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; }
+
+  /* tonal ground + scrim: legible type whether or not a photograph is present */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 86% at 76% 14%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 58%),
+      linear-gradient(196deg, color-mix(in srgb, #000 34%, transparent), color-mix(in srgb, #000 74%, transparent));
+  }
+  .hero__in {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: clamp(1.5rem, 3.5vh, 2.5rem);
+    padding-top: var(--header-h);
+  }
+
+  .hero__eyebrow { color: var(--gold-lit); animation: rise .8s var(--ease) .1s both; }
+
+  .hero__h { margin: 0; max-width: 15ch; }
+  .hero__l { display: block; }
+  .hero__l em { font-style: italic; color: var(--gold-lit); }
+  .hero__l--1 { animation: rise 1s var(--ease) .2s both; }
+  .hero__l--2 { animation: rise 1s var(--ease) .32s both; padding-left: clamp(0rem, 6vw, 4.5rem); }
+
+  .hero__acts { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .75rem; }
+  .hero__cta { animation: rise .9s var(--ease) .48s both; }
+  .hero__cta--2 { animation-delay: .58s; }
+
+  .hero__cue {
+    position: absolute;
+    left: 50%; bottom: clamp(1.5rem, 4vh, 2.75rem);
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .8rem;
+    color: var(--on-ink-muted);
+    animation: fade 1s var(--ease) 1s both;
+  }
+  .hero__cue-line {
+    display: block;
+    width: 1px; height: clamp(2rem, 5vh, 3.25rem);
+    background: linear-gradient(var(--gold-lit), transparent);
+  }
+  .hero__cue:hover { color: var(--on-ink); }
+
+  @keyframes rise { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  @media (max-width: 760px) {
+    .hero { height: min(94svh, 760px); min-height: 520px; }
+    .hero__h { max-width: 15ch; }
+    .hero__l--2 { padding-left: clamp(0rem, 8vw, 2rem); }
+    .hero__acts { width: 100%; }
+    .hero__cta { flex: 1 1 100%; justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__eyebrow, .hero__l--1, .hero__l--2, .hero__cta, .hero__cue { animation: none; opacity: 1; transform: none; }
+  }
+</style>
