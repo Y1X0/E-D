@@ -1,8 +1,27 @@
 ---
 import { site } from '~/config/site';
 import { collections } from '~/data/collections';
+import { t, type Locale } from '~/i18n';
 
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const c = dict.contact;
 const { formEndpoint, email } = site.contact;
+
+/** Messages the script shows; passed as data so it stays language-agnostic. */
+const ig = site.instagram;
+const igLink = '<a href="' + ig.url + '" target="_blank" rel="noopener noreferrer" dir="ltr">@' + ig.handle + '</a>';
+const igPlain = '<a href="' + ig.url + '" target="_blank" rel="noopener noreferrer">Instagram</a>';
+const strong = (text: string) => '<strong>' + text + '</strong> ';
+
+const messages = {
+  sent: strong(c.sent) + c.sentBody,
+  failed: strong(c.failed) + c.failedBody.replace('Instagram', igPlain),
+  mail: strong(c.mailOpening) + c.mailOpeningBody,
+  ig: strong(c.igTitle) + c.igBody(ig.handle).replace('@' + ig.handle, igLink),
+  subject: c.formTitle,
+};
 ---
 
 <form
@@ -11,50 +30,47 @@ const { formEndpoint, email } = site.contact;
   action={formEndpoint || undefined}
   data-endpoint={formEndpoint}
   data-email={email}
-  data-instagram={site.instagram.url}
-  data-handle={site.instagram.handle}
+  data-messages={JSON.stringify(messages)}
 >
   <div class="form__grid">
     <p class="field">
-      <label class="label" for="f-name">Name</label>
+      <label class="label" for="f-name">{c.name}</label>
       <input id="f-name" name="name" type="text" autocomplete="name" required />
     </p>
 
     <p class="field">
-      <label class="label" for="f-contact">Email or phone</label>
-      <input id="f-contact" name="contact" type="text" autocomplete="email" required
-             placeholder="However you would like to be reached" />
+      <label class="label" for="f-contact">{c.contactField}</label>
+      <input id="f-contact" name="contact" type="text" autocomplete="email" required placeholder={c.contactPlaceholder} />
     </p>
 
     <p class="field">
-      <label class="label" for="f-type">Enquiry</label>
+      <label class="label" for="f-type">{c.enquiry}</label>
       <span class="select">
         <select id="f-type" name="enquiry">
-          {collections.map((c) => <option value={c.name}>{c.name}</option>)}
-          <option value="Something else">Something else</option>
+          {collections.map((col) => (
+            <option value={dict.collections[col.slug].name}>{dict.collections[col.slug].name}</option>
+          ))}
+          <option value={c.somethingElse}>{c.somethingElse}</option>
         </select>
       </span>
     </p>
 
     <p class="field">
-      <label class="label" for="f-date">Date of the occasion <span class="field__opt">optional</span></label>
+      <label class="label" for="f-date">{c.date} <span class="field__opt">{c.optional}</span></label>
       <input id="f-date" name="date" type="date" />
     </p>
 
     <p class="field field--wide">
-      <label class="label" for="f-message">Tell the atelier about the dress</label>
-      <textarea id="f-message" name="message" rows="4"
-                placeholder="The occasion, the feeling you are after, anything you already know you want."></textarea>
+      <label class="label" for="f-message">{c.message}</label>
+      <textarea id="f-message" name="message" rows="4" placeholder={c.messagePlaceholder}></textarea>
     </p>
   </div>
 
   <div class="form__foot">
     <button class="cta cta--solid form__send" type="submit">
-      Send enquiry <span class="arw" aria-hidden="true">&#8594;</span>
+      {c.send} <span class="arw" aria-hidden="true">&#8594;</span>
     </button>
-    <p class="form__note">
-      The atelier replies personally. Nothing is stored beyond what you write here.
-    </p>
+    <p class="form__note">{c.privacy}</p>
   </div>
 
   <div class="form__status" role="status" aria-live="polite" hidden></div>
@@ -96,13 +112,15 @@ const { formEndpoint, email } = site.contact;
     outline: 2px solid var(--gold);
     outline-offset: 4px;
   }
+  /* dates and phone numbers stay left-to-right in every language */
+  .field input[type='date'] { direction: ltr; text-align: start; }
 
   .select { position: relative; display: block; }
-  .select select { appearance: none; cursor: pointer; padding-right: 2rem; }
+  .select select { appearance: none; cursor: pointer; padding-inline-end: 2rem; }
   .select::after {
     content: '';
     position: absolute;
-    right: .35rem; top: 50%;
+    inset-inline-end: .35rem; top: 50%;
     width: .5rem; height: .5rem;
     border-right: 1px solid var(--ink-muted);
     border-bottom: 1px solid var(--ink-muted);
@@ -110,19 +128,9 @@ const { formEndpoint, email } = site.contact;
     pointer-events: none;
   }
 
-  .form__foot {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1.25rem 2rem;
-  }
+  .form__foot { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem 2rem; }
   .form__send[disabled] { opacity: .55; pointer-events: none; }
-  .form__note {
-    font-size: var(--t-small);
-    color: var(--ink-muted);
-    max-width: 38ch;
-    line-height: 1.6;
-  }
+  .form__note { font-size: var(--t-small); color: var(--ink-muted); max-width: 38ch; line-height: 1.6; }
 
   .form__status {
     padding: 1.4rem 1.6rem;
@@ -148,7 +156,8 @@ const { formEndpoint, email } = site.contact;
 
     const status = form.querySelector<HTMLElement>('.form__status')!;
     const button = form.querySelector<HTMLButtonElement>('.form__send')!;
-    const { endpoint, email, instagram, handle } = form.dataset as Record<string, string>;
+    const { endpoint, email } = form.dataset as Record<string, string>;
+    const msg = JSON.parse(form.dataset.messages || '{}');
 
     const show = (html: string) => {
       status.innerHTML = html;
@@ -158,10 +167,10 @@ const { formEndpoint, email } = site.contact;
 
     const summarise = (d: FormData) =>
       [
-        `Enquiry: ${d.get('enquiry')}`,
-        `Name: ${d.get('name')}`,
-        `Contact: ${d.get('contact')}`,
-        d.get('date') ? `Date of occasion: ${d.get('date')}` : '',
+        `${d.get('enquiry')}`,
+        `${d.get('name')}`,
+        `${d.get('contact')}`,
+        d.get('date') ? `${d.get('date')}` : '',
         '',
         String(d.get('message') || ''),
       ].filter(Boolean).join('\n');
@@ -175,16 +184,12 @@ const { formEndpoint, email } = site.contact;
         e.preventDefault();
         button.disabled = true;
         try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { Accept: 'application/json' },
-            body: data,
-          });
+          const res = await fetch(endpoint, { method: 'POST', headers: { Accept: 'application/json' }, body: data });
           if (!res.ok) throw new Error(String(res.status));
           form.reset();
-          show('<strong>Thank you.</strong> Your enquiry has reached the atelier. You will hear back personally.');
+          show(msg.sent);
         } catch {
-          show(`<strong>That did not send.</strong> Please try again, or message the atelier on <a href="${instagram}" target="_blank" rel="noopener noreferrer">Instagram</a>.`);
+          show(msg.failed);
         } finally {
           button.disabled = false;
         }
@@ -194,20 +199,15 @@ const { formEndpoint, email } = site.contact;
       // 2. A published address — hand the enquiry to the mail client.
       if (email) {
         e.preventDefault();
-        const subject = `Enquiry — ${data.get('enquiry')}`;
         window.location.href =
-          `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summarise(data))}`;
-        show('<strong>Your email is opening.</strong> Send the message from there and the atelier will reply.');
+          `mailto:${email}?subject=${encodeURIComponent(msg.subject)}&body=${encodeURIComponent(summarise(data))}`;
+        show(msg.mail);
         return;
       }
 
       // 3. Nothing published yet — Instagram is the atelier's live channel.
       e.preventDefault();
-      show(
-        `<strong>Instagram is the fastest way through.</strong> The atelier takes enquiries by direct message at ` +
-        `<a href="${instagram}" target="_blank" rel="noopener noreferrer">@${handle}</a> — ` +
-        `bring the details you have written here and you will get a personal reply.`,
-      );
+      show(msg.ig);
     });
   }
 

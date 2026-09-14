@@ -3,30 +3,36 @@ import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '~/components/SiteHeader.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
 import { site, location, mapsUrl } from '~/config/site';
+import {
+  t, dirOf, localePath, LOCALES, HREFLANG, OG_LOCALE, DEFAULT_LOCALE, type Locale,
+} from '~/i18n';
 import '~/styles/app.css';
 
 interface Props {
+  locale: Locale;
   title: string;
   description: string;
   /** Use the title exactly as given, without appending the house name. */
   titleExact?: boolean;
-  /** 'over' floats the header on a dark hero. */
   variant?: 'over' | 'solid';
   image?: string;
   type?: 'website' | 'article';
   noindex?: boolean;
-  /** Page-specific structured data, merged with the house Organization node. */
+  /** Path without a locale prefix, e.g. '/collections/bridal'. Drives hreflang. */
+  path: string;
   schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
-  title, description, titleExact = false,
+  locale, title, description, titleExact = false,
   variant = 'solid', image = site.ogImage,
-  type = 'website', noindex = false, schema,
+  type = 'website', noindex = false, path, schema,
 } = Astro.props;
 
+const dict = t(locale);
+const dir = dirOf(locale);
 const fullTitle = titleExact ? title : `${title} — ${site.name}`;
-const canonical = new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', site.url).href;
+const canonical = new URL(localePath(path, locale), site.url).href;
 const ogImage = new URL(image, site.url).href;
 
 // A LocalBusiness rather than a plain Organization: the atelier has a street
@@ -37,8 +43,8 @@ const organization = {
   name: site.name,
   alternateName: site.shortName,
   url: site.url,
-  slogan: site.tagline,
-  description: `${site.name} — made-to-measure ${site.lines.join(', ').toLowerCase()} dressmaking in ${location.city}. ${site.tagline}.`,
+  slogan: dict.tagline,
+  description: dict.seo.home.description,
   logo: { '@type': 'ImageObject', url: new URL('/brand/icon-512.png', site.url).href, width: 512, height: 512 },
   image: ogImage,
   sameAs: [site.instagram.url],
@@ -51,13 +57,14 @@ const organization = {
   },
   hasMap: mapsUrl,
   areaServed: { '@type': 'City', name: location.city },
+  availableLanguage: LOCALES.map((l) => HREFLANG[l]),
 };
 
 const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
 ---
 
 <!doctype html>
-<html lang={site.locale}>
+<html lang={HREFLANG[locale]} dir={dir} data-locale={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -67,6 +74,12 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
+    {/* every language of this page, plus the default for anything unmatched */}
+    {LOCALES.map((l) => (
+      <link rel="alternate" hreflang={HREFLANG[l]} href={new URL(localePath(path, l), site.url).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath(path, DEFAULT_LOCALE), site.url).href} />
+
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
     <meta property="og:title" content={fullTitle} />
@@ -75,8 +88,11 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name} — ${site.tagline}`} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:alt" content={`${site.name} — ${dict.tagline}`} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    {LOCALES.filter((l) => l !== locale).map((l) => (
+      <meta property="og:locale:alternate" content={OG_LOCALE[l]} />
+    ))}
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
@@ -93,18 +109,24 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
 
     <link rel="preload" href="/fonts/cormorant-garamond-300-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/jost-300-latin.woff2" as="font" type="font/woff2" crossorigin />
+    {locale === 'he' && (
+      <link rel="preload" href="/fonts/frank-ruhl-libre-300-hebrew.woff2" as="font" type="font/woff2" crossorigin />
+    )}
+    {locale === 'ar' && (
+      <link rel="preload" href="/fonts/amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin />
+    )}
 
     <ClientRouter />
     <script set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })} type="application/ld+json" is:inline />
   </head>
 
   <body>
-    <a class="skip" href="#main">Skip to content</a>
-    <SiteHeader variant={variant} />
+    <a class="skip" href="#main">{dict.ui.skip}</a>
+    <SiteHeader locale={locale} variant={variant} path={path} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
-    <SiteFooter />
+    <SiteFooter locale={locale} />
     <script>import '~/scripts/ui';</script>
   </body>
 </html>

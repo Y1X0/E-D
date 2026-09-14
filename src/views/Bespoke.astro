@@ -1,0 +1,144 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import Plate from '~/components/Plate.astro';
+import { collections } from '~/data/collections';
+import { site, location } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const b = dict.bespoke;
+
+const schema = {
+  '@type': 'Service',
+  name: b.eyebrow,
+  serviceType: b.eyebrow,
+  provider: { '@id': `${site.url}/#organization` },
+  url: new URL(localePath('/bespoke', locale), site.url).href,
+  description: dict.seo.bespoke.description,
+  areaServed: { '@type': 'City', name: location.city },
+  inLanguage: locale,
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: dict.collectionsPage.eyebrow,
+    itemListElement: collections.map((c) => ({
+      '@type': 'OfferCatalog',
+      name: dict.collections[c.slug].name,
+      description: dict.collections[c.slug].summary,
+    })),
+  },
+};
+---
+
+<Base
+  locale={locale}
+  path="/bespoke"
+  title={dict.seo.bespoke.title}
+  description={dict.seo.bespoke.description}
+  schema={schema}
+>
+  <PageHero eyebrow={b.eyebrow} title={b.title} accent={b.accent} lead={b.lead} />
+
+  <div class="section steps">
+    <div class="wrap">
+      <ol class="steps__list">
+        {b.steps.map((s, i) => (
+          <li class="steps__item reveal" style={`--reveal-delay:${(i % 2) * 60}ms`}>
+            <div class="steps__media" aria-hidden="true">
+              <Plate
+                alt=""
+                ratio="4/5"
+                tone={(['linen', 'shadow', 'paper', 'ink', 'linen'] as const)[i]}
+                sizes="(max-width: 860px) 88vw, 34vw"
+              />
+            </div>
+            <div class="steps__body">
+              <p class="steps__n label label--gold">{String(i + 1).padStart(2, '0')}</p>
+              <h2 class="t-h2 steps__t">{s.title}</h2>
+              <p class="steps__p">{s.body}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+
+  <section class="section section--tight bring ink" aria-labelledby="bring-h">
+    <div class="wrap bring__in">
+      <div class="bring__head">
+        <p class="label eyebrow reveal">{b.bringEyebrow}</p>
+        <h2 class="t-display bring__h reveal" id="bring-h" style="--reveal-delay:60ms">
+          {b.bringTitle} <span class="t-italic bring__accent">{b.bringAccent}</span>
+        </h2>
+      </div>
+      <ul class="bring__list">
+        {b.bring.map((item, i) => (
+          <li class="bring__item reveal" style={`--reveal-delay:${i * 70}ms`}>
+            <h3 class="bring__t">{item.title}</h3>
+            <p class="bring__d">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section cta-band" aria-labelledby="cta-h">
+    <div class="wrap cta-band__in">
+      <h2 class="t-display cta-band__h reveal" id="cta-h">
+        {b.ctaTitle} <span class="t-italic cta-band__accent">{b.ctaAccent}</span>
+      </h2>
+      <p class="lead cta-band__lead reveal" style="--reveal-delay:70ms">{b.ctaLead}</p>
+      <div class="reveal" style="--reveal-delay:120ms">
+        <a class="cta cta--solid" href={localePath('/contact', locale)}>
+          {dict.booking} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .steps__list { list-style: none; margin: 0; padding: 0; }
+  .steps__item {
+    display: grid;
+    grid-template-columns: minmax(0, .78fr) minmax(0, 1.22fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .steps__item + .steps__item { margin-top: clamp(3.5rem, 10vh, 7rem); }
+  .steps__item:nth-child(even) .steps__media { order: 2; }
+
+  .steps__body { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .steps__n { margin: 0; }
+  .steps__t { margin: 0; }
+  .steps__p { color: var(--ink-muted); max-width: 46ch; }
+
+  .bring__in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(2.5rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .bring__head { display: flex; flex-direction: column; align-items: flex-start; gap: 1.35rem; }
+  .bring__h { margin: 0; max-width: 16ch; }
+  .bring__accent { color: var(--gold-lit); }
+
+  .bring__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-on-ink); }
+  .bring__item { padding-block: clamp(1.25rem, 3vh, 1.75rem); border-bottom: 1px solid var(--line-on-ink); }
+  .bring__t { font-family: var(--serif); font-weight: 300; font-size: clamp(1.25rem, 2.2vw, 1.6rem); margin: 0 0 .45rem; }
+  .bring__d { color: var(--on-ink-muted); font-size: var(--t-small); max-width: 48ch; }
+
+  .cta-band__in { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.4rem; }
+  .cta-band__h { margin: 0; max-width: 18ch; }
+  .cta-band__accent { color: var(--gold-ink); }
+  .cta-band__lead { max-width: 48ch; }
+
+  @media (max-width: 860px) {
+    .steps__item { grid-template-columns: 1fr; gap: 1.75rem; }
+    .steps__item:nth-child(even) .steps__media { order: 0; }
+    .steps__media { max-width: 420px; }
+    .bring__in { grid-template-columns: 1fr; }
+  }
+</style>

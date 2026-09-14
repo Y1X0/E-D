@@ -7,6 +7,9 @@ Built as a static site with [Astro](https://astro.build): every route is pre-ren
 HTML, the interaction layer is a few kilobytes of vanilla JavaScript, and photography is
 optimised at build time into responsive WebP.
 
+The site is published in **English, Hebrew and Arabic**, with full right-to-left
+layout for the latter two.
+
 ---
 
 ## Running it
@@ -62,17 +65,47 @@ public/
 
 ### Routes
 
+English sits at the root; Hebrew and Arabic are prefixed. Every page exists in all
+three, so `/contact`, `/he/contact` and `/ar/contact` are the same page in three
+languages, cross-linked with `hreflang`.
+
 | Route | |
 |---|---|
-| `/` | home |
-| `/collections` | the three lines |
-| `/collections/[slug]` | bridal · evening · couture |
-| `/looks/[slug]` | an individual look |
-| `/gallery` | filterable editorial gallery |
-| `/bespoke` | how a commission works |
-| `/about` | the atelier |
-| `/contact` | enquiries |
-| `/404` | not found |
+| `/` · `/he` · `/ar` | home |
+| `…/collections` | the three lines |
+| `…/collections/[slug]` | bridal · evening · couture |
+| `…/looks/[slug]` | an individual look |
+| `…/gallery` | filterable editorial gallery |
+| `…/bespoke` | how a commission works |
+| `…/about` | the atelier |
+| `…/contact` | enquiries |
+| `/404` | not found — detects the language from the path |
+
+22 pages × 3 languages = 66 routes.
+
+---
+
+## Languages
+
+Every word lives in `src/i18n/<locale>.ts`; `src/data/` holds only structure (slugs,
+image ratios, layout). Adding a language is one new dictionary file plus an entry in
+`src/i18n/types.ts` — no template changes.
+
+- **Typography** — Cormorant Garamond + Jost carry no Hebrew or Arabic glyphs, so each
+  script has its own pair: Frank Ruhl Libre + Assistant for Hebrew, Amiri + Tajawal for
+  Arabic. Each face keeps its `unicode-range`, so a visitor downloads only the script
+  they are reading.
+- **Direction** — the layout is written with CSS logical properties, so it mirrors on
+  its own. Arrows, transform origins and the image viewer's prev/next follow the
+  reading direction. Telephone numbers, the Instagram handle and date fields stay
+  left-to-right inside right-to-left text.
+- **Script-aware type** — Hebrew and Arabic set much larger than Latin at the same size
+  and have no capitals, so each gets its own display scale, leading, and no
+  tracked-caps or italic treatment (neither display face has a true italic).
+
+The Arabic and Hebrew copy is house voice, written to sound like the brand rather than
+translated literally, and addressed to the client in the feminine. **It is yours to
+review and rewrite** — see CONTENT.md.
 
 ---
 

@@ -1,9 +1,28 @@
 ---
 import Wordmark from './Wordmark.astro';
-import { nav, site, contactChannels, location, mapsUrl } from '~/config/site';
+import { site, contactChannels, location, mapsUrl } from '~/config/site';
 import { collections } from '~/data/collections';
+import { t, localePath, type Locale } from '~/i18n';
 
-const channels = contactChannels();
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+
+const channels = contactChannels().map((c) => ({
+  ...c,
+  note: dict.contact[
+    ({ whatsapp: 'noteWhatsapp', instagram: 'noteInstagram', phone: 'notePhone', email: 'noteEmail' } as const)[
+      c.id as 'whatsapp' | 'instagram' | 'phone' | 'email'
+    ]
+  ],
+}));
+
+const atelierLinks = [
+  { label: dict.nav.bespoke, href: '/bespoke' },
+  { label: dict.nav.gallery, href: '/gallery' },
+  { label: dict.nav.about, href: '/about' },
+  { label: dict.nav.contact, href: '/contact' },
+];
 const year = new Date().getFullYear();
 ---
 
@@ -13,7 +32,7 @@ const year = new Date().getFullYear();
       <div class="ft__brand">
         <img class="ft__seal" src="/brand/seal.webp" width="96" height="96" alt="" loading="lazy" decoding="async" />
         <Wordmark href={null} class="ft__mark" />
-        <p class="ft__tag">{site.tagline}</p>
+        <p class="ft__tag">{dict.tagline}</p>
         <a class="ft__addr" href={mapsUrl} target="_blank" rel="noopener noreferrer">
           <span>{location.street}, {location.city}</span>
           <span class="ft__addr-local" lang={location.localLang} dir="rtl">{location.streetLocal}, {location.cityLocal}</span>
@@ -22,24 +41,27 @@ const year = new Date().getFullYear();
 
       <nav class="ft__cols" aria-label="Footer">
         <div class="ft__col">
-          <h2 class="label">Collections</h2>
+          <h2 class="label">{dict.footer.collections}</h2>
           <ul>
-            {collections.map((c) => <li><a href={`/collections/${c.slug}`}>{c.name}</a></li>)}
+            {collections.map((c) => (
+              <li><a href={localePath(`/collections/${c.slug}`, locale)}>{dict.collections[c.slug].name}</a></li>
+            ))}
           </ul>
         </div>
         <div class="ft__col">
-          <h2 class="label">Atelier</h2>
+          <h2 class="label">{dict.footer.atelier}</h2>
           <ul>
-            {nav.filter((n) => n.href !== '/collections').map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+            {atelierLinks.map((n) => <li><a href={localePath(n.href, locale)}>{n.label}</a></li>)}
           </ul>
         </div>
         <div class="ft__col">
-          <h2 class="label">Enquiries</h2>
+          <h2 class="label">{dict.footer.enquiries}</h2>
           <ul>
             {channels.map((ch) => (
               <li>
                 <a
                   href={ch.href}
+                  dir="ltr"
                   {...ch.id === 'instagram' || ch.id === 'whatsapp'
                     ? { target: '_blank', rel: 'noopener noreferrer' }
                     : {}}
@@ -53,7 +75,7 @@ const year = new Date().getFullYear();
 
     <div class="ft__bot">
       <p class="label">&copy; {year} {site.name}</p>
-      <p class="label">{site.lines.join(' · ')}</p>
+      <p class="label">{dict.lines.join(' · ')}</p>
     </div>
   </div>
 </footer>
@@ -75,10 +97,12 @@ const year = new Date().getFullYear();
   .ft__tag {
     font-family: var(--serif);
     font-style: italic;
+    /* neither RTL display face has an italic — do not request one */
     font-size: 1.15rem;
     line-height: 1.4;
     color: var(--on-ink-muted);
   }
+  :global([dir='rtl']) .ft__tag { font-style: normal; }
 
   .ft__addr {
     display: flex;
@@ -89,7 +113,7 @@ const year = new Date().getFullYear();
     transition: color .4s var(--ease);
   }
   .ft__addr:hover { color: var(--on-ink); }
-  .ft__addr-local { font-size: .8125rem; text-align: left; }
+  .ft__addr-local { font-size: .8125rem; text-align: start; }
 
   .ft__cols {
     display: grid;
@@ -99,6 +123,7 @@ const year = new Date().getFullYear();
   .ft__col ul { list-style: none; margin: 1.35rem 0 0; padding: 0; }
   .ft__col li + li { margin-top: .6rem; }
   .ft__col a {
+    display: inline-block;
     font-size: var(--t-small);
     color: var(--on-ink);
     position: relative;
@@ -106,14 +131,14 @@ const year = new Date().getFullYear();
   .ft__col a::after {
     content: '';
     position: absolute;
-    left: 0; right: 0; bottom: -2px;
+    inset-inline: 0; bottom: -2px;
     height: 1px;
     background: currentColor;
     transform: scaleX(0);
-    transform-origin: right;
+    transform-origin: var(--origin-end);
     transition: transform .45s var(--ease);
   }
-  .ft__col a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .ft__col a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); }
 
   .ft__bot {
     display: flex;
@@ -125,17 +150,6 @@ const year = new Date().getFullYear();
 
   @media (max-width: 860px) {
     .ft__top { grid-template-columns: 1fr; }
-    .ft__addr {
-    display: flex;
-    flex-direction: column;
-    gap: .2rem;
-    font-size: var(--t-small);
-    color: var(--on-ink-muted);
-    transition: color .4s var(--ease);
-  }
-  .ft__addr:hover { color: var(--on-ink); }
-  .ft__addr-local { font-size: .8125rem; text-align: left; }
-
-  .ft__cols { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.25rem; }
+    .ft__cols { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.25rem; }
   }
 </style>

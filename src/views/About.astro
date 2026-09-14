@@ -1,0 +1,151 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import Plate from '~/components/Plate.astro';
+import { collections } from '~/data/collections';
+import { site } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const a = dict.about;
+
+const schema = {
+  '@type': 'AboutPage',
+  name: `${a.eyebrow} — ${site.name}`,
+  url: new URL(localePath('/about', locale), site.url).href,
+  description: dict.seo.about.description,
+  isPartOf: { '@id': `${site.url}/#website` },
+  mainEntity: { '@id': `${site.url}/#organization` },
+  inLanguage: locale,
+};
+---
+
+<Base
+  locale={locale}
+  path="/about"
+  title={dict.seo.about.title}
+  description={dict.seo.about.description}
+  schema={schema}
+>
+  <PageHero eyebrow={a.eyebrow} title={a.title} accent={a.accent} lead={a.lead} />
+
+  <section class="section section--tight story" aria-labelledby="story-h">
+    <div class="wrap story__in">
+      <div class="story__mark reveal">
+        <img src="/brand/seal.webp" width="132" height="132" alt="" loading="lazy" decoding="async" />
+      </div>
+      <div class="story__text reveal" style="--reveal-delay:80ms">
+        <h2 class="t-h2 story__h" id="story-h">{a.storyTitle}</h2>
+        {a.story.map((p) => <p>{p}</p>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section principles ink" aria-labelledby="prin-h">
+    <div class="wrap">
+      <div class="principles__head">
+        <p class="label eyebrow reveal">{a.principlesEyebrow}</p>
+        <h2 class="t-display principles__h reveal" id="prin-h" style="--reveal-delay:60ms">
+          {a.principlesTitle} <span class="t-italic principles__accent">{a.principlesAccent}</span>
+        </h2>
+      </div>
+      <ul class="principles__grid">
+        {a.principles.map((item, i) => (
+          <li class="principles__item reveal" style={`--reveal-delay:${i * 70}ms`}>
+            <span class="label label--gold principles__n">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="principles__t">{item.title}</h3>
+            <p class="principles__d">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section section--tight lines" aria-labelledby="lines-h">
+    <div class="wrap">
+      <div class="lines__head reveal">
+        <h2 class="t-h2" id="lines-h">{a.makesTitle}</h2>
+        <a class="link" href={localePath('/collections', locale)}>
+          {dict.ui.allCollections} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+      <ul class="lines__grid">
+        {collections.map((c, i) => (
+          <li class="lines__item reveal" style={`--reveal-delay:${i * 80}ms`}>
+            <a href={localePath(`/collections/${c.slug}`, locale)}>
+              <Plate {...c.cover} sizes="(max-width: 720px) 88vw, 30vw" class="lines__plate" />
+              <h3 class="t-h3 lines__name">{dict.collections[c.slug].name}</h3>
+              <p class="lines__d">{dict.collections[c.slug].summary}</p>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="section--tight about-cta" aria-labelledby="acta-h">
+    <div class="wrap about-cta__in">
+      <h2 class="t-h2 about-cta__h reveal" id="acta-h">
+        {a.ctaTitle} <span class="t-italic about-cta__accent">{a.ctaAccent}</span>
+      </h2>
+      <div class="reveal" style="--reveal-delay:80ms">
+        <a class="cta cta--solid" href={localePath('/contact', locale)}>
+          {dict.booking} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .story__in {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .story__mark img { width: clamp(92px, 11vw, 132px); height: auto; border-radius: 50%; }
+  .story__h { margin: 0 0 1.5rem; }
+  .story__text p { color: var(--ink-muted); max-width: 58ch; }
+  .story__text p + p { margin-top: 1.1em; }
+
+  .principles__head { display: flex; flex-direction: column; align-items: flex-start; gap: 1.35rem; }
+  .principles__h { margin: 0; max-width: 18ch; }
+  .principles__accent { color: var(--gold-lit); }
+  .principles__grid {
+    list-style: none;
+    margin: clamp(2.5rem, 6vh, 4rem) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(1.75rem, 3vw, 2.75rem);
+  }
+  .principles__item { border-top: 1px solid var(--line-on-ink); padding-top: 1.35rem; }
+  .principles__n { display: block; margin-bottom: 1rem; }
+  .principles__t { font-family: var(--serif); font-weight: 300; font-size: clamp(1.2rem, 2vw, 1.5rem); margin: 0 0 .55rem; }
+  .principles__d { color: var(--on-ink-muted); font-size: var(--t-small); line-height: 1.65; }
+
+  .lines__head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    padding-bottom: 1.25rem; border-bottom: 1px solid var(--line);
+    margin-bottom: clamp(2.5rem, 6vh, 3.5rem);
+  }
+  .lines__head h2 { margin: 0; }
+  .lines__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); }
+  .lines__item a:hover :global(.lines__plate img) { transform: scale(1.04); }
+  .lines__name { margin: 1.15rem 0 .5rem; }
+  .lines__d { color: var(--ink-muted); font-size: var(--t-small); max-width: 34ch; }
+
+  .about-cta__in { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1.75rem; }
+  .about-cta__h { margin: 0; max-width: 22ch; }
+  .about-cta__accent { color: var(--gold-ink); }
+
+  @media (max-width: 980px) { .principles__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px) {
+    .story__in { grid-template-columns: 1fr; gap: 1.75rem; }
+    .lines__grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+  @media (max-width: 520px) { .principles__grid { grid-template-columns: 1fr; } }
+</style>

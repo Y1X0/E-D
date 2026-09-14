@@ -74,13 +74,26 @@ tone is invisible.
 
 ## 2. Editing the words
 
+**All text lives in `src/i18n/`, one file per language.** Editing English means editing
+`src/i18n/en.ts`; Arabic is `ar.ts`, Hebrew is `he.ts`. The three files have exactly the
+same shape, so you can read them side by side.
+
 | File | What it holds |
 |---|---|
-| `src/config/site.ts` | Brand name, tagline, lines, Instagram, contact channels |
-| `src/data/collections.ts` | The three lines: names, kickers, summaries, intro paragraphs |
-| `src/data/looks.ts` | Individual looks and their one-line notes |
-| `src/data/bespoke.ts` | The five stages of a commission |
-| `src/pages/*.astro` | Page-specific headings and body copy |
+| `src/i18n/en.ts` · `he.ts` · `ar.ts` | **Every word on the site**, in that language |
+| `src/config/site.ts` | Brand name, Instagram, contact channels, address |
+| `src/data/collections.ts` | Collection structure: slugs and imagery (no text) |
+| `src/data/looks.ts` | Look structure: numbering and imagery (no text) |
+
+Inside a language file, the sections follow the site: `nav`, `home`, `collections`,
+`lookNotes`, `bespoke`, `about`, `contact`, `seo`. Change a string in all three files
+and the site changes in all three languages.
+
+### The Arabic and Hebrew copy
+
+It was written as brand voice, not translated word-for-word, and addresses the client
+in the feminine throughout. **Please read it and adjust anything that does not sound
+like you** — it is copy, not code, and changing it breaks nothing.
 
 ### What is factual and what is house voice
 

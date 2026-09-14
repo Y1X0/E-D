@@ -3,21 +3,26 @@
  * Fullscreen viewer. It binds only to plates that hold a real photograph,
  * so it stays inert until photography is added.
  */
+import { t, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
 ---
 
-<div class="lb" hidden aria-hidden="true">
+<div class="lb" hidden aria-hidden="true" data-open-label={dict.ui.openImage('%s')}>
   <div class="lb__scrim" data-lb-close></div>
-  <div class="lb__panel" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <div class="lb__panel" role="dialog" aria-modal="true" aria-label={dict.ui.closeViewer}>
     <figure class="lb__fig"><img class="lb__img" src="" alt="" /></figure>
     <p class="label lb__count" aria-live="polite"></p>
     <button class="lb__btn lb__btn--prev" type="button" data-lb-prev>
-      <span aria-hidden="true">&#8592;</span><span class="sr-only">Previous image</span>
+      <span aria-hidden="true">&#8592;</span><span class="sr-only">{dict.ui.prevImage}</span>
     </button>
     <button class="lb__btn lb__btn--next" type="button" data-lb-next>
-      <span aria-hidden="true">&#8594;</span><span class="sr-only">Next image</span>
+      <span aria-hidden="true">&#8594;</span><span class="sr-only">{dict.ui.nextImage}</span>
     </button>
     <button class="lb__btn lb__btn--close" type="button" data-lb-close>
-      <span aria-hidden="true">&#215;</span><span class="sr-only">Close viewer</span>
+      <span aria-hidden="true">&#215;</span><span class="sr-only">{dict.ui.closeViewer}</span>
     </button>
   </div>
 </div>
@@ -59,14 +64,14 @@
   }
   .lb__btn:hover { background: color-mix(in srgb, #efe9de 12%, transparent); border-color: color-mix(in srgb, #efe9de 46%, transparent); }
   .lb__btn:focus-visible { outline: 2px solid var(--gold-lit); outline-offset: 3px; }
-  .lb__btn--prev { left: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
-  .lb__btn--next { right: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
-  .lb__btn--close { right: clamp(.75rem, 2.5vw, 2rem); top: clamp(.75rem, 2.5vw, 2rem); }
+  .lb__btn--prev { inset-inline-start: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
+  .lb__btn--next { inset-inline-end: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
+  .lb__btn--close { inset-inline-end: clamp(.75rem, 2.5vw, 2rem); top: clamp(.75rem, 2.5vw, 2rem); }
 
   @media (max-width: 640px) {
     .lb__btn { width: 2.6rem; height: 2.6rem; }
-    .lb__btn--prev { left: .6rem; }
-    .lb__btn--next { right: .6rem; }
+    .lb__btn--prev { inset-inline-start: .6rem; }
+    .lb__btn--next { inset-inline-end: .6rem; }
   }
   @media (prefers-reduced-motion: reduce) {
     .lb, .lb__img { transition: none; }
@@ -132,7 +137,7 @@
       if (!insideLink && !holdsInteractive && !trigger.hasAttribute('tabindex')) {
         trigger.tabIndex = 0;
         trigger.setAttribute('role', 'button');
-        trigger.setAttribute('aria-label', `Open image: ${s.alt}`);
+        trigger.setAttribute('aria-label', (lb.dataset.openLabel || 'Open image: %s').replace('%s', s.alt));
       }
 
       trigger.addEventListener('click', () => open(n, trigger));
@@ -147,8 +152,9 @@
     document.addEventListener('keydown', (e) => {
       if (lb.hidden) return;
       if (e.key === 'Escape') close();
-      if (e.key === 'ArrowLeft' && !single) step(-1);
-      if (e.key === 'ArrowRight' && !single) step(1);
+      const rtl = document.documentElement.dir === 'rtl';
+      if (e.key === 'ArrowLeft' && !single) step(rtl ? 1 : -1);
+      if (e.key === 'ArrowRight' && !single) step(rtl ? -1 : 1);
       // keep focus inside the dialog
       if (e.key === 'Tab') {
         const f = Array.from(lb.querySelectorAll<HTMLElement>('button')).filter((b) => !b.hidden);

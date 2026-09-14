@@ -54,6 +54,11 @@
   --measure:   62ch;
   --header-h:  clamp(4.25rem, 7vh, 5.5rem);
 
+  /* — direction ——————————————————————————————————————————— */
+  --origin-start: left;
+  --origin-end: right;
+  --arrow-flip: 1;
+
   /* — motion —————————————————————————————————————————————— */
   --ease:     cubic-bezier(.22, 1, .36, 1);
   --ease-img: cubic-bezier(.19, 1, .22, 1);
@@ -61,6 +66,43 @@
   --dur-img:  .9s;
 
   color-scheme: light;
+}
+
+/* Hebrew and Arabic read right-to-left: flip the logical origins and the
+   direction that arrows travel. Everything else is written with logical
+   properties, so it mirrors on its own. */
+[dir='rtl'] {
+  --origin-start: right;
+  --origin-end: left;
+  --arrow-flip: -1;
+}
+
+/* Per-language typefaces. Cormorant and Jost carry no Hebrew or Arabic glyphs,
+   so each language gets a display serif and an interface sans chosen to sit
+   beside them: Frank Ruhl Libre + Assistant for Hebrew, Amiri + Tajawal for
+   Arabic. The Latin faces stay in the stack for numerals and the wordmark. */
+[data-locale='he'] {
+  --serif: 'Frank Ruhl Libre', 'Cormorant Garamond', 'David Libre', serif;
+  --sans: 'Assistant', 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  --track-label: .14em;
+  /* Hebrew sets much larger than Latin at the same size — it has no lowercase,
+     so every letter is full height. The display scale comes down to match. */
+  --t-hero:    clamp(2.1rem, 5.8vw, 4.75rem);
+  --t-display: clamp(1.7rem, 3.7vw, 3rem);
+  --t-h2:      clamp(1.5rem, 2.9vw, 2.3rem);
+  --t-h3:      clamp(1.15rem, 1.7vw, 1.5rem);
+  --t-lead:    clamp(1rem, 1.3vw, 1.18rem);
+}
+[data-locale='ar'] {
+  --serif: 'Amiri', 'Cormorant Garamond', 'Times New Roman', serif;
+  --sans: 'Tajawal', 'Jost', 'Helvetica Neue', Arial, sans-serif;
+  --track-label: 0em;
+  /* Amiri is wider still, and its ascenders and descenders need room. */
+  --t-hero:    clamp(1.95rem, 5.2vw, 4.35rem);
+  --t-display: clamp(1.6rem, 3.4vw, 2.8rem);
+  --t-h2:      clamp(1.4rem, 2.7vw, 2.15rem);
+  --t-h3:      clamp(1.1rem, 1.6vw, 1.4rem);
+  --t-lead:    clamp(1rem, 1.25vw, 1.15rem);
 }
 
 /* ======================================================================
@@ -284,7 +326,7 @@ h1, h2, h3, h4 {
   inset: 0;
   background: var(--cta-fg);
   transform: scaleX(0);
-  transform-origin: left;
+  transform-origin: var(--origin-start);
   transition: transform var(--dur) var(--ease);
   z-index: -1;
 }
@@ -312,16 +354,23 @@ h1, h2, h3, h4 {
 .link::after {
   content: '';
   position: absolute;
-  left: 0; bottom: 0; right: 0;
+  inset-inline: 0;
+  bottom: 0;
   height: 1px;
   background: currentColor;
   opacity: .34;
-  transform-origin: right;
+  transform-origin: var(--origin-end);
   transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .link:hover::after { opacity: 1; transform: scaleX(1.02); }
-.link .arw { transition: transform var(--dur) var(--ease); }
-.link:hover .arw { transform: translateX(.3rem); }
+/* Arrows point the way the language reads, and travel that way on hover.
+   `translate` is used rather than `transform`, so the RTL mirror composes. */
+.arw {
+  display: inline-block;
+  transform: scaleX(var(--arrow-flip));
+  transition: translate var(--dur) var(--ease);
+}
+.link:hover .arw { translate: calc(.3rem * var(--arrow-flip)) 0; }
 
 /* ======================================================================
    FOCUS — visible on every ground
@@ -374,10 +423,42 @@ h1, h2, h3, h4 {
 /* a hairline that draws itself */
 .draw {
   transform: scaleX(0);
-  transform-origin: left;
+  transform-origin: var(--origin-start);
   transition: transform 1s var(--ease) var(--reveal-delay, 0ms);
 }
 .draw.is-in { transform: scaleX(1); }
+
+/* Neither Frank Ruhl Libre nor Amiri has a true italic, and a synthesised
+   slant reads as a mistake in both scripts. The accent keeps its gold instead. */
+[dir='rtl'] .t-italic,
+[dir='rtl'] em,
+[dir='rtl'] i { font-style: normal; }
+/* belt and braces: stop the browser synthesising a slant where no italic exists */
+[dir='rtl'] { font-synthesis-style: none; font-synthesis-weight: none; }
+
+/* Arabic and Hebrew have no capitals; the tracked-caps label treatment is a
+   Latin device, so the small labels stay in their natural case. */
+[dir='rtl'] .label,
+[dir='rtl'] .cta,
+[dir='rtl'] .link { text-transform: none; }
+
+/* Both scripts sit taller than Latin and need more leading. */
+[dir='rtl'] body { line-height: 1.9; }
+[dir='rtl'] h1, [dir='rtl'] h2, [dir='rtl'] h3, [dir='rtl'] h4 { line-height: 1.32; letter-spacing: 0; }
+[dir='rtl'] .t-hero { line-height: 1.3; letter-spacing: 0; }
+[dir='rtl'] .t-display { line-height: 1.34; letter-spacing: 0; }
+[dir='rtl'] .t-h2 { line-height: 1.38; }
+[dir='rtl'] .t-h3 { line-height: 1.45; }
+[data-locale='ar'] .t-hero { line-height: 1.5; }
+[data-locale='ar'] .t-display { line-height: 1.5; }
+[data-locale='ar'] h1, [data-locale='ar'] h2, [data-locale='ar'] h3 { line-height: 1.45; }
+
+/* Measures are set in `ch`, which is a Latin unit — give both scripts more room. */
+[dir='rtl'] { --measure: 46ch; }
+
+/* the wipe mask needs the extra height the taller line-height introduces */
+[dir='rtl'] .wipe > * { transform: translate3d(0, 110%, 0); }
+[dir='rtl'] .is-in .wipe > *, [dir='rtl'] .wipe.is-in > * { transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

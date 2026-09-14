@@ -1,0 +1,102 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import Plate from '~/components/Plate.astro';
+import { collections } from '~/data/collections';
+import { looksIn } from '~/data/looks';
+import { site } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const cp = dict.collectionsPage;
+
+const schema = {
+  '@type': 'CollectionPage',
+  name: cp.eyebrow,
+  url: new URL(localePath('/collections', locale), site.url).href,
+  description: dict.seo.collections.description,
+  isPartOf: { '@id': `${site.url}/#website` },
+  inLanguage: locale,
+  hasPart: collections.map((c) => ({
+    '@type': 'CreativeWork',
+    name: dict.collections[c.slug].name,
+    url: new URL(localePath(`/collections/${c.slug}`, locale), site.url).href,
+    description: dict.collections[c.slug].summary,
+  })),
+};
+---
+
+<Base
+  locale={locale}
+  path="/collections"
+  title={dict.seo.collections.title}
+  description={dict.seo.collections.description}
+  schema={schema}
+>
+  <PageHero eyebrow={cp.eyebrow} title={cp.title} accent={cp.accent} lead={cp.lead} />
+
+  <div class="section coll">
+    <div class="wrap">
+      {collections.map((c, i) => {
+        const copy = dict.collections[c.slug];
+        return (
+          <article class="coll__row reveal" data-flip={i % 2 === 1 ? 'true' : 'false'}>
+            <a class="coll__media" href={localePath(`/collections/${c.slug}`, locale)} tabindex="-1" aria-hidden="true">
+              <Plate {...c.cover} sizes="(max-width: 900px) 90vw, 50vw" class="coll__plate" />
+            </a>
+            <div class="coll__body">
+              <p class="label label--gold coll__idx">{String(i + 1).padStart(2, '0')} &mdash; {copy.name}</p>
+              <h2 class="t-h2 coll__name">
+                <a href={localePath(`/collections/${c.slug}`, locale)}>{copy.name}</a>
+              </h2>
+              <p class="coll__kicker t-italic">{copy.kicker}</p>
+              <p class="coll__summary">{copy.summary}</p>
+              <p class="label coll__count">{dict.ui.looksCount(looksIn(c.slug).length)}</p>
+              <a class="link coll__link" href={localePath(`/collections/${c.slug}`, locale)}>
+                {dict.ui.enterCollection} <span class="arw" aria-hidden="true">&#8594;</span>
+              </a>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .coll__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+    gap: clamp(2rem, 6vw, 5.5rem);
+    align-items: center;
+  }
+  .coll__row + .coll__row { margin-top: clamp(4rem, 11vh, 8rem); }
+  .coll__row[data-flip='true'] .coll__media { order: 2; }
+
+  .coll__media { display: block; }
+  .coll__media:hover :global(.coll__plate img) { transform: scale(1.04); }
+
+  .coll__body { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; }
+  .coll__idx { margin: 0; }
+  .coll__name { margin: 0; }
+  .coll__name a { position: relative; }
+  .coll__name a::after {
+    content: '';
+    position: absolute; inset-inline: 0; bottom: .08em;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: var(--origin-end);
+    transition: transform .5s var(--ease);
+  }
+  .coll__name a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); }
+  .coll__kicker { font-family: var(--serif); font-size: var(--t-lead); color: var(--gold-ink); }
+  .coll__summary { color: var(--ink-muted); max-width: 42ch; }
+  .coll__count { margin-top: .25rem; }
+  .coll__link { margin-top: .75rem; }
+
+  @media (max-width: 900px) {
+    .coll__row { grid-template-columns: 1fr; gap: 1.75rem; }
+    .coll__row[data-flip='true'] .coll__media { order: 0; }
+  }
+</style>

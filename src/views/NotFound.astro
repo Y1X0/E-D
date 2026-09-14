@@ -1,0 +1,90 @@
+---
+import Base from '~/layouts/Base.astro';
+import { site } from '~/config/site';
+import { t, localePath, LOCALES, HREFLANG, dirOf, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const nf = dict.notFound;
+
+/**
+ * A static host serves one 404 document for every unmatched path, so a visitor
+ * who mistypes a Hebrew or Arabic URL would otherwise land on the English one.
+ * The copy for all three languages ships with the page and the right one is
+ * applied from the path — no redirect, no flash of the wrong language.
+ */
+const localised = Object.fromEntries(
+  LOCALES.map((l) => {
+    const d = t(l);
+    return [l, {
+      lang: HREFLANG[l], dir: dirOf(l),
+      eyebrow: d.notFound.eyebrow, title: d.notFound.title, accent: d.notFound.accent,
+      lead: d.notFound.lead, home: d.notFound.home, collections: d.notFound.collections,
+      homeHref: localePath('/', l), collectionsHref: localePath('/collections', l),
+    }];
+  }),
+);
+---
+
+<Base
+  locale={locale}
+  path="/404"
+  title={dict.seo.notFound.title}
+  description={dict.seo.notFound.description}
+  noindex
+>
+  <section class="nf" data-nf={JSON.stringify(localised)}>
+    <div class="wrap nf__in">
+      <p class="label eyebrow" data-k="eyebrow">{nf.eyebrow}</p>
+      <h1 class="t-display nf__h"><span data-k="title">{nf.title}</span> <span class="t-italic nf__accent" data-k="accent">{nf.accent}</span></h1>
+      <p class="lead nf__lead" data-k="lead">{nf.lead}</p>
+      <div class="nf__acts">
+        <a class="cta cta--solid" href={localePath('/', locale)} data-href="homeHref">
+          <span data-k="home">{nf.home}</span> <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+        <a class="cta" href={localePath('/collections', locale)} data-href="collectionsHref" data-k="collections">{nf.collections}</a>
+      </div>
+      <a class="link nf__ig" href={site.instagram.url} target="_blank" rel="noopener noreferrer" dir="ltr">
+        @{site.instagram.handle} <span class="arw" aria-hidden="true">&#8599;</span>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 78svh;
+    display: grid;
+    align-items: center;
+    padding-block: calc(var(--header-h) + 4rem) var(--section);
+  }
+  .nf__in { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+  .nf__h { margin: 0; max-width: 18ch; }
+  .nf__accent { color: var(--gold-ink); }
+  .nf__lead { max-width: 46ch; }
+  .nf__acts { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: .75rem; }
+  .nf__ig { margin-top: 1.25rem; color: var(--ink-muted); }
+</style>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('.nf');
+    if (!root) return;
+    var all = JSON.parse(root.dataset.nf);
+    var seg = location.pathname.replace(/^\/+/, '').split('/')[0];
+    var copy = all[seg];
+    if (!copy) return;                       // already the right language
+
+    document.documentElement.lang = copy.lang;
+    document.documentElement.dir = copy.dir;
+    document.documentElement.setAttribute('data-locale', seg);
+    root.querySelectorAll('[data-k]').forEach(function (el) {
+      var v = copy[el.dataset.k];
+      if (v) el.textContent = v;
+    });
+    root.querySelectorAll('[data-href]').forEach(function (el) {
+      el.setAttribute('href', copy[el.dataset.href]);
+    });
+  })();
+</script>

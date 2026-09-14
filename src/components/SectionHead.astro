@@ -8,16 +8,17 @@ interface Props {
   href?: string;
   linkLabel?: string;
   align?: 'start' | 'center';
+  id?: string;
 }
 const {
   eyebrow, title, accent, lead, href, linkLabel = 'Discover',
-  align = 'start',
+  align = 'start', id,
 } = Astro.props;
 ---
 
 <div class:list={['shead', `shead--${align}`, 'reveal']}>
   {eyebrow && <p class="label eyebrow shead__eyebrow">{eyebrow}</p>}
-  <h2 class="t-h2 shead__title">
+  <h2 class="t-h2 shead__title" id={id}>
     <span class="wipe"><span>{title}</span></span>
     {accent && <span class="wipe" style="--reveal-delay:90ms"><span class="t-italic shead__accent">{accent}</span></span>}
   </h2>
