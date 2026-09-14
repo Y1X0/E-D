@@ -2,7 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
-import { collections } from '~/data/collections';
+import { getContent } from '~/content';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
@@ -10,6 +10,7 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 const a = dict.about;
+const { collections } = await getContent(locale);
 
 const schema = {
   '@type': 'AboutPage',
@@ -76,8 +77,8 @@ const schema = {
           <li class="lines__item">
             <a href={localePath(`/collections/${c.slug}`, locale)}>
               <Plate {...c.cover} sizes="(max-width: 720px) 88vw, 30vw" class="lines__plate" />
-              <h3 class="t-h3 lines__name">{dict.collections[c.slug].name}</h3>
-              <p class="lines__d">{dict.collections[c.slug].summary}</p>
+              <h3 class="t-h3 lines__name">{c.name}</h3>
+              <p class="lines__d">{c.summary}</p>
             </a>
           </li>
         ))}

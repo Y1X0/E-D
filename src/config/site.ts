@@ -78,7 +78,9 @@ export const site = {
    * Production origin, used for canonical URLs, Open Graph and the sitemap.
    * ► Replace with the real domain, or build with SITE_URL=https://…
    */
-  url: import.meta.env.SITE ?? 'https://eliteeveningdesign.com',
+  /* `import.meta.env` only exists under Vite; this file is also read by the
+     seeding script, which runs in plain Node. */
+  url: import.meta.env?.SITE ?? process.env.SITE_URL ?? 'https://eliteeveningdesign.com',
 
   locale: 'en',
   ogImage: '/og.jpg',

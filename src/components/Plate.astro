@@ -1,9 +1,10 @@
 ---
 import { Image } from 'astro:assets';
 import { findImage } from '~/lib/images';
-import type { Plate } from '~/data/types';
+import { imageUrl } from '~/lib/sanity';
+import type { Photo } from '~/content/types';
 
-interface Props extends Plate {
+interface Props extends Photo {
   /** Responsive `sizes`; set it per layout so the browser fetches the right file. */
   sizes?: string;
   /** Above the fold — loads eagerly at high priority. */
@@ -12,36 +13,66 @@ interface Props extends Plate {
 }
 
 const {
-  src, alt, ratio, tone = 'paper', focus,
+  sanity, src, alt, ratio, tone = 'paper', focus,
   sizes = '(max-width: 760px) 92vw, 46vw',
   priority = false,
   class: klass = '',
 } = Astro.props;
 
-const img = findImage(src);
+const [w, h] = ratio.split('/').map(Number);
+const aspect = w / h;
 
-/** Responsive widths, capped at the photograph's own size so nothing is upscaled. */
+// A Sanity asset is rendered from the CDN, cropped to the hotspot chosen in the
+// studio. A file in the repository goes through Astro's build-time pipeline.
 const STEPS = [420, 700, 1000, 1400, 1900];
-const widths = img
-  ? [...new Set([...STEPS.filter((w) => w < img.width), img.width])].sort((a, b) => a - b)
+const native = sanity?.dimensions?.width;
+const cdnWidths = STEPS.filter((x) => !native || x < native).concat(native ? [native] : []);
+const cdn = sanity?.asset
+  ? {
+      srcset: cdnWidths.map((x) => `${imageUrl(sanity, x, aspect)} ${x}w`).join(', '),
+      src: imageUrl(sanity, Math.min(1000, native ?? 1000), aspect),
+      width: Math.min(1400, native ?? 1400),
+      lqip: sanity.lqip,
+    }
+  : null;
+
+const local = !cdn ? findImage(src) : null;
+const localWidths = local
+  ? [...new Set([...STEPS.filter((x) => x < local.width), local.width])].sort((a, b) => a - b)
   : [];
+
+const hasImage = Boolean(cdn || local);
 const style = [
   `--ratio:${ratio.replace('/', ' / ')}`,
   focus ? `--focus:${focus}` : '',
+  cdn?.lqip ? `--lqip:url(${cdn.lqip})` : '',
 ].filter(Boolean).join(';');
 ---
 
 <div
-  class:list={['plate', !img && 'plate--empty', klass]}
+  class:list={['plate', !hasImage && 'plate--empty', cdn?.lqip && 'plate--lqip', klass]}
   data-tone={tone}
   style={style}
-  aria-hidden={img ? undefined : 'true'}
+  aria-hidden={hasImage ? undefined : 'true'}
 >
-  {img && (
-    <Image
-      src={img}
+  {cdn && (
+    <img
+      src={cdn.src}
+      srcset={cdn.srcset}
+      sizes={sizes}
       alt={alt}
-      widths={widths}
+      width={cdn.width}
+      height={Math.round(cdn.width / aspect)}
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+    />
+  )}
+  {local && (
+    <Image
+      src={local}
+      alt={alt}
+      widths={localWidths}
       sizes={sizes}
       loading={priority ? 'eager' : 'lazy'}
       decoding={priority ? 'sync' : 'async'}

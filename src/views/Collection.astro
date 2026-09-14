@@ -4,18 +4,19 @@ import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
 import LookCard from '~/components/LookCard.astro';
 import Lightbox from '~/components/Lightbox.astro';
-import { collections, type CollectionShape } from '~/data/collections';
-import { looksIn } from '~/data/looks';
+import { getContent } from '~/content';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
-interface Props { locale: Locale; collection: CollectionShape }
-const { locale, collection } = Astro.props;
+interface Props { locale: Locale; slug: string }
+const { locale, slug } = Astro.props;
 const dict = t(locale);
-const copy = dict.collections[collection.slug];
-const looks = looksIn(collection.slug);
-const others = collections.filter((c) => c.slug !== collection.slug);
-const path = `/collections/${collection.slug}`;
+const { collections, looks: allLooks } = await getContent(locale);
+const collection = collections.find((c) => c.slug === slug)!;
+const copy = collection;
+const looks = allLooks.filter((l) => l.collection === slug);
+const others = collections.filter((c) => c.slug !== slug);
+const path = `/collections/${slug}`;
 
 const schema = {
   '@type': 'CollectionPage',
@@ -74,7 +75,7 @@ const schema = {
         <p class="label">{copy.name}</p>
       </div>
       <div class="looks__grid reveal">
-        {looks.map((l) => <LookCard locale={locale} look={l} />)}
+        {looks.map((l) => <LookCard locale={locale} look={l} collectionName={copy.name} />)}
       </div>
     </div>
   </section>
@@ -86,8 +87,8 @@ const schema = {
         {others.map((c) => (
           <li>
             <a class="next__a" href={localePath(`/collections/${c.slug}`, locale)}>
-              <span class="t-h2 next__name">{dict.collections[c.slug].name}</span>
-              <span class="next__kicker">{dict.collections[c.slug].kicker}</span>
+              <span class="t-h2 next__name">{c.name}</span>
+              <span class="next__kicker">{c.kicker}</span>
               <span class="arw next__arw" aria-hidden="true">&#8594;</span>
             </a>
           </li>

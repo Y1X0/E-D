@@ -1,9 +1,10 @@
 ---
 import Look from '~/views/Look.astro';
-import { looks } from '~/data/looks';
+import { getRoutes } from '~/content';
 
-export const getStaticPaths = () => looks.map((look) => ({ params: { slug: look.slug }, props: { look } }));
-
-const { look } = Astro.props;
+export async function getStaticPaths() {
+  const { looks } = await getRoutes();
+  return looks.map((l) => ({ params: { slug: l.slug } }));
+}
 ---
-<Look locale="en" look={look} />
+<Look locale="en" slug={Astro.params.slug!} />

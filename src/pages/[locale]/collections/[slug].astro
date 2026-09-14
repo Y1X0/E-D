@@ -1,14 +1,12 @@
 ---
 import Collection from '~/views/Collection.astro';
-import { collections } from '~/data/collections';
+import { getRoutes } from '~/content';
 import { PREFIXED_LOCALES, type Locale } from '~/i18n';
 
-export const getStaticPaths = () =>
-  PREFIXED_LOCALES.flatMap((locale) =>
-    collections.map((collection) => ({ params: { locale, slug: collection.slug }, props: { collection } })),
-  );
-
-const locale = Astro.params.locale as Locale;
-const { collection } = Astro.props;
+export async function getStaticPaths() {
+  const { collections } = await getRoutes();
+  return PREFIXED_LOCALES.flatMap((locale) =>
+    collections.map((c) => ({ params: { locale, slug: c.slug } })));
+}
 ---
-<Collection locale={locale} collection={collection} />
+<Collection locale={Astro.params.locale as Locale} slug={Astro.params.slug!} />

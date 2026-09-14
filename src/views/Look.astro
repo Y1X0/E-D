@@ -3,18 +3,21 @@ import Base from '~/layouts/Base.astro';
 import Plate from '~/components/Plate.astro';
 import LookCard from '~/components/LookCard.astro';
 import Lightbox from '~/components/Lightbox.astro';
-import { relatedLooks, type LookShape } from '~/data/looks';
+import { getContent, relatedTo } from '~/content';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
-interface Props { locale: Locale; look: LookShape }
-const { locale, look } = Astro.props;
+interface Props { locale: Locale; slug: string }
+const { locale, slug } = Astro.props;
 const dict = t(locale);
-const copy = dict.collections[look.collection];
+const { collections, looks } = await getContent(locale);
+const look = looks.find((l) => l.slug === slug)!;
+const copy = collections.find((c) => c.slug === look.collection)!;
 const title = dict.ui.lookTitle(look.index);
-const note = dict.lookNotes[look.collection][look.index - 1];
-const related = relatedLooks(look, 3);
-const path = `/looks/${look.slug}`;
+const note = look.note;
+const related = relatedTo(look, looks, 3);
+const nameOf = (s: string) => collections.find((c) => c.slug === s)?.name ?? s;
+const path = `/looks/${slug}`;
 
 const schema = {
   '@type': 'CreativeWork',
@@ -101,7 +104,7 @@ const schema = {
           </a>
         </div>
         <div class="related__grid reveal">
-          {related.map((l) => <LookCard locale={locale} look={l} />)}
+          {related.map((l) => <LookCard locale={locale} look={l} collectionName={nameOf(l.collection)} />)}
         </div>
       </div>
     </section>

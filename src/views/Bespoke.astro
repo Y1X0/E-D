@@ -2,7 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
-import { collections } from '~/data/collections';
+import { getContent } from '~/content';
 import { site, location } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
@@ -10,6 +10,7 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 const b = dict.bespoke;
+const { collections } = await getContent(locale);
 
 const schema = {
   '@type': 'Service',
@@ -25,8 +26,8 @@ const schema = {
     name: dict.collectionsPage.eyebrow,
     itemListElement: collections.map((c) => ({
       '@type': 'OfferCatalog',
-      name: dict.collections[c.slug].name,
-      description: dict.collections[c.slug].summary,
+      name: c.name,
+      description: c.summary,
     })),
   },
 };

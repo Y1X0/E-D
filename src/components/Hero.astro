@@ -1,6 +1,8 @@
 ---
 import { Image } from 'astro:assets';
 import { findImage } from '~/lib/images';
+import { getContent } from '~/content';
+import Plate from './Plate.astro';
 import { t, localePath, type Locale } from '~/i18n';
 import { site } from '~/config/site';
 
@@ -13,7 +15,8 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 
-const img = findImage('hero/hero.jpg');
+const { hero } = await getContent(locale);
+const img = hero?.sanity ? null : findImage('hero/hero.jpg');
 const STEPS = [720, 1100, 1500, 2000, 2600];
 const widths = img
   ? [...new Set([...STEPS.filter((w) => w < img.width), img.width])].sort((a, b) => a - b)
@@ -22,6 +25,7 @@ const widths = img
 
 <section class="hero ink" data-hero>
   <div class="hero__bg" aria-hidden="true">
+    {hero?.sanity && <Plate {...hero} alt="" ratio="16/9" sizes="100vw" priority class="hero__plate" />}
     {img && (
       <Image src={img} alt="" widths={widths} sizes="100vw"
              loading="eager" decoding="sync" fetchpriority="high" />

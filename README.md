@@ -140,9 +140,46 @@ It works today with no configuration at all, and gets better as details are adde
 
 ## Editing content
 
-Copy, collections, looks and the bespoke process are all plain TypeScript in
-`src/data/` — no CMS, no build step to learn. **See [CONTENT.md](./CONTENT.md)** for
-adding photography and editing text.
+The site reads its content from **Sanity** when a project is configured, and from
+the files in this repository otherwise. Both produce the same pages — see
+[CONTENT.md](./CONTENT.md).
+
+### Connecting the admin panel
+
+1. Create a free project at sanity.io and note its **project ID**.
+2. Set two environment variables on the host (on Render: *Environment*):
+
+   ```
+   SANITY_PROJECT_ID=your-project-id
+   SANITY_DATASET=production
+   ```
+
+3. Fill the studio with what the repository already holds:
+
+   ```bash
+   SANITY_PROJECT_ID=xxx SANITY_WRITE_TOKEN=yyy npm run seed
+   ```
+
+   The token comes from the project's *API → Tokens* screen and needs write
+   access. It is used once and never committed.
+
+4. Add the site's URL under *API → CORS origins*, with credentials allowed, so
+   the studio can sign in from `/admin`.
+5. Add a **deploy hook** so publishing rebuilds the site: copy the deploy hook URL
+   from the host and add it as a webhook in the Sanity project.
+
+Until step 2 is done nothing changes: `/admin` is not built, and the site serves
+the content committed here. If Sanity is configured but unreachable, the build
+logs a warning and falls back to the same committed content rather than failing.
+
+### How the content layer is arranged
+
+- `src/content/` — one loader, two sources. `getContent(locale)` returns the same
+  shape either way, so views never know which is in use.
+- `src/sanity/schema/` — what the admin panel shows: collections, looks, settings.
+- `sanity.config.ts` — the studio itself, mounted at `/admin`.
+- `src/i18n/` — interface wording (buttons, labels, page copy). Developer territory;
+  not exposed in the admin panel, because it is not what an atelier edits.
 
 ## A note on accuracy
 

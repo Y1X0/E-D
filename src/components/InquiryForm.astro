@@ -1,12 +1,13 @@
 ---
 import { site } from '~/config/site';
-import { collections } from '~/data/collections';
+import { getContent } from '~/content';
 import { t, type Locale } from '~/i18n';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 const c = dict.contact;
+const { collections } = await getContent(locale);
 const { formEndpoint, email } = site.contact;
 
 /** Messages the script shows; passed as data so it stays language-agnostic. */
@@ -47,9 +48,7 @@ const messages = {
       <label class="label" for="f-type">{c.enquiry}</label>
       <span class="select">
         <select id="f-type" name="enquiry">
-          {collections.map((col) => (
-            <option value={dict.collections[col.slug].name}>{dict.collections[col.slug].name}</option>
-          ))}
+          {collections.map((col) => <option value={col.name}>{col.name}</option>)}
           <option value={c.somethingElse}>{c.somethingElse}</option>
         </select>
       </span>

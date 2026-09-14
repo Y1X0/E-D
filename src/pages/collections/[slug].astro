@@ -1,10 +1,10 @@
 ---
 import Collection from '~/views/Collection.astro';
-import { collections } from '~/data/collections';
+import { getRoutes } from '~/content';
 
-export const getStaticPaths = () =>
-  collections.map((collection) => ({ params: { slug: collection.slug }, props: { collection } }));
-
-const { collection } = Astro.props;
+export async function getStaticPaths() {
+  const { collections } = await getRoutes();
+  return collections.map((c) => ({ params: { slug: c.slug } }));
+}
 ---
-<Collection locale="en" collection={collection} />
+<Collection locale="en" slug={Astro.params.slug!} />

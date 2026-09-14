@@ -5,8 +5,7 @@ import Plate from '~/components/Plate.astro';
 import SectionHead from '~/components/SectionHead.astro';
 import LookCard from '~/components/LookCard.astro';
 import InstagramPanel from '~/components/InstagramPanel.astro';
-import { collections } from '~/data/collections';
-import { looks } from '~/data/looks';
+import { getContent } from '~/content';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
@@ -14,10 +13,13 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 const h = dict.home;
+const { collections, looks } = await getContent(locale);
 
 /* Two pieces, not three: the gallery is one link away, and a pair can be
    arranged. A third would only have made a row again. */
-const featured = [looks[4], looks[0]];
+/* One piece from two different lines, so the pair is a contrast. */
+const featured = [looks[Math.min(4, looks.length - 1)], looks[0]].filter(Boolean);
+const nameOf = (slug: string) => collections.find((c) => c.slug === slug)?.name ?? slug;
 
 const schema = {
   '@type': 'WebSite',
@@ -74,8 +76,8 @@ const schema = {
             <a class="lines__a" href={localePath(`/collections/${c.slug}`, locale)}>
               <Plate {...c.cover} sizes="(max-width: 720px) 88vw, (max-width: 1100px) 44vw, 30vw" class="lines__plate" />
               <div class="lines__meta">
-                <h3 class="t-h3 lines__name">{dict.collections[c.slug].name}</h3>
-                <p class="lines__kicker">{dict.collections[c.slug].kicker}</p>
+                <h3 class="t-h3 lines__name">{c.name}</h3>
+                <p class="lines__kicker">{c.kicker}</p>
                 <span class="link lines__cta">
                   {dict.ui.view} <span class="arw" aria-hidden="true">&#8594;</span>
                 </span>
@@ -97,8 +99,8 @@ const schema = {
         </a>
       </div>
       <div class="selected__grid reveal">
-        <LookCard locale={locale} look={featured[0]} sizes="(max-width: 900px) 88vw, 52vw" priority />
-        <LookCard locale={locale} look={featured[1]} sizes="(max-width: 900px) 88vw, 32vw" />
+        <LookCard locale={locale} look={featured[0]} collectionName={nameOf(featured[0].collection)} sizes="(max-width: 900px) 88vw, 52vw" priority />
+        <LookCard locale={locale} look={featured[1]} collectionName={nameOf(featured[1].collection)} sizes="(max-width: 900px) 88vw, 32vw" />
       </div>
     </div>
   </section>

@@ -2,8 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
-import { collections } from '~/data/collections';
-import { looksIn } from '~/data/looks';
+import { getContent } from '~/content';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
@@ -11,6 +10,8 @@ interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
 const cp = dict.collectionsPage;
+const { collections, looks } = await getContent(locale);
+const looksIn = (slug: string) => looks.filter((l) => l.collection === slug);
 
 const schema = {
   '@type': 'CollectionPage',
@@ -21,9 +22,9 @@ const schema = {
   inLanguage: locale,
   hasPart: collections.map((c) => ({
     '@type': 'CreativeWork',
-    name: dict.collections[c.slug].name,
+    name: c.name,
     url: new URL(localePath(`/collections/${c.slug}`, locale), site.url).href,
-    description: dict.collections[c.slug].summary,
+    description: c.summary,
   })),
 };
 ---
@@ -40,7 +41,7 @@ const schema = {
   <div class="section coll">
     <div class="wrap">
       {collections.map((c, i) => {
-        const copy = dict.collections[c.slug];
+        const copy = c;
         return (
           <article class="coll__row reveal" data-flip={i % 2 === 1 ? 'true' : 'false'}>
             <a class="coll__media" href={localePath(`/collections/${c.slug}`, locale)} tabindex="-1" aria-hidden="true">

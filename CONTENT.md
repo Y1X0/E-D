@@ -1,11 +1,49 @@
 # Adding content
 
-Everything on the site is plain TypeScript in `src/data/` plus image files in
-`src/assets/images/`. No CMS, no database.
+There are two ways to run this site, and you only need to read the one you use.
 
 ---
 
-## 1. Adding photography
+## The admin panel (recommended)
+
+Once Sanity is connected, everything below happens in a browser — no code, no
+deploys to trigger by hand.
+
+**Where:** `https://your-site/admin` — sign in with the account the project was
+created under.
+
+**What you can do there**
+
+| | |
+|---|---|
+| **Collections** | Rename a line, rewrite its introduction, change its cover photograph, add more photographs |
+| **Looks** | Add a piece, number it, write its one-line note, upload its photographs |
+| **Atelier settings** | Tagline, booking button, telephone, WhatsApp, email, address, the home page photograph |
+
+Every text field has three boxes — **English, עברית, العربية**. English is
+required; leave the others empty and the English text is used.
+
+**Photographs.** Drag them in. Sanity keeps the original and serves resized,
+modern-format copies from a CDN, so the repository never grows and pages stay
+fast. Each photograph has two things worth setting:
+
+- **Hotspot** — click the crop icon and drag the circle onto the part that must
+  never be cut: a face, a neckline, the end of a train. Every crop on the site
+  respects it.
+- **Crop** — the shape the photograph is shown in. `2:3` loses the least of a
+  full-length portrait.
+
+**Publishing.** Press *Publish* on a document, and the site rebuilds itself. Give
+it a minute or two.
+
+---
+
+## Without the admin panel
+
+Until Sanity is connected the site builds from the files in this repository, and
+these are the files to edit.
+
+### Adding photography
 
 The Instagram profile carries no posts yet, so the site ships with **no photography**.
 Every image position is already built and laid out — each one currently renders a
@@ -72,7 +110,7 @@ tone is invisible.
 
 ---
 
-## 2. Editing the words
+### Editing the words
 
 **All text lives in `src/i18n/`, one file per language.** Editing English means editing
 `src/i18n/en.ts`; Arabic is `ar.ts`, Hebrew is `he.ts`. The three files have exactly the
@@ -123,7 +161,7 @@ have been published. To use real names, add a `name` to the entries in
 
 ---
 
-## 3. Adding a fourth line
+### Adding a fourth line
 
 1. Add an entry to `collections` in `src/data/collections.ts`.
 2. Add its look notes to `NOTES` in `src/data/looks.ts`, keyed by the same slug.
@@ -133,7 +171,9 @@ structured data all pick it up automatically.
 
 ---
 
-## 4. Before going live
+---
+
+## Before going live
 
 - [ ] Set the real domain (`SITE_URL`, see README).
 - [ ] Add the hero photograph and at least one image per collection.

@@ -1,12 +1,13 @@
 ---
 import Wordmark from './Wordmark.astro';
 import { site, contactChannels, location, mapsUrl } from '~/config/site';
-import { collections } from '~/data/collections';
+import { getContent } from '~/content';
 import { t, localePath, type Locale } from '~/i18n';
 
 interface Props { locale: Locale }
 const { locale } = Astro.props;
 const dict = t(locale);
+const { collections } = await getContent(locale);
 
 const channels = contactChannels().map((c) => ({
   ...c,
@@ -44,7 +45,7 @@ const year = new Date().getFullYear();
           <h2 class="label">{dict.footer.collections}</h2>
           <ul>
             {collections.map((c) => (
-              <li><a href={localePath(`/collections/${c.slug}`, locale)}>{dict.collections[c.slug].name}</a></li>
+              <li><a href={localePath(`/collections/${c.slug}`, locale)}>{c.name}</a></li>
             ))}
           </ul>
         </div>
