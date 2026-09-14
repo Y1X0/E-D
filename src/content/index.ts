@@ -86,6 +86,7 @@ function localContent(locale: Locale): SiteContent {
 
 let cached: Promise<any> | null = null;
 let reported = false;
+let announced = false;
 
 /**
  * Content for one language.
@@ -142,10 +143,22 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
     };
   });
 
+  // A line added to the repository appears even before the studio has it: the
+  // studio owns the words and the photographs, the repository owns which lines
+  // exist. Anything the studio does hold wins — matching slugs are never
+  // duplicated — so a line is removed by removing it here.
+  const own = localContent(locale);
+  const added = own.collections.filter((c) => !collections.some((x) => x.slug === c.slug));
+  const addedLooks = own.looks.filter((l) => added.some((c) => c.slug === l.collection));
+  if (added.length && !announced) {
+    announced = true;
+    console.log(`[content] from the repository as well: ${added.map((c) => c.slug).join(', ')} (not in the studio yet).`);
+  }
+
   const s = data.settings ?? {};
   return {
-    collections,
-    looks: looks.filter((l) => collections.some((c) => c.slug === l.collection)),
+    collections: [...collections, ...added],
+    looks: [...looks.filter((l) => collections.some((c) => c.slug === l.collection)), ...addedLooks],
     hero: s.hero?.asset ? toPhoto(s.hero, locale, '', 'ink') : null,
     settings: {
       tagline: pick(s.tagline, locale),
