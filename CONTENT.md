@@ -33,8 +33,23 @@ fast. Each photograph has two things worth setting:
 - **Crop** — the shape the photograph is shown in. `2:3` loses the least of a
   full-length portrait.
 
+**A piece with no photograph yet** is not a hole in the page: it keeps the
+designed tonal panel the site has always used, in its place in the grid, until a
+photograph is dropped in. Write the note first and add the photography later.
+
 **Publishing.** Press *Publish* on a document, and the site rebuilds itself. Give
 it a minute or two.
+
+> **One-time setup for that.** The rebuild needs the studio and the host
+> introduced to each other, once:
+>
+> 1. Render → the static site → **Settings → Deploy Hook** → copy the URL.
+> 2. [manage.sanity.io](https://manage.sanity.io) → this project → **API →
+>    Webhooks → Create webhook**. Paste the URL, method **POST**, dataset
+>    `production`, trigger on **create, update, delete**. Save.
+>
+> Until that exists, publishing stores the change but the site is only rebuilt
+> on the next deploy.
 
 ---
 
