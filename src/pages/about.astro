@@ -3,7 +3,7 @@ import Base from '~/layouts/Base.astro';
 import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
 import { collections } from '~/data/collections';
-import { site } from '~/config/site';
+import { site, location } from '~/config/site';
 
 const schema = {
   '@type': 'AboutPage',
@@ -17,7 +17,7 @@ const schema = {
 
 <Base
   title="About"
-  description="Elite Evening Design is a made-to-measure atelier working across bridal, evening and couture. Where elegance meets luxury."
+  description={`${site.name} is a made-to-measure atelier in ${location.city}, working across bridal, evening and couture. Where elegance meets luxury.`}
   schema={schema}
 >
   <PageHero

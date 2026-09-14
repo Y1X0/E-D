@@ -8,7 +8,7 @@ import InstagramPanel from '~/components/InstagramPanel.astro';
 import { collections } from '~/data/collections';
 import { looks } from '~/data/looks';
 import { steps } from '~/data/bespoke';
-import { site } from '~/config/site';
+import { site, location } from '~/config/site';
 
 const featured = [looks[0], looks[4], looks[8]];
 const nameOf = (slug: string) => collections.find((c) => c.slug === slug)!.name;
@@ -27,7 +27,7 @@ const schema = {
 <Base
   title={`${site.name} — Bridal, Evening & Couture`}
   titleExact
-  description="Made-to-measure bridal, evening and couture dressmaking. Where elegance meets luxury — book a consultation with the atelier."
+  description={`Made-to-measure bridal, evening and couture dressmaking in ${location.city}. Where elegance meets luxury — book a consultation with the atelier.`}
   variant="over"
   schema={schema}
 >

@@ -78,21 +78,22 @@ public/
 
 ## Turning on contact methods
 
-`src/config/site.ts` publishes only the channels that actually exist. Instagram is
-live. Email, phone and WhatsApp are empty, so **the interface hides them** rather than
-showing an address that does not work.
-
-Fill any of them in and the matching entry appears on the contact page, in the footer,
-and in the enquiry form's behaviour:
+`src/config/site.ts` publishes only the channels that actually exist. Live today:
+**WhatsApp, Instagram and telephone**, plus the atelier's address. Email is still
+empty, so **the interface hides it** rather than showing an address that does not work.
 
 ```ts
 const contact: Contact = {
-  email: 'atelier@example.com',   // shows an Email row; the form composes a message to it
-  phone: '+00 000 000 0000',      // shows a Telephone row
-  whatsapp: '972500000000',       // digits only — shows a WhatsApp row, first in the list
+  email: '',                      // fill in to show an Email row; the form then composes to it
+  phone: '+972 53-468-0084',      // shows a Telephone row
+  whatsapp: '972534680084',       // digits only — shows a WhatsApp row, first in the list
   formEndpoint: '',               // a POST endpoint (Formspree, Basin, a function…)
 };
 ```
+
+The atelier's address lives alongside it in `location`, in English with the local
+Hebrew beneath. It appears on the contact page and in the footer, links out to a map,
+and drives the `LocalBusiness` structured data that puts the atelier in local search.
 
 **The enquiry form** picks the best available transport, in this order:
 
@@ -112,9 +113,10 @@ adding photography and editing text.
 
 ## A note on accuracy
 
-Everything factual on this site comes from the atelier's own logo and Instagram
-profile: the name, the tagline *"Where elegance meets luxury"*, the three lines
-Bridal · Evening · Couture, the phrase *"Book your dream dress"*, and the Instagram
-handle. No awards, clients, prices, locations, dates or credentials are claimed
-anywhere, because none has been published. The narrative copy is house voice and is
-yours to rewrite.
+Everything factual on this site comes from the atelier itself: the name, the tagline
+*"Where elegance meets luxury"*, the three lines Bridal · Evening · Couture, the phrase
+*"Book your dream dress"* and the Instagram handle all come from its logo and profile;
+the telephone number and the address at Herzl 40, Lod were supplied directly.
+
+No awards, clients, prices, dates or credentials are claimed anywhere, because none has
+been published. The narrative copy is house voice and is yours to rewrite.

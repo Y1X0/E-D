@@ -1,6 +1,6 @@
 ---
 import Wordmark from './Wordmark.astro';
-import { nav, site, contactChannels } from '~/config/site';
+import { nav, site, contactChannels, location, mapsUrl } from '~/config/site';
 import { collections } from '~/data/collections';
 
 const channels = contactChannels();
@@ -14,6 +14,10 @@ const year = new Date().getFullYear();
         <img class="ft__seal" src="/brand/seal.webp" width="96" height="96" alt="" loading="lazy" decoding="async" />
         <Wordmark href={null} class="ft__mark" />
         <p class="ft__tag">{site.tagline}</p>
+        <a class="ft__addr" href={mapsUrl} target="_blank" rel="noopener noreferrer">
+          <span>{location.street}, {location.city}</span>
+          <span class="ft__addr-local" lang={location.localLang} dir="rtl">{location.streetLocal}, {location.cityLocal}</span>
+        </a>
       </div>
 
       <nav class="ft__cols" aria-label="Footer">
@@ -76,6 +80,17 @@ const year = new Date().getFullYear();
     color: var(--on-ink-muted);
   }
 
+  .ft__addr {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    font-size: var(--t-small);
+    color: var(--on-ink-muted);
+    transition: color .4s var(--ease);
+  }
+  .ft__addr:hover { color: var(--on-ink); }
+  .ft__addr-local { font-size: .8125rem; text-align: left; }
+
   .ft__cols {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -110,6 +125,17 @@ const year = new Date().getFullYear();
 
   @media (max-width: 860px) {
     .ft__top { grid-template-columns: 1fr; }
-    .ft__cols { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.25rem; }
+    .ft__addr {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    font-size: var(--t-small);
+    color: var(--on-ink-muted);
+    transition: color .4s var(--ease);
+  }
+  .ft__addr:hover { color: var(--on-ink); }
+  .ft__addr-local { font-size: .8125rem; text-align: left; }
+
+  .ft__cols { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.25rem; }
   }
 </style>

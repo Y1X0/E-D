@@ -92,11 +92,13 @@ unless the brand changes**:
 - the three lines *Bridal · Evening · Couture*
 - the call to action *"Book your dream dress"*
 - the handle *@eliteevening.design*
+- the telephone *+972 53-468-0084* (also the WhatsApp line)
+- the address *Herzl 40, Lod* — *הרצל 40, לוד*
 
 Everything else — the introductions, the collection descriptions, the look notes, the
 five bespoke stages, the About page — is **house voice written to sound like the
 brand**, and it is yours to rewrite. It deliberately contains no awards, no client
-names, no prices, no locations, no dates and no years of experience, because none has
+names, no prices, no dates and no years of experience, because none has
 been published. If you add any of those, add facts you can stand behind.
 
 ### Naming looks
@@ -122,6 +124,7 @@ structured data all pick it up automatically.
 
 - [ ] Set the real domain (`SITE_URL`, see README).
 - [ ] Add the hero photograph and at least one image per collection.
-- [ ] Fill in whichever contact channels are real, in `src/config/site.ts`.
+- [ ] Confirm the WhatsApp line is active on +972 53-468-0084.
+- [ ] Add an email address in `src/config/site.ts` if the atelier wants one shown.
 - [ ] Point the enquiry form at an endpoint, or add an email address.
 - [ ] Re-read the About and Bespoke copy and make it true to how you actually work.

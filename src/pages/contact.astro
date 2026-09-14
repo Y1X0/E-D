@@ -2,7 +2,7 @@
 import Base from '~/layouts/Base.astro';
 import PageHero from '~/components/PageHero.astro';
 import InquiryForm from '~/components/InquiryForm.astro';
-import { site, contactChannels } from '~/config/site';
+import { site, contactChannels, location, mapsUrl, addressLine } from '~/config/site';
 
 const channels = contactChannels();
 
@@ -18,7 +18,7 @@ const schema = {
 
 <Base
   title="Contact"
-  description="Enquire about a bridal, evening or couture commission with Elite Evening Design. Book your dream dress."
+  description={`Enquire about a bridal, evening or couture commission with ${site.name} — ${addressLine}. Call, message on WhatsApp, or send an enquiry.`}
   schema={schema}
 >
   <PageHero
@@ -52,12 +52,19 @@ const schema = {
           ))}
         </ul>
 
-        <div class="contact__hours">
-          <h3 class="label">Appointments</h3>
-          <p>
-            Consultations and fittings are by appointment. Send an enquiry and the atelier will
-            arrange a time with you directly.
-          </p>
+        <div class="visit">
+          <h3 class="label eyebrow">The atelier</h3>
+          <a class="visit__a" href={mapsUrl} target="_blank" rel="noopener noreferrer">
+            <span class="visit__street">{location.street}</span>
+            <span class="visit__city">{location.city}, {location.countryName}</span>
+            <span class="visit__local" lang={location.localLang} dir="rtl">
+              {location.streetLocal}, {location.cityLocal}
+            </span>
+            <span class="link visit__map">
+              Open in maps <span class="arw" aria-hidden="true">&#8599;</span>
+            </span>
+          </a>
+          <p class="visit__note">{location.note}. Send an enquiry and a time will be arranged with you directly.</p>
         </div>
       </aside>
 
@@ -103,7 +110,26 @@ const schema = {
   .channel__a:hover .channel__value { color: var(--gold-ink); }
   .channel__note { font-size: var(--t-small); color: var(--ink-muted); }
 
-  .contact__hours p { margin-top: .9rem; font-size: var(--t-small); color: var(--ink-muted); line-height: 1.7; max-width: 38ch; }
+  .visit { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; }
+  .visit__a { display: flex; flex-direction: column; gap: .35rem; }
+  .visit__street {
+    font-family: var(--serif);
+    font-size: clamp(1.3rem, 2.2vw, 1.75rem);
+    font-weight: 300;
+    line-height: 1.2;
+  }
+  .visit__a:hover .visit__street { color: var(--gold-ink); }
+  .visit__city { font-size: var(--t-small); color: var(--ink-muted); }
+  /* dir="rtl" gives the Hebrew its correct base direction; the line still sits
+     flush with the English above it, since the block itself is left-aligned. */
+  .visit__local {
+    font-size: var(--t-small);
+    color: var(--ink-muted);
+    text-align: left;
+    align-self: stretch;
+  }
+  .visit__map { margin-top: .65rem; color: var(--gold-ink); }
+  .visit__note { font-size: var(--t-small); color: var(--ink-muted); line-height: 1.7; max-width: 38ch; }
 
   .contact__h { margin: 0 0 .85rem; }
   .contact__sub { color: var(--ink-muted); max-width: 46ch; margin-bottom: clamp(2rem, 4vh, 2.75rem); }

@@ -4,7 +4,7 @@ import PageHero from '~/components/PageHero.astro';
 import Plate from '~/components/Plate.astro';
 import { steps } from '~/data/bespoke';
 import { collections } from '~/data/collections';
-import { site } from '~/config/site';
+import { site, location } from '~/config/site';
 
 const schema = {
   '@type': 'Service',
@@ -13,7 +13,7 @@ const schema = {
   provider: { '@id': `${site.url}/#organization` },
   url: `${site.url}/bespoke`,
   description: 'Made-to-measure bridal, evening and couture commissions, from consultation to final fitting.',
-  areaServed: { '@type': 'Place', name: 'By appointment' },
+  areaServed: { '@type': 'City', name: location.city },
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
     name: 'Lines',

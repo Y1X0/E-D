@@ -2,7 +2,7 @@
 import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '~/components/SiteHeader.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
-import { site } from '~/config/site';
+import { site, location, mapsUrl } from '~/config/site';
 import '~/styles/app.css';
 
 interface Props {
@@ -29,17 +29,28 @@ const fullTitle = titleExact ? title : `${title} — ${site.name}`;
 const canonical = new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', site.url).href;
 const ogImage = new URL(image, site.url).href;
 
+// A LocalBusiness rather than a plain Organization: the atelier has a street
+// address and a telephone line, which is what local search needs to place it.
 const organization = {
-  '@type': 'Organization',
+  '@type': 'LocalBusiness',
   '@id': `${site.url}/#organization`,
   name: site.name,
   alternateName: site.shortName,
   url: site.url,
   slogan: site.tagline,
-  description: `${site.name} — made-to-measure ${site.lines.join(', ').toLowerCase()} dressmaking. ${site.tagline}.`,
+  description: `${site.name} — made-to-measure ${site.lines.join(', ').toLowerCase()} dressmaking in ${location.city}. ${site.tagline}.`,
   logo: { '@type': 'ImageObject', url: new URL('/brand/icon-512.png', site.url).href, width: 512, height: 512 },
   image: ogImage,
   sameAs: [site.instagram.url],
+  ...(site.contact.phone ? { telephone: site.contact.phone.replace(/[^\d+]/g, '') } : {}),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: location.street,
+    addressLocality: location.city,
+    addressCountry: location.countryCode,
+  },
+  hasMap: mapsUrl,
+  areaServed: { '@type': 'City', name: location.city },
 };
 
 const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [schema] : [])];
