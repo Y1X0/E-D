@@ -64,6 +64,7 @@ function localContent(locale: Locale): SiteContent {
 }
 
 let cached: Promise<any> | null = null;
+let reported = false;
 
 /**
  * Content for one language.
@@ -80,7 +81,15 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
     return null;
   });
   const data = await cached;
-  if (!data?.collections?.length) return localContent(locale);
+  if (!data?.collections?.length) {
+    console.warn('[content] Sanity holds no collections yet — using the content in the repository.');
+    return localContent(locale);
+  }
+  if (!reported) {
+    reported = true;
+    const photos = data.collections.filter((c: any) => c.cover?.asset).length;
+    console.log(`[content] Sanity: ${data.collections.length} collections, ${data.looks?.length ?? 0} looks, ${photos} with a cover photograph.`);
+  }
 
   const dict = t(locale);
   const collections: CollectionEntry[] = data.collections.map((c: any) => {

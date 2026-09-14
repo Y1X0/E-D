@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "node --experimental-strip-types scripts/seed-sanity.mjs; astro build",
+    "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
     "seed": "node --experimental-strip-types scripts/seed-sanity.mjs"
