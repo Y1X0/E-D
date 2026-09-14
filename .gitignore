@@ -6,3 +6,6 @@ dist/
 .env
 .env.*
 !.env.example
+
+# scratch scripts used while working
+_*.mjs
