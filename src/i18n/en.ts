@@ -3,7 +3,7 @@ import type { Dict } from './types';
 export const en: Dict = {
   tagline: 'Where elegance meets luxury',
   booking: 'Book your dream dress',
-  lines: ['Bridal', 'Evening', 'Couture'],
+  lines: ['Bridal', 'Evening', 'Couture', 'Boutique'],
 
   nav: { collections: 'Collections', bespoke: 'Bespoke', gallery: 'Gallery', about: 'About', contact: 'Contact' },
 
@@ -43,17 +43,17 @@ export const en: Dict = {
     openingTitle: 'Dresses made for one person,',
     openingAccent: 'and one evening',
     openingBody: [
-      'Elite Evening Design is a made-to-measure atelier working across bridal, evening and couture. Every commission starts from a conversation and a set of measurements that belong to nobody else.',
+      'Elite Evening Design is a made-to-measure atelier working across bridal, evening, couture and boutique. Every commission starts from a conversation and a set of measurements that belong to nobody else.',
       'Nothing here is picked off a rail. Silhouette, fabric and finish are decided together, then cut, fitted and finished until the dress does exactly what it was drawn to do.',
     ],
     linesEyebrow: 'The collections',
-    linesTitle: 'Three lines,',
+    linesTitle: 'Four lines,',
     linesAccent: 'one standard',
-    linesLead: 'Bridal, evening and couture — each with its own discipline, all made to measure.',
+    linesLead: 'Bridal, evening, couture and boutique — each with its own discipline, all made to measure.',
     selectedEyebrow: 'Selected work',
     selectedTitle: 'A few pieces',
     selectedAccent: 'in close-up',
-    selectedLead: 'Individual looks from across the three lines.',
+    selectedLead: 'Individual looks from across the four lines.',
     bespokeEyebrow: 'Bespoke',
     bespokeTitle: 'How a dress',
     bespokeAccent: 'comes to exist',
@@ -73,7 +73,7 @@ export const en: Dict = {
 
   collectionsPage: {
     eyebrow: 'The collections',
-    title: 'Three lines,',
+    title: 'Four lines,',
     accent: 'one standard',
     lead: 'Each line answers a different occasion. All of them are cut to measure, fitted in person and finished by hand.',
     theLooks: 'The looks',
@@ -107,6 +107,15 @@ export const en: Dict = {
         'The work is slow on purpose. Structure is built by hand, surfaces are worked until they behave the way the drawing promised, and nothing leaves the atelier before it fits.',
       ],
     },
+    boutique: {
+      name: 'Boutique',
+      kicker: 'Soft, light, unembellished',
+      summary: 'The softer line — light fabrics, clean surfaces and no beadwork, cut to be easy to wear.',
+      intro: [
+        'Boutique is the quiet side of the atelier. The same cut and the same fittings, in lighter fabrics and softer silhouettes — pieces that move easily and ask nothing of the person wearing them.',
+        'No beading, no heavy structure. What carries these dresses is the line itself: a hem that falls right, a shoulder that sits, a colour that stays calm.',
+      ],
+    },
   },
 
   lookNotes: {
@@ -128,6 +137,12 @@ export const en: Dict = {
       'Pattern drawn for one client and one measurement set.',
       'Finished entirely by hand, inside and out.',
     ],
+    boutique: [
+      'Light fabric, cut to fall rather than hold.',
+      'A soft shoulder and an easy sleeve.',
+      'A clean surface, left unembellished.',
+      'Softened through the waist, quiet at the hem.',
+    ],
   },
 
   lookPage: {
@@ -144,7 +159,7 @@ export const en: Dict = {
     eyebrow: 'Gallery',
     title: 'The work,',
     accent: 'up close',
-    lead: 'Silhouettes, surfaces and finishing details from across the three lines.',
+    lead: 'Silhouettes, surfaces and finishing details from across the four lines.',
     all: 'All',
     empty: 'Nothing in this line yet.',
   },
@@ -179,7 +194,7 @@ export const en: Dict = {
     eyebrow: 'The atelier',
     title: 'Where elegance',
     accent: 'meets luxury',
-    lead: 'Elite Evening Design is a made-to-measure atelier. Bridal, evening and couture — each piece drawn, cut and fitted for the person who will wear it.',
+    lead: 'Elite Evening Design is a made-to-measure atelier. Bridal, evening, couture and boutique — each piece drawn, cut and fitted for the person who will wear it.',
     storyTitle: 'A house built on fit',
     story: [
       'The work begins where ready-to-wear stops. A dress that is cut for one body behaves differently: it sits where it should, moves the way it was drawn to, and does not ask the person wearing it to adjust anything.',
@@ -247,12 +262,12 @@ export const en: Dict = {
   footer: { collections: 'Collections', atelier: 'Atelier', enquiries: 'Enquiries' },
 
   seo: {
-    home: { title: 'Elite Evening Design — Bridal, Evening & Couture', description: 'Made-to-measure bridal, evening and couture dressmaking in Lod. Where elegance meets luxury — book a consultation with the atelier.' },
-    collections: { title: 'Collections', description: 'Bridal, evening and couture — three made-to-measure lines from the Elite Evening Design atelier.' },
-    gallery: { title: 'Gallery', description: 'Selected bridal, evening and couture work from the Elite Evening Design atelier.' },
+    home: { title: 'Elite Evening Design — Bridal, Evening & Couture', description: 'Made-to-measure bridal, evening, couture and boutique dressmaking in Lod. Where elegance meets luxury — book a consultation with the atelier.' },
+    collections: { title: 'Collections', description: 'Bridal, evening, couture and boutique — four made-to-measure lines from the Elite Evening Design atelier.' },
+    gallery: { title: 'Gallery', description: 'Selected bridal, evening, couture and boutique work from the Elite Evening Design atelier.' },
     bespoke: { title: 'Bespoke', description: 'How a commission works at Elite Evening Design — consultation, concept, pattern, fitting and finishing, all made to measure.' },
-    about: { title: 'About', description: 'Elite Evening Design is a made-to-measure atelier in Lod, working across bridal, evening and couture. Where elegance meets luxury.' },
-    contact: { title: 'Contact', description: 'Enquire about a bridal, evening or couture commission with Elite Evening Design — Herzl 40, Lod. Call, message on WhatsApp, or send an enquiry.' },
+    about: { title: 'About', description: 'Elite Evening Design is a made-to-measure atelier in Lod, working across bridal, evening, couture and boutique. Where elegance meets luxury.' },
+    contact: { title: 'Contact', description: 'Enquire about a bridal, evening, couture or boutique commission with Elite Evening Design — Herzl 40, Lod. Call, message on WhatsApp, or send an enquiry.' },
     notFound: { title: 'Page not found', description: 'That page is no longer here.' },
   },
   seoCollection: (summary) => `${summary} Made to measure by Elite Evening Design.`,

@@ -1,15 +1,13 @@
 /**
- * Fills a fresh Sanity project with the content that currently lives in this
- * repository — the three collections and their copy in all three languages, the
- * twelve looks, the atelier's contact details, and any photograph already
- * committed under src/assets/images.
- *
- * Run once, after creating the project:
+ * Puts the content that lives in this repository into the studio: the lines and
+ * their copy in all three languages, four looks in each, the atelier's contact
+ * details, and any photograph already committed under src/assets/images.
  *
  *   SANITY_PROJECT_ID=xxxx SANITY_WRITE_TOKEN=yyyy npm run seed
  *
- * It is safe to run again: every document has a fixed id, so a second run
- * updates rather than duplicates.
+ * Safe to run whenever a line is added to the repository: documents the studio
+ * already holds are left untouched, and only the missing ones are written. Set
+ * SEED_FORCE=1 to overwrite instead — which discards the atelier's own edits.
  */
 import { createClient } from '@sanity/client';
 import fs from 'node:fs';
@@ -61,32 +59,40 @@ async function upload(relPath, altGet) {
   return { _type: 'photo', asset: { _type: 'reference', _ref: asset._id }, alt: loc(altGet), ratio: '2/3' };
 }
 
-// Seeding is a one-time bootstrap. If the studio already holds content, stop:
-// createOrReplace would otherwise overwrite whatever the atelier has written.
-const existing = await client.fetch('count(*[_type in ["collection","look"]])');
-if (existing > 0 && process.env.SEED_FORCE !== '1') {
-  console.log(`${existing} documents already exist — leaving them alone.`);
-  console.log('Set SEED_FORCE=1 only if you mean to overwrite them.');
-  process.exit(0);
-}
+// Anything the studio already holds is left exactly as it is — the atelier's
+// own edits always win. So this can be run again after a line is added to the
+// repository: only the documents that are missing get written.
+const force = process.env.SEED_FORCE === '1';
+const wanted = collections.flatMap((c) => [
+  `collection-${c.slug}`,
+  ...[1, 2, 3, 4].map((n) => `look-${c.slug}-${n}`),
+]).concat('siteSettings');
+const present = new Set(force ? [] : await client.fetch('*[_id in $ids]._id', { ids: wanted }));
+if (present.size) console.log(`${present.size} documents already in the studio — leaving them untouched.`);
+if (force) console.warn('SEED_FORCE=1 — existing documents will be overwritten.');
 
 const docs = [];
 
 for (const [i, c] of collections.entries()) {
-  const cover = c.cover.src ? await upload(c.cover.src, (d) => d.collections[c.slug].name) : undefined;
-  docs.push({
-    _id: `collection-${c.slug}`,
-    _type: 'collection',
-    slug: { _type: 'slug', current: c.slug },
-    order: i + 1,
-    name: loc((d) => d.collections[c.slug].name),
-    kicker: loc((d) => d.collections[c.slug].kicker),
-    summary: loc((d) => d.collections[c.slug].summary, 'localeText'),
-    intro: [0, 1].map((n) => ({ _key: `p${n}`, ...loc((d) => d.collections[c.slug].intro[n], 'localeText') })),
-    ...(cover ? { cover } : {}),
-  });
+  if (!present.has(`collection-${c.slug}`)) {
+    // Only upload when the collection is actually being created, so a re-run
+    // never leaves a second copy of the same photograph in the asset library.
+    const cover = c.cover.src ? await upload(c.cover.src, (d) => d.collections[c.slug].name) : undefined;
+    docs.push({
+      _id: `collection-${c.slug}`,
+      _type: 'collection',
+      slug: { _type: 'slug', current: c.slug },
+      order: i + 1,
+      name: loc((d) => d.collections[c.slug].name),
+      kicker: loc((d) => d.collections[c.slug].kicker),
+      summary: loc((d) => d.collections[c.slug].summary, 'localeText'),
+      intro: [0, 1].map((n) => ({ _key: `p${n}`, ...loc((d) => d.collections[c.slug].intro[n], 'localeText') })),
+      ...(cover ? { cover } : {}),
+    });
+  }
 
   for (let n = 1; n <= 4; n++) {
+    if (present.has(`look-${c.slug}-${n}`)) continue;
     docs.push({
       _id: `look-${c.slug}-${n}`,
       _type: 'look',
@@ -98,21 +104,28 @@ for (const [i, c] of collections.entries()) {
 }
 
 const { site, location } = await import('../src/config/site.ts');
-docs.push({
-  _id: 'siteSettings',
-  _type: 'siteSettings',
-  tagline: loc((d) => d.tagline),
-  booking: loc((d) => d.booking),
-  instagramHandle: site.instagram.handle,
-  phone: site.contact.phone || undefined,
-  whatsapp: site.contact.whatsapp || undefined,
-  email: site.contact.email || undefined,
-  street: location.street, city: location.city,
-  streetLocal: location.streetLocal, cityLocal: location.cityLocal,
-});
+if (!present.has('siteSettings')) {
+  docs.push({
+    _id: 'siteSettings',
+    _type: 'siteSettings',
+    tagline: loc((d) => d.tagline),
+    booking: loc((d) => d.booking),
+    instagramHandle: site.instagram.handle,
+    phone: site.contact.phone || undefined,
+    whatsapp: site.contact.whatsapp || undefined,
+    email: site.contact.email || undefined,
+    street: location.street, city: location.city,
+    streetLocal: location.streetLocal, cityLocal: location.cityLocal,
+  });
+}
+
+if (!docs.length) {
+  console.log('\nNothing to add — the studio already holds every document this repository knows about.');
+  process.exit(0);
+}
 
 const tx = docs.reduce((t, doc) => t.createOrReplace(doc), client.transaction());
 await tx.commit();
-console.log(`\nSeeded ${docs.length} documents into ${projectId}/${target}:`);
+console.log(`\nWrote ${docs.length} documents into ${projectId}/${target}:`);
 for (const d of docs) console.log('  ', d._id);
-console.log('\nOpen the studio and the atelier is already there.');
+console.log('\nOpen the studio and they are there, published.');

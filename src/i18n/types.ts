@@ -29,7 +29,7 @@ export interface PairCopy { title: string; body: string }
 export interface Dict {
   tagline: string;
   booking: string;
-  lines: [string, string, string];
+  lines: [string, string, string, string];
 
   nav: { collections: string; bespoke: string; gallery: string; about: string; contact: string };
 
@@ -90,8 +90,8 @@ export interface Dict {
   instagram: { eyebrow: string; title: string; accent: string; lead: string };
 
   collectionsPage: { eyebrow: string; title: string; accent: string; lead: string; theLooks: string };
-  collections: Record<'bridal' | 'evening' | 'couture', CollectionCopy>;
-  lookNotes: Record<'bridal' | 'evening' | 'couture', [string, string, string, string]>;
+  collections: Record<'bridal' | 'evening' | 'couture' | 'boutique', CollectionCopy>;
+  lookNotes: Record<'bridal' | 'evening' | 'couture' | 'boutique', [string, string, string, string]>;
   lookPage: { line: string; made: string; madeValue: string; fabrics: string; fabricsValue: string; enquire: string; related: string };
 
   gallery: { eyebrow: string; title: string; accent: string; lead: string; all: string; empty: string };

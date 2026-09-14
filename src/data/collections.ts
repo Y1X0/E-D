@@ -5,7 +5,7 @@ import type { Plate } from './types';
  * `src/i18n/<locale>.ts`, so the three lines read natively in each language.
  */
 export interface CollectionShape {
-  slug: 'bridal' | 'evening' | 'couture';
+  slug: 'bridal' | 'evening' | 'couture' | 'boutique';
   cover: Plate;
   plates: Plate[];
 }
@@ -46,6 +46,16 @@ export const collections: CollectionShape[] = [
       { alt: 'Constructed bodice on the stand', ratio: '3/4', tone: 'linen' },
       { alt: 'Sculpted couture silhouette', ratio: '2/3', tone: 'paper' },
       { alt: 'Finishing detail at the waist', ratio: '4/5', tone: 'shadow' },
+    ],
+  },
+  {
+    slug: 'boutique',
+    cover: { alt: 'Softly cut boutique dress by Elite Evening Design', ratio: '2/3', tone: 'paper' },
+    plates: [
+      { alt: 'Light fabric falling from the shoulder', ratio: '3/4', tone: 'linen' },
+      { alt: 'An easy sleeve, unembellished', ratio: '4/5', tone: 'paper' },
+      { alt: 'Soft boutique silhouette in movement', ratio: '2/3', tone: 'shadow' },
+      { alt: 'A clean hem, finished without ornament', ratio: '1/1', tone: 'linen' },
     ],
   },
 ];
