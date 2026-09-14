@@ -23,14 +23,32 @@ if (!projectId || !token) {
   process.exit(1);
 }
 
-const client = createClient({ projectId, dataset, apiVersion: '2024-10-01', token, useCdn: false });
+let client = createClient({ projectId, dataset, apiVersion: '2024-10-01', token, useCdn: false });
+
+// Confirm the dataset before writing anything: a wrong name here would other-
+// wise fail one document at a time with nothing useful in the log.
+let target = dataset;
+try {
+  const names = (await client.datasets.list()).map((d) => d.name);
+  console.log(`project ${projectId} — datasets: ${names.join(', ') || '(none)'}`);
+  if (!names.includes(target) && names.length) {
+    target = names[0];
+    console.warn(`'${dataset}' not found; writing to '${target}' instead.`);
+    client = createClient({ projectId, dataset: target, apiVersion: '2024-10-01', token, useCdn: false });
+  }
+} catch (err) {
+  console.warn('Could not list datasets, continuing with', target, '—', err?.message ?? err);
+}
 
 const L = ['en', 'he', 'ar'];
 const dicts = {};
 for (const l of L) dicts[l] = (await import(`../src/i18n/${l}.ts`))[l];
 const { collections } = await import('../src/data/collections.ts');
 
-const loc = (get) => Object.fromEntries(L.map((l) => [l, get(dicts[l])]));
+const loc = (get, _type = 'localeString') => ({
+  _type,
+  ...Object.fromEntries(L.map((l) => [l, get(dicts[l])])),
+});
 
 /** Upload a committed photograph so the studio starts with it in place. */
 async function upload(relPath, altGet) {
@@ -54,8 +72,8 @@ for (const [i, c] of collections.entries()) {
     order: i + 1,
     name: loc((d) => d.collections[c.slug].name),
     kicker: loc((d) => d.collections[c.slug].kicker),
-    summary: loc((d) => d.collections[c.slug].summary),
-    intro: [0, 1].map((n) => ({ _type: 'localeText', _key: `p${n}`, ...loc((d) => d.collections[c.slug].intro[n]) })),
+    summary: loc((d) => d.collections[c.slug].summary, 'localeText'),
+    intro: [0, 1].map((n) => ({ _key: `p${n}`, ...loc((d) => d.collections[c.slug].intro[n], 'localeText') })),
     ...(cover ? { cover } : {}),
   });
 
@@ -65,7 +83,7 @@ for (const [i, c] of collections.entries()) {
       _type: 'look',
       collection: { _type: 'reference', _ref: `collection-${c.slug}` },
       number: n,
-      note: loc((d) => d.lookNotes[c.slug][n - 1]),
+      note: loc((d) => d.lookNotes[c.slug][n - 1], 'localeText'),
     });
   }
 }
@@ -86,5 +104,6 @@ docs.push({
 
 const tx = docs.reduce((t, doc) => t.createOrReplace(doc), client.transaction());
 await tx.commit();
-console.log(`\nSeeded ${docs.length} documents into ${projectId}/${dataset}.`);
-console.log('Open the studio and the atelier is already there.');
+console.log(`\nSeeded ${docs.length} documents into ${projectId}/${target}:`);
+for (const d of docs) console.log('  ', d._id);
+console.log('\nOpen the studio and the atelier is already there.');
