@@ -41,5 +41,15 @@ export default defineConfig({
   build: { inlineStylesheets: 'auto', format: 'directory' },
   compressHTML: true,
   prefetch: { prefetchAll: true, defaultStrategy: 'viewport' },
-  vite: { build: { cssMinify: 'lightningcss' } },
+  vite: {
+    build: { cssMinify: 'lightningcss' },
+    // sanity.config.ts is read twice: by the build, and by the studio bundle
+    // that runs in the browser at /admin — where there is no process.env. The
+    // project it points at is baked in here so both see the same thing. Neither
+    // value is a secret: the project id is public in every Sanity front end.
+    define: {
+      'process.env.SANITY_PROJECT_ID': JSON.stringify(SANITY_PROJECT_ID),
+      'process.env.SANITY_DATASET': JSON.stringify(SANITY_DATASET),
+    },
+  },
 });
