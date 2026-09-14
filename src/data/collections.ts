@@ -31,11 +31,30 @@ export const collections: CollectionShape[] = [
       // keep the head and the length of the train; trim the ceiling instead
       focus: '50% 35%',
     },
+    // Four frames of the same commissioned gown — the corset, the sleeve, the
+    // embroidery down the skirt and the train — cut from the atelier's own
+    // photograph rather than stood in for.
     plates: [
-      { alt: 'Draped evening silhouette', ratio: '2/3', tone: 'shadow' },
-      { alt: 'Neckline and shoulder detail', ratio: '1/1', tone: 'linen' },
-      { alt: 'Evening gown in movement', ratio: '3/4', tone: 'ink' },
-      { alt: 'Beaded surface detail', ratio: '4/5', tone: 'paper' },
+      {
+        src: 'evening/gown-bodice.jpg',
+        alt: 'Hand-beaded corset bodice with boned seams and an off-shoulder satin sleeve',
+        ratio: '1/1', tone: 'linen',
+      },
+      {
+        src: 'evening/gown-train.jpg',
+        alt: 'The sheer beaded train of a champagne evening gown, spread on the floor',
+        ratio: '3/2', tone: 'shadow',
+      },
+      {
+        src: 'evening/gown-sleeve.jpg',
+        alt: 'Draped satin sleeve against the beaded waist of the gown',
+        ratio: '3/4', tone: 'ink',
+      },
+      {
+        src: 'evening/gown-detail.jpg',
+        alt: 'Gold beadwork running down the sheer skirt of the gown',
+        ratio: '4/5', tone: 'paper',
+      },
     ],
   },
   {

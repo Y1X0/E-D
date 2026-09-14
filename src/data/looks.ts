@@ -25,6 +25,30 @@ const platesFor = (line: string, i: number): Plate[] => {
   ];
 };
 
+/**
+ * Looks photographed already. Everything else keeps the designed panels until
+ * its photography exists — nothing here is ever a stand-in for another dress.
+ */
+const photographed: Record<string, Plate[]> = {
+  'evening-01': [
+    {
+      src: 'evening/gold-beaded-gown.jpg',
+      alt: 'Champagne evening gown with a hand-beaded corset bodice, off-shoulder satin sleeves and a sheer beaded train',
+      ratio: '2/3', tone: 'ink', focus: '50% 35%',
+    },
+    {
+      src: 'evening/gown-bodice.jpg',
+      alt: 'Hand-beaded corset bodice with boned seams and an off-shoulder satin sleeve',
+      ratio: '1/1', tone: 'linen',
+    },
+    {
+      src: 'evening/gown-train.jpg',
+      alt: 'The sheer beaded train of a champagne evening gown, spread on the floor',
+      ratio: '3/2', tone: 'shadow',
+    },
+  ],
+};
+
 export const looks: LookShape[] = collections.flatMap((c) =>
   Array.from({ length: PER_LINE }, (_, n) => {
     const index = n + 1;
@@ -32,7 +56,7 @@ export const looks: LookShape[] = collections.flatMap((c) =>
       slug: `${c.slug}-${String(index).padStart(2, '0')}`,
       index,
       collection: c.slug,
-      plates: platesFor(c.slug, index),
+      plates: photographed[`${c.slug}-${String(index).padStart(2, '0')}`] ?? platesFor(c.slug, index),
     } satisfies LookShape;
   }),
 );
