@@ -158,6 +158,12 @@ export const ar: Dict = {
     fabricsValue: 'تُختار معك في الاستشارة',
     enquire: 'استفسري عن هذه الإطلالة',
     related: 'قد يعجبك أيضاً',
+    price: 'السعر',
+    madeToMeasure: 'يُحدَّد السعر عند الاستشارة',
+    buy: 'شراء القطعة',
+    orderOnWhatsapp: 'اطلبيها على واتساب',
+    payNote: 'الدفع يتم على صفحة دفع آمنة.',
+    orderMessage: (look, line, price) => `مرحباً، أرغب بطلب ${look} من خط ${line} (${price}).`,
   },
 
   gallery: {

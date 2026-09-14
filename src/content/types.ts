@@ -31,6 +31,10 @@ export interface LookEntry {
   collection: string;
   note: string;
   plates: Photo[];
+  /** Whole shekels. Absent for anything made to measure. */
+  price?: number;
+  /** A checkout page for this piece, when the atelier has one. */
+  payUrl?: string;
 }
 
 export interface SiteContent {
@@ -50,5 +54,9 @@ export interface SiteContent {
     city?: string;
     streetLocal?: string;
     cityLocal?: string;
+    /** Checkout page used for any priced piece without one of its own. */
+    payUrl?: string;
+    /** What the checkout page actually accepts, e.g. 'Visa · Mastercard · Bit'. */
+    payMethods?: string;
   } | null;
 }

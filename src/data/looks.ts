@@ -11,7 +11,16 @@ export interface LookShape {
   index: number;
   collection: CollectionSlug;
   plates: Plate[];
+  /** Whole shekels. Only the boutique line is sold at a fixed price. */
+  price?: number;
 }
+
+/**
+ * Boutique pieces are sold as they are, so they carry a price; everything else
+ * is made to measure and priced at consultation. A line missing from here shows
+ * no price at all rather than a guess.
+ */
+const prices: Record<string, number> = {};
 
 const PER_LINE = 4;
 
@@ -57,6 +66,9 @@ export const looks: LookShape[] = collections.flatMap((c) =>
       index,
       collection: c.slug,
       plates: photographed[`${c.slug}-${String(index).padStart(2, '0')}`] ?? platesFor(c.slug, index),
+      ...(prices[`${c.slug}-${String(index).padStart(2, '0')}`]
+        ? { price: prices[`${c.slug}-${String(index).padStart(2, '0')}`] }
+        : {}),
     } satisfies LookShape;
   }),
 );

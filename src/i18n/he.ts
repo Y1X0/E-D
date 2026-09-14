@@ -158,6 +158,12 @@ export const he: Dict = {
     fabricsValue: 'נבחרים איתך בייעוץ',
     enquire: 'לפנייה על הלוק הזה',
     related: 'אולי יעניין אותך גם',
+    price: 'מחיר',
+    madeToMeasure: 'המחיר נקבע בייעוץ',
+    buy: 'לרכישת הפריט',
+    orderOnWhatsapp: 'להזמנה בוואטסאפ',
+    payNote: 'התשלום מתבצע בעמוד תשלום מאובטח.',
+    orderMessage: (look, line, price) => `שלום, אשמח להזמין את ${look} מקו ${line} (${price}).`,
   },
 
   gallery: {

@@ -153,6 +153,12 @@ export const en: Dict = {
     fabricsValue: 'Chosen with you at consultation',
     enquire: 'Enquire about this look',
     related: 'You may also like',
+    price: 'Price',
+    madeToMeasure: 'Priced at consultation',
+    buy: 'Buy this piece',
+    orderOnWhatsapp: 'Order on WhatsApp',
+    payNote: 'Payment is taken on a secure checkout page.',
+    orderMessage: (look, line, price) => `Hello, I would like to order ${look} from the ${line} line (${price}).`,
   },
 
   gallery: {

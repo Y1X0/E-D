@@ -18,12 +18,12 @@ const QUERY = `{
   },
   "looks": *[_type == "look"] | order(number asc) {
     "collection": collection->slug.current,
-    "number": number, note,
+    "number": number, note, price, payUrl,
     photos[] ${IMAGE_PROJECTION}
   },
   "settings": *[_type == "siteSettings"][0] {
     tagline, booking, instagramHandle, phone, whatsapp, email, formEndpoint,
-    street, city, streetLocal, cityLocal,
+    street, city, streetLocal, cityLocal, payUrl, payMethods,
     hero ${IMAGE_PROJECTION}
   }
 }`;
@@ -47,6 +47,12 @@ const placeholders = (slug: string, look?: number): Photo[] => {
   if (look === undefined) return (localCollections.find((c) => c.slug === slug)?.plates ?? []).map((p) => ({ ...p }));
   const key = `${slug}-${String(look).padStart(2, '0')}`;
   return (localLooks.find((l) => l.slug === key)?.plates ?? []).map((p) => ({ ...p }));
+};
+
+/** The price written in the repository for a look the studio has no price for. */
+const ownPrice = (slug: string) => {
+  const price = localLooks.find((l) => l.slug === slug)?.price;
+  return price ? { price } : {};
 };
 
 const photos = (rows: any[] | undefined, locale: Locale, tones: readonly Photo['tone'][], fallback: Photo[]): Photo[] => {
@@ -78,6 +84,7 @@ function localContent(locale: Locale): SiteContent {
       collection: l.collection,
       note: dict.lookNotes[l.collection][l.index - 1],
       plates: l.plates.map((p) => ({ ...p })),
+      ...(l.price ? { price: l.price } : {}),
     })),
     hero: null,
     settings: null,
@@ -140,6 +147,8 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       collection: l.collection,
       note: pick(l.note, locale) || fallback?.[n - 1] || '',
       plates: photos(l.photos, locale, ['linen', 'shadow', 'paper'] as const, placeholders(l.collection, n)),
+      ...(typeof l.price === 'number' ? { price: l.price } : ownPrice(`${l.collection}-${String(n).padStart(2, '0')}`)),
+      ...(l.payUrl ? { payUrl: l.payUrl } : {}),
     };
   });
 
@@ -166,6 +175,7 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       instagramHandle: s.instagramHandle,
       phone: s.phone, whatsapp: s.whatsapp, email: s.email, formEndpoint: s.formEndpoint,
       street: s.street, city: s.city, streetLocal: s.streetLocal, cityLocal: s.cityLocal,
+      payUrl: s.payUrl, payMethods: s.payMethods,
     },
   };
 }

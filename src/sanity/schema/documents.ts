@@ -9,6 +9,7 @@ import { defineArrayMember, defineField, defineType } from 'sanity';
 const PHOTOS = { name: 'photos', title: 'الصور · Photos', default: true };
 const WORDS = { name: 'words', title: 'النصوص · Words' };
 const SETUP = { name: 'setup', title: 'إعدادات · Setup' };
+const SELLING = { name: 'selling', title: 'السعر والدفع · Price' };
 
 /** A line of work — bridal, evening, couture, boutique. */
 export const collection = defineType({
@@ -60,7 +61,7 @@ export const look = defineType({
   name: 'look',
   title: 'الإطلالة · Look',
   type: 'document',
-  groups: [PHOTOS, WORDS, SETUP],
+  groups: [PHOTOS, WORDS, SELLING, SETUP],
   fields: [
     defineField({
       name: 'photos', title: 'الصور · Photographs', type: 'array',
@@ -70,6 +71,15 @@ export const look = defineType({
       description: 'الصورة الأولى هي التي تظهر في البطاقات والمعرض.',
     }),
     defineField({ name: 'note', title: 'سطر واحد عن القطعة · One-line note', type: 'localeText', group: 'words' }),
+    defineField({
+      name: 'price', title: 'السعر بالشيكل · Price in shekels', type: 'number', group: 'selling',
+      validation: (r) => r.min(0),
+      description: 'اتركيه فارغاً للقطع المفصّلة على المقاس — عندها لا يظهر سعر إطلاقاً.',
+    }),
+    defineField({
+      name: 'payUrl', title: 'رابط الدفع لهذه القطعة · Checkout link', type: 'url', group: 'selling',
+      description: 'اختياري. بدونه يُستعمل رابط الدفع العام من إعدادات الأتيليه.',
+    }),
     defineField({
       name: 'collection', title: 'التشكيلة · Collection', type: 'reference',
       to: [{ type: 'collection' }], validation: (r) => r.required(), group: 'setup',
@@ -116,6 +126,14 @@ export const siteSettings = defineType({
     defineField({ name: 'city', title: 'المدينة · City', type: 'string', group: 'contact' }),
     defineField({ name: 'streetLocal', title: 'الشارع بالعبرية · Street (Hebrew)', type: 'string', group: 'contact' }),
     defineField({ name: 'cityLocal', title: 'المدينة بالعبرية · City (Hebrew)', type: 'string', group: 'contact' }),
+    defineField({
+      name: 'payUrl', title: 'رابط الدفع العام · Checkout link', type: 'url', group: 'contact',
+      description: 'صفحة الدفع التي تستقبل البطاقة. بدونها يذهب زر الشراء إلى واتساب.',
+    }),
+    defineField({
+      name: 'payMethods', title: 'وسائل الدفع المقبولة · Payment methods', type: 'string', group: 'contact',
+      description: 'اكتبي ما تقبلينه فعلاً، مثل: Visa · Mastercard · Bit',
+    }),
     defineField({
       name: 'formEndpoint', title: 'رابط نموذج الطلبات · Enquiry form endpoint', type: 'url', group: 'contact',
       description: 'اختياري. بدونه يذهب الطلب إلى إنستغرام.',

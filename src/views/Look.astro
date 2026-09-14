@@ -4,13 +4,14 @@ import Plate from '~/components/Plate.astro';
 import LookCard from '~/components/LookCard.astro';
 import Lightbox from '~/components/Lightbox.astro';
 import { getContent, relatedTo } from '~/content';
+import { formatPrice } from '~/lib/price';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
 interface Props { locale: Locale; slug: string }
 const { locale, slug } = Astro.props;
 const dict = t(locale);
-const { collections, looks } = await getContent(locale);
+const { collections, looks, settings } = await getContent(locale);
 const look = looks.find((l) => l.slug === slug)!;
 const copy = collections.find((c) => c.slug === look.collection)!;
 const title = dict.ui.lookTitle(look.index);
@@ -18,6 +19,17 @@ const note = look.note;
 const related = relatedTo(look, looks, 3);
 const nameOf = (s: string) => collections.find((c) => c.slug === s)?.name ?? s;
 const path = `/looks/${slug}`;
+
+// A piece is bought rather than commissioned only when it carries a price. The
+// checkout page is the atelier's own; without one the order goes to WhatsApp,
+// which is where it would have been placed anyway.
+const price = look.price ? formatPrice(look.price) : null;
+const checkout = look.payUrl || settings?.payUrl || '';
+const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
+const orderHref = checkout
+  || (whatsapp
+    ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(dict.lookPage.orderMessage(title, copy.name, price ?? ''))}`
+    : '');
 
 const schema = {
   '@type': 'CreativeWork',
@@ -68,6 +80,8 @@ const schema = {
           <h1 class="t-display look__h">{title}</h1>
           <p class="look__note">{note}</p>
 
+          {price && <p class="look__price">{price}</p>}
+
           <dl class="look__spec">
             <div>
               <dt class="label">{dict.lookPage.line}</dt>
@@ -81,10 +95,23 @@ const schema = {
               <dt class="label">{dict.lookPage.fabrics}</dt>
               <dd>{dict.lookPage.fabricsValue}</dd>
             </div>
+            <div>
+              <dt class="label">{dict.lookPage.price}</dt>
+              <dd>{price ?? dict.lookPage.madeToMeasure}</dd>
+            </div>
           </dl>
 
           <div class="look__acts">
-            <a class="cta cta--solid" href={`${localePath('/contact', locale)}?enquiry=${encodeURIComponent(copy.name)}`}>
+            {price && orderHref && (
+              <a class="cta cta--solid" href={orderHref} rel={checkout ? 'noopener' : 'noopener nofollow'}>
+                {checkout ? dict.lookPage.buy : dict.lookPage.orderOnWhatsapp}
+                <span class="arw" aria-hidden="true">&#8594;</span>
+              </a>
+            )}
+            {price && checkout && settings?.payMethods && (
+              <p class="look__pay">{dict.lookPage.payNote} <span>{settings.payMethods}</span></p>
+            )}
+            <a class:list={['cta', !(price && orderHref) && 'cta--solid']} href={`${localePath('/contact', locale)}?enquiry=${encodeURIComponent(copy.name)}`}>
               {dict.lookPage.enquire} <span class="arw" aria-hidden="true">&#8594;</span>
             </a>
             <a class="link" href={localePath(`/collections/${look.collection}`, locale)}>
@@ -114,6 +141,19 @@ const schema = {
 </Base>
 
 <style>
+  .look__price {
+    font-size: var(--t-h3);
+    letter-spacing: .01em;
+    color: var(--gold-ink);
+    margin: .75rem 0 0;
+  }
+  .look__pay {
+    font-size: var(--t-small);
+    color: var(--ink-muted);
+    margin: .75rem 0 0;
+  }
+  .look__pay span { display: block; letter-spacing: var(--track-label); }
+
   .look__crumb { padding-top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3rem)); }
   .look__crumb ol {
     display: flex; flex-wrap: wrap; align-items: center; gap: .6rem;

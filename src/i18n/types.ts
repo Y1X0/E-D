@@ -92,7 +92,12 @@ export interface Dict {
   collectionsPage: { eyebrow: string; title: string; accent: string; lead: string; theLooks: string };
   collections: Record<'bridal' | 'evening' | 'couture' | 'boutique', CollectionCopy>;
   lookNotes: Record<'bridal' | 'evening' | 'couture' | 'boutique', [string, string, string, string]>;
-  lookPage: { line: string; made: string; madeValue: string; fabrics: string; fabricsValue: string; enquire: string; related: string };
+  lookPage: {
+    line: string; made: string; madeValue: string; fabrics: string; fabricsValue: string;
+    enquire: string; related: string;
+    price: string; madeToMeasure: string; buy: string; orderOnWhatsapp: string;
+    payNote: string; orderMessage: (look: string, line: string, price: string) => string;
+  };
 
   gallery: { eyebrow: string; title: string; accent: string; lead: string; all: string; empty: string };
 
