@@ -23,7 +23,9 @@ export default defineConfig({
   site: SITE,
   trailingSlash: 'ignore',
   integrations: [
-    sitemap(),
+    // The panel and the not-found pages are not content: search engines are
+    // pointed at the collections, not at them.
+    sitemap({ filter: (page) => !/\/(admin|404)\/?$/.test(new URL(page).pathname) }),
     // The studio only exists once the atelier has a Sanity project. Until then
     // the site builds from the content in this repository and /admin is absent.
     ...(SANITY_PROJECT_ID
