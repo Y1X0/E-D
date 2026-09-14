@@ -20,13 +20,16 @@ export default defineConfig({
           .title('الأتيليه')
           .items([
             S.listItem()
+              .id('photos')
               .title('الصور والتشكيلات')
               .child(S.documentTypeList('collection').title('التشكيلات').defaultOrdering([{ field: 'order', direction: 'asc' }])),
             S.listItem()
+              .id('looks')
               .title('الإطلالات')
               .child(S.documentTypeList('look').title('الإطلالات').defaultOrdering([{ field: 'number', direction: 'asc' }])),
             S.divider(),
             S.listItem()
+              .id('settings')
               .title('إعدادات الأتيليه')
               .child(
                 S.document().schemaType('siteSettings').documentId('siteSettings').title('إعدادات الأتيليه'),
