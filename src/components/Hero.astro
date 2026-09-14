@@ -9,12 +9,16 @@ import { site } from '~/config/site';
  * opening — no stretched stand-in, no empty frame.
  */
 const img = findImage('hero/hero.jpg');
+const STEPS = [720, 1100, 1500, 2000, 2600];
+const widths = img
+  ? [...new Set([...STEPS.filter((w) => w < img.width), img.width])].sort((a, b) => a - b)
+  : [];
 ---
 
 <section class="hero ink" data-hero>
   <div class="hero__bg" aria-hidden="true">
     {img && (
-      <Image src={img} alt="" widths={[720, 1100, 1500, 2000, 2600]} sizes="100vw"
+      <Image src={img} alt="" widths={widths} sizes="100vw"
              loading="eager" decoding="sync" fetchpriority="high" />
     )}
   </div>

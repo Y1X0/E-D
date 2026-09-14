@@ -121,15 +121,23 @@
 
     sources.forEach((s, n) => {
       const host = s.closest<HTMLElement>('[data-zoom]')!;
-      host.style.cursor = 'zoom-in';
-      if (!host.hasAttribute('tabindex') && !host.closest('a')) {
-        host.tabIndex = 0;
-        host.setAttribute('role', 'button');
-        host.setAttribute('aria-label', `Open image: ${s.alt}`);
+      // Bind to the image's own frame, not the whole host: a host may also hold
+      // a caption link, and a link nested inside a button is invalid and traps
+      // keyboard users.
+      const trigger = s.closest<HTMLElement>('.plate') ?? host;
+      trigger.style.cursor = 'zoom-in';
+
+      const insideLink = !!trigger.closest('a');
+      const holdsInteractive = !!trigger.querySelector('a, button, input, select, textarea, [tabindex]');
+      if (!insideLink && !holdsInteractive && !trigger.hasAttribute('tabindex')) {
+        trigger.tabIndex = 0;
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('aria-label', `Open image: ${s.alt}`);
       }
-      host.addEventListener('click', () => open(n, host));
-      host.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(n, host); }
+
+      trigger.addEventListener('click', () => open(n, trigger));
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(n, trigger); }
       });
     });
 

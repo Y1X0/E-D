@@ -18,7 +18,7 @@ export const collections: Collection[] = [
       'A bridal commission is the longest conversation this atelier has with anyone. It begins with a sketch that is allowed to change as often as it needs to, and ends with a gown cut to one body and one way of moving through a room.',
       'Silhouette, weight, the way light falls on a train — each is decided in the fitting room rather than chosen from a rail.',
     ],
-    cover: { alt: 'Bridal gown by Elite Evening Design', ratio: '3/4', tone: 'linen' },
+    cover: { alt: 'Bridal gown by Elite Evening Design', ratio: '2/3', tone: 'linen' },
     plates: [
       { alt: 'Bodice detail from the bridal line', ratio: '3/4', tone: 'paper' },
       { alt: 'Full-length bridal silhouette', ratio: '2/3', tone: 'shadow' },
@@ -35,7 +35,14 @@ export const collections: Collection[] = [
       'Evening dressing is a question of proportion. A neckline that sits exactly where it should, a drape that answers the body instead of hiding it, a colour that holds its own under low light.',
       'These are pieces made for arrival: cut close where it counts and left generous where movement matters.',
     ],
-    cover: { alt: 'Evening gown by Elite Evening Design', ratio: '3/4', tone: 'ink' },
+    cover: {
+      src: 'evening/gold-beaded-gown.jpg',
+      alt: 'Champagne evening gown with a hand-beaded corset bodice, off-shoulder satin sleeves and a sheer beaded train',
+      ratio: '2/3',
+      tone: 'ink',
+      // keep the head and the length of the train; trim the ceiling instead
+      focus: '50% 35%',
+    },
     plates: [
       { alt: 'Draped evening silhouette', ratio: '2/3', tone: 'shadow' },
       { alt: 'Neckline and shoulder detail', ratio: '1/1', tone: 'linen' },
@@ -52,7 +59,7 @@ export const collections: Collection[] = [
       'Couture here means what it says: a single garment, made for a single client, from a pattern that exists for no one else.',
       'The work is slow on purpose. Structure is built by hand, surfaces are worked until they behave the way the drawing promised, and nothing leaves the atelier before it fits.',
     ],
-    cover: { alt: 'Couture piece by Elite Evening Design', ratio: '3/4', tone: 'shadow' },
+    cover: { alt: 'Couture piece by Elite Evening Design', ratio: '2/3', tone: 'shadow' },
     plates: [
       { alt: 'Hand-worked surface embroidery', ratio: '1/1', tone: 'ink' },
       { alt: 'Constructed bodice on the stand', ratio: '3/4', tone: 'linen' },

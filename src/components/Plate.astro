@@ -19,6 +19,12 @@ const {
 } = Astro.props;
 
 const img = findImage(src);
+
+/** Responsive widths, capped at the photograph's own size so nothing is upscaled. */
+const STEPS = [420, 700, 1000, 1400, 1900];
+const widths = img
+  ? [...new Set([...STEPS.filter((w) => w < img.width), img.width])].sort((a, b) => a - b)
+  : [];
 const style = [
   `--ratio:${ratio.replace('/', ' / ')}`,
   focus ? `--focus:${focus}` : '',
@@ -35,7 +41,7 @@ const style = [
     <Image
       src={img}
       alt={alt}
-      widths={[420, 700, 1000, 1400, 1900]}
+      widths={widths}
       sizes={sizes}
       loading={priority ? 'eager' : 'lazy'}
       decoding={priority ? 'sync' : 'async'}
