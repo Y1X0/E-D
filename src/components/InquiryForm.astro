@@ -149,6 +149,8 @@ const messages = {
 </style>
 
 <script>
+  import { onReady } from '~/scripts/ready';
+
   function initForm() {
     const form = document.querySelector<HTMLFormElement>('.form');
     if (!form || form.dataset.bound === 'true') return;
@@ -211,5 +213,5 @@ const messages = {
     });
   }
 
-  document.addEventListener('astro:page-load', initForm);
+  onReady(initForm);
 </script>

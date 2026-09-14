@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from 'astro:transitions';
 import SiteHeader from '~/components/SiteHeader.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
 import { site, location, mapsUrl } from '~/config/site';
@@ -116,7 +115,6 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
       <link rel="preload" href="/fonts/amiri-400-arabic.woff2" as="font" type="font/woff2" crossorigin />
     )}
 
-    <ClientRouter />
     <script set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })} type="application/ld+json" is:inline />
   </head>
 

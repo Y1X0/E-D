@@ -37,9 +37,9 @@
   --serif: 'Cormorant Garamond', 'Iowan Old Style', 'Apple Garamond', Garamond, 'Times New Roman', serif;
   --sans:  'Jost', 'Futura', 'Avenir Next', 'Helvetica Neue', Arial, sans-serif;
 
-  --t-hero:    clamp(2.7rem, 10.4vw, 9rem);
-  --t-display: clamp(2.35rem, 6vw, 5rem);
-  --t-h2:      clamp(1.95rem, 4.3vw, 3.35rem);
+  --t-hero:    clamp(2.7rem, 8.6vw, 6.75rem);
+  --t-display: clamp(2.15rem, 4.8vw, 3.9rem);
+  --t-h2:      clamp(1.8rem, 3.4vw, 2.7rem);
   --t-h3:      clamp(1.3rem, 2.1vw, 1.85rem);
   --t-lead:    clamp(1.02rem, 1.45vw, 1.3rem);
   --t-body:    1.0125rem;
@@ -50,6 +50,9 @@
   /* — space ——————————————————————————————————————————————— */
   --gutter:    clamp(1.25rem, 5vw, 4rem);
   --section:   clamp(4.5rem, 10.5vh, 8.5rem);
+  /* close, ordinary, and given room — used deliberately, not by default */
+  --section-close: clamp(3rem, 6vh, 4.75rem);
+  --section-wide:  clamp(6rem, 15vh, 12rem);
   --container: 1360px;
   --measure:   62ch;
   --header-h:  clamp(4.25rem, 7vh, 5.5rem);
@@ -215,7 +218,8 @@ h1, h2, h3, h4 {
 .wrap--narrow { max-width: 940px; }
 
 .section { padding-block: var(--section); }
-.section--tight { padding-block: calc(var(--section) * .62); }
+.section--tight { padding-block: var(--section-close); }
+.section--wide { padding-block: var(--section-wide); }
 
 .rule { height: 1px; background: var(--line); border: 0; }
 
@@ -246,8 +250,9 @@ h1, h2, h3, h4 {
   height: 100%;
   object-fit: cover;
   object-position: var(--focus, 50% 50%);
+  /* No will-change: it would hold a compositor layer open for every plate on
+     the page. The browser promotes this on hover, which is when it matters. */
   transition: transform var(--dur-img) var(--ease-img);
-  will-change: transform;
 }
 
 .plate[data-tone='paper']  { --plate-bg: var(--paper-2); --plate-mark: var(--ink); }
@@ -402,12 +407,15 @@ h1, h2, h3, h4 {
    MOTION — fast, subtle, and entirely optional
    ====================================================================== */
 
+/* Reveals are reserved for a section arriving, not for every element inside it:
+   a page full of staggered entrances reads as a machine, and keeps dozens of
+   transitions recalculating style on the same frames. */
 .reveal {
   opacity: 0;
-  transform: translate3d(0, 18px, 0);
+  transform: translate3d(0, 14px, 0);
   transition:
-    opacity .7s var(--ease) var(--reveal-delay, 0ms),
-    transform .8s var(--ease) var(--reveal-delay, 0ms);
+    opacity .55s var(--ease) var(--reveal-delay, 0ms),
+    transform .6s var(--ease) var(--reveal-delay, 0ms);
 }
 .reveal.is-in { opacity: 1; transform: none; }
 

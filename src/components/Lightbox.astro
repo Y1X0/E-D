@@ -79,6 +79,8 @@ const dict = t(locale);
 </style>
 
 <script>
+  import { onReady } from '~/scripts/ready';
+
   function initLightbox() {
     const lb = document.querySelector<HTMLElement>('.lb');
     if (!lb || lb.dataset.bound === 'true') return;
@@ -166,5 +168,5 @@ const dict = t(locale);
     });
   }
 
-  document.addEventListener('astro:page-load', initLightbox);
+  onReady(initLightbox);
 </script>

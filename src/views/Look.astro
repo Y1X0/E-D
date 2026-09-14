@@ -100,8 +100,8 @@ const schema = {
             {dict.ui.viewAll} <span class="arw" aria-hidden="true">&#8594;</span>
           </a>
         </div>
-        <div class="related__grid">
-          {related.map((l, i) => <LookCard locale={locale} look={l} delay={i * 90} />)}
+        <div class="related__grid reveal">
+          {related.map((l) => <LookCard locale={locale} look={l} />)}
         </div>
       </div>
     </section>

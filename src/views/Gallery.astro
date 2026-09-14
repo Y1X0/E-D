@@ -36,8 +36,7 @@ const schema = {
 >
   <PageHero
     eyebrow={dict.gallery.eyebrow}
-    title={dict.gallery.title}
-    accent={dict.gallery.accent}
+    title={`${dict.gallery.title} ${dict.gallery.accent}`}
     lead={dict.gallery.lead}
   />
 
@@ -55,7 +54,7 @@ const schema = {
 
       <div class="gal__grid" id="gal-grid">
         {galleryItems.map((item, i) => (
-          <figure class="gal__item reveal" data-line={item.line} style={`--reveal-delay:${(i % 3) * 70}ms`} data-zoom>
+          <figure class="gal__item" data-line={item.line} data-zoom>
             <Plate {...item.plate} sizes="(max-width: 720px) 92vw, (max-width: 1100px) 46vw, 31vw" priority={i < 3} />
             <figcaption class="gal__cap">
               <span class="label">{dict.collections[item.line].name}</span>
@@ -140,6 +139,8 @@ const schema = {
 </style>
 
 <script>
+  import { onReady } from '~/scripts/ready';
+
   function initGallery() {
     const grid = document.getElementById('gal-grid');
     if (!grid || grid.dataset.bound === 'true') return;
@@ -168,5 +169,5 @@ const schema = {
     apply('all');
   }
 
-  document.addEventListener('astro:page-load', initGallery);
+  onReady(initGallery);
 </script>

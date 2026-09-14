@@ -15,7 +15,9 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const h = dict.home;
 
-const featured = [looks[0], looks[4], looks[8]];
+/* Two pieces, not three: the gallery is one link away, and a pair can be
+   arranged. A third would only have made a row again. */
+const featured = [looks[4], looks[0]];
 
 const schema = {
   '@type': 'WebSite',
@@ -40,13 +42,13 @@ const schema = {
   <Hero locale={locale} />
 
   <!-- ——— opening statement ——— -->
-  <section class="section opening" id="opening" aria-labelledby="opening-h">
-    <div class="wrap opening__in">
-      <p class="label eyebrow reveal">{h.openingEyebrow}</p>
-      <h2 class="t-display opening__h reveal" id="opening-h" style="--reveal-delay:60ms">
-        {h.openingTitle} <span class="t-italic opening__accent">{h.openingAccent}</span>
+  <section class="section--tight opening" id="opening" aria-labelledby="opening-h">
+    <div class="wrap opening__in reveal">
+      <p class="label eyebrow">{h.openingEyebrow}</p>
+      <h2 class="t-display opening__h" id="opening-h">
+        {h.openingTitle} {h.openingAccent}
       </h2>
-      <div class="opening__body reveal" style="--reveal-delay:120ms">
+      <div class="opening__body">
         {h.openingBody.map((p) => <p>{p}</p>)}
         <a class="link opening__link" href={localePath('/about', locale)}>
           {dict.ui.aboutAtelier} <span class="arw" aria-hidden="true">&#8594;</span>
@@ -56,21 +58,19 @@ const schema = {
   </section>
 
   <!-- ——— the three lines ——— -->
-  <section class="section section--tight lines" aria-labelledby="lines-h">
+  <section class="section lines" aria-labelledby="lines-h">
     <div class="wrap">
       <SectionHead
-        eyebrow={h.linesEyebrow}
-        title={h.linesTitle}
-        accent={h.linesAccent}
+        title={`${h.linesTitle} ${h.linesAccent}`}
         lead={h.linesLead}
         href={localePath('/collections', locale)}
         linkLabel={dict.ui.allCollections}
         id="lines-h"
       />
 
-      <ul class="lines__grid">
-        {collections.map((c, i) => (
-          <li class="lines__item reveal" style={`--reveal-delay:${i * 90}ms`}>
+      <ul class="lines__grid reveal">
+        {collections.map((c) => (
+          <li class="lines__item">
             <a class="lines__a" href={localePath(`/collections/${c.slug}`, locale)}>
               <Plate {...c.cover} sizes="(max-width: 720px) 88vw, (max-width: 1100px) 44vw, 30vw" class="lines__plate" />
               <div class="lines__meta">
@@ -90,17 +90,15 @@ const schema = {
   <!-- ——— selected work ——— -->
   <section class="section selected ink" aria-labelledby="selected-h">
     <div class="wrap">
-      <SectionHead
-        eyebrow={h.selectedEyebrow}
-        title={h.selectedTitle}
-        accent={h.selectedAccent}
-        lead={h.selectedLead}
-        href={localePath('/gallery', locale)}
-        linkLabel={dict.ui.openGallery}
-        id="selected-h"
-      />
-      <div class="selected__grid">
-        {featured.map((l, i) => <LookCard locale={locale} look={l} delay={i * 100} />)}
+      <div class="selected__head">
+        <h2 class="t-h2 selected__h" id="selected-h">{h.selectedTitle} {h.selectedAccent}</h2>
+        <a class="link" href={localePath('/gallery', locale)}>
+          {dict.ui.openGallery} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+      <div class="selected__grid reveal">
+        <LookCard locale={locale} look={featured[0]} sizes="(max-width: 900px) 88vw, 52vw" priority />
+        <LookCard locale={locale} look={featured[1]} sizes="(max-width: 900px) 88vw, 32vw" />
       </div>
     </div>
   </section>
@@ -111,17 +109,16 @@ const schema = {
       <div class="bespoke__aside">
         <SectionHead
           eyebrow={h.bespokeEyebrow}
-          title={h.bespokeTitle}
-          accent={h.bespokeAccent}
+          title={`${h.bespokeTitle} ${h.bespokeAccent}`}
           lead={h.bespokeLead}
           href={localePath('/bespoke', locale)}
           linkLabel={dict.ui.fullProcess}
           id="bespoke-h"
         />
       </div>
-      <ol class="bespoke__steps">
+      <ol class="bespoke__steps reveal">
         {dict.bespoke.steps.map((s, i) => (
-          <li class="bespoke__step reveal" style={`--reveal-delay:${i * 70}ms`}>
+          <li class="bespoke__step">
             <span class="bespoke__n">{String(i + 1).padStart(2, '0')}</span>
             <h3 class="bespoke__t">{s.title}</h3>
           </li>
@@ -133,14 +130,14 @@ const schema = {
   <InstagramPanel locale={locale} />
 
   <!-- ——— closing invitation ——— -->
-  <section class="section closing" aria-labelledby="closing-h">
-    <div class="wrap closing__in">
-      <p class="label eyebrow reveal">{h.closingEyebrow}</p>
-      <h2 class="t-display closing__h reveal" id="closing-h" style="--reveal-delay:60ms">
+  <section class="section--wide closing" aria-labelledby="closing-h">
+    <div class="wrap closing__in reveal">
+      <p class="label eyebrow">{h.closingEyebrow}</p>
+      <h2 class="t-display closing__h" id="closing-h">
         {h.closingTitle} <span class="t-italic closing__accent">{h.closingAccent}</span>
       </h2>
-      <p class="lead closing__lead reveal" style="--reveal-delay:110ms">{h.closingLead}</p>
-      <div class="closing__acts reveal" style="--reveal-delay:160ms">
+      <p class="lead closing__lead">{h.closingLead}</p>
+      <div class="closing__acts">
         <a class="cta cta--solid" href={localePath('/contact', locale)}>
           {dict.booking} <span class="arw" aria-hidden="true">&#8594;</span>
         </a>
@@ -159,8 +156,7 @@ const schema = {
     align-items: start;
   }
   .opening__in > .eyebrow { grid-column: 1; margin: 0; }
-  .opening__h { grid-column: 1; margin: 0; }
-  .opening__accent { color: var(--gold-ink); }
+  .opening__h { grid-column: 1; margin: 0; max-width: 14ch; }
   .opening__body { grid-column: 2; grid-row: 1 / span 2; max-width: 54ch; padding-top: .6rem; }
   .opening__body p { color: var(--ink-muted); }
   .opening__body p + p { margin-top: 1.1em; }
@@ -184,13 +180,28 @@ const schema = {
   .lines__kicker { color: var(--ink-muted); font-size: var(--t-small); max-width: 30ch; }
   .lines__cta { margin-top: .5rem; color: var(--gold-ink); }
 
-  /* selected */
-  .selected__grid {
-    margin-top: clamp(3rem, 7vh, 5rem);
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(1.5rem, 3vw, 2.75rem);
+  /* selected — one piece leads, two follow: an arrangement rather than a row */
+  .selected__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem 2rem;
+    flex-wrap: wrap;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--line);
   }
+  .selected__h { margin: 0; }
+
+  .selected__grid {
+    margin-top: clamp(2.5rem, 6vh, 4rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    gap: clamp(1.75rem, 5vw, 5rem);
+    align-items: start;
+  }
+  /* the second piece sits lower and smaller, so the pair reads as an
+     arrangement rather than a row of equals */
+  .selected__grid > :global(.lookcard:last-child) { margin-top: clamp(2.5rem, 9vw, 7rem); }
 
   /* bespoke */
   .bespoke__in {
@@ -227,11 +238,15 @@ const schema = {
     .opening__in { grid-template-columns: 1fr; }
     .opening__body { grid-column: 1; grid-row: auto; }
     .bespoke__in { grid-template-columns: 1fr; }
-    .lines__grid, .selected__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .lines__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .lines__item:nth-child(3) { margin-top: 0; }
   }
+  @media (max-width: 900px) {
+    .selected__grid { grid-template-columns: 1fr; gap: clamp(2.25rem, 7vw, 3rem); }
+    .selected__grid > :global(.lookcard:last-child) { margin-top: 0; }
+  }
   @media (max-width: 640px) {
-    .lines__grid, .selected__grid { grid-template-columns: 1fr; gap: 2.75rem; }
+    .lines__grid { grid-template-columns: 1fr; gap: 2.75rem; }
     .lines__item:nth-child(n) { margin-top: 0; }
   }
 </style>

@@ -75,7 +75,7 @@ const schema = {
         </div>
       </aside>
 
-      <section class="contact__form reveal" style="--reveal-delay:90ms" aria-labelledby="form-h">
+      <section class="contact__form" aria-labelledby="form-h">
         <h2 class="t-h2 contact__h" id="form-h">{c.formTitle}</h2>
         <p class="contact__sub">{c.formSub}</p>
         <InquiryForm locale={locale} />
@@ -131,6 +131,8 @@ const schema = {
 </style>
 
 <script>
+  import { onReady } from '~/scripts/ready';
+
   /* A look page can arrive with ?enquiry=… — preselect that line. */
   function preselect() {
     const wanted = new URLSearchParams(window.location.search).get('enquiry');
@@ -139,5 +141,5 @@ const schema = {
     const match = select && Array.from(select.options).find((o) => o.value === wanted);
     if (select && match) select.value = match.value;
   }
-  document.addEventListener('astro:page-load', preselect);
+  onReady(preselect);
 </script>

@@ -43,11 +43,11 @@ const schema = {
   />
 
   <section class="section section--tight intro" aria-label={copy.name}>
-    <div class="wrap intro__in">
-      <div class="intro__media reveal" data-zoom>
+    <div class="wrap intro__in reveal">
+      <div class="intro__media" data-zoom>
         <Plate {...collection.cover} sizes="(max-width: 900px) 90vw, 46vw" priority />
       </div>
-      <div class="intro__text reveal" style="--reveal-delay:90ms">
+      <div class="intro__text">
         {copy.intro.map((p) => <p>{p}</p>)}
         <a class="link intro__link" href={localePath('/bespoke', locale)}>
           {dict.ui.howCommission} <span class="arw" aria-hidden="true">&#8594;</span>
@@ -58,9 +58,9 @@ const schema = {
 
   <!-- imagery only: presentational, so it is not announced as a second landmark -->
   <div class="section--tight run">
-    <div class="wrap run__grid">
-      {collection.plates.map((p, i) => (
-        <figure class="run__item reveal" style={`--reveal-delay:${(i % 2) * 80}ms`} data-zoom>
+    <div class="wrap run__grid reveal">
+      {collection.plates.map((p) => (
+        <figure class="run__item" data-zoom>
           <Plate {...p} sizes="(max-width: 720px) 90vw, 46vw" />
         </figure>
       ))}
@@ -73,8 +73,8 @@ const schema = {
         <h2 class="t-h2" id="looks-h">{dict.collectionsPage.theLooks}</h2>
         <p class="label">{copy.name}</p>
       </div>
-      <div class="looks__grid">
-        {looks.map((l, i) => <LookCard locale={locale} look={l} delay={(i % 3) * 90} />)}
+      <div class="looks__grid reveal">
+        {looks.map((l) => <LookCard locale={locale} look={l} />)}
       </div>
     </div>
   </section>

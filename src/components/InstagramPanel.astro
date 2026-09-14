@@ -8,32 +8,41 @@ const dict = t(locale);
 ---
 
 <section class="ig ink" aria-labelledby="ig-h">
-  <div class="wrap ig__in">
-    <img class="ig__seal reveal" src="/brand/seal.webp" width="112" height="112" alt="" loading="lazy" decoding="async" />
-    <p class="label eyebrow reveal" style="--reveal-delay:60ms">{dict.instagram.eyebrow}</p>
-    <h2 class="t-display ig__h reveal" id="ig-h" style="--reveal-delay:100ms">
-      {dict.instagram.title} <span class="t-italic ig__accent">{dict.instagram.accent}</span>
-    </h2>
-    <p class="lead ig__lead reveal" style="--reveal-delay:140ms">{dict.instagram.lead}</p>
-    <a
-      class="cta ig__cta reveal"
-      style="--reveal-delay:180ms"
-      href={site.instagram.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      dir="ltr"
-    >
-      @{site.instagram.handle} <span class="arw" aria-hidden="true">&#8599;</span>
+  <div class="wrap ig__in reveal">
+    <div class="ig__text">
+      <p class="label eyebrow">{dict.instagram.eyebrow}</p>
+      <h2 class="t-h2 ig__h" id="ig-h">{dict.instagram.title} {dict.instagram.accent}</h2>
+    </div>
+    <a class="ig__a" href={site.instagram.url} target="_blank" rel="noopener noreferrer" dir="ltr">
+      <span class="ig__handle">@{site.instagram.handle}</span>
+      <span class="arw" aria-hidden="true">&#8599;</span>
     </a>
   </div>
 </section>
 
 <style>
-  .ig { padding-block: var(--section); text-align: center; }
-  .ig__in { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; }
-  .ig__seal { width: 84px; height: 84px; border-radius: 50%; margin-bottom: .5rem; }
-  .ig__h { margin: 0; max-width: 18ch; }
-  .ig__accent { color: var(--gold-lit); }
-  .ig__lead { max-width: 54ch; }
-  .ig__cta { margin-top: 1rem; }
+  .ig { padding-block: var(--section-close); }
+  .ig__in {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem 3rem;
+  }
+  .ig__text { display: flex; flex-direction: column; gap: .9rem; }
+  .ig__h { margin: 0; }
+
+  .ig__a {
+    display: inline-flex;
+    align-items: baseline;
+    gap: .7rem;
+    font-family: var(--serif);
+    font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+    font-weight: 300;
+    color: var(--on-ink);
+    padding-bottom: .4rem;
+    border-bottom: 1px solid var(--line-on-ink);
+    transition: border-color .4s var(--ease), color .4s var(--ease);
+  }
+  .ig__a:hover { color: var(--gold-lit); border-bottom-color: var(--gold-lit); }
 </style>

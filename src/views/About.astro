@@ -32,11 +32,11 @@ const schema = {
   <PageHero eyebrow={a.eyebrow} title={a.title} accent={a.accent} lead={a.lead} />
 
   <section class="section section--tight story" aria-labelledby="story-h">
-    <div class="wrap story__in">
-      <div class="story__mark reveal">
+    <div class="wrap story__in reveal">
+      <div class="story__mark">
         <img src="/brand/seal.webp" width="132" height="132" alt="" loading="lazy" decoding="async" />
       </div>
-      <div class="story__text reveal" style="--reveal-delay:80ms">
+      <div class="story__text">
         <h2 class="t-h2 story__h" id="story-h">{a.storyTitle}</h2>
         {a.story.map((p) => <p>{p}</p>)}
       </div>
@@ -45,15 +45,15 @@ const schema = {
 
   <section class="section principles ink" aria-labelledby="prin-h">
     <div class="wrap">
-      <div class="principles__head">
-        <p class="label eyebrow reveal">{a.principlesEyebrow}</p>
-        <h2 class="t-display principles__h reveal" id="prin-h" style="--reveal-delay:60ms">
-          {a.principlesTitle} <span class="t-italic principles__accent">{a.principlesAccent}</span>
+      <div class="principles__head reveal">
+        <p class="label eyebrow">{a.principlesEyebrow}</p>
+        <h2 class="t-display principles__h" id="prin-h">
+          {a.principlesTitle} {a.principlesAccent}
         </h2>
       </div>
-      <ul class="principles__grid">
+      <ul class="principles__grid reveal">
         {a.principles.map((item, i) => (
-          <li class="principles__item reveal" style={`--reveal-delay:${i * 70}ms`}>
+          <li class="principles__item">
             <span class="label label--gold principles__n">{String(i + 1).padStart(2, '0')}</span>
             <h3 class="principles__t">{item.title}</h3>
             <p class="principles__d">{item.body}</p>
@@ -71,9 +71,9 @@ const schema = {
           {dict.ui.allCollections} <span class="arw" aria-hidden="true">&#8594;</span>
         </a>
       </div>
-      <ul class="lines__grid">
-        {collections.map((c, i) => (
-          <li class="lines__item reveal" style={`--reveal-delay:${i * 80}ms`}>
+      <ul class="lines__grid reveal">
+        {collections.map((c) => (
+          <li class="lines__item">
             <a href={localePath(`/collections/${c.slug}`, locale)}>
               <Plate {...c.cover} sizes="(max-width: 720px) 88vw, 30vw" class="lines__plate" />
               <h3 class="t-h3 lines__name">{dict.collections[c.slug].name}</h3>
@@ -86,11 +86,11 @@ const schema = {
   </section>
 
   <section class="section--tight about-cta" aria-labelledby="acta-h">
-    <div class="wrap about-cta__in">
-      <h2 class="t-h2 about-cta__h reveal" id="acta-h">
-        {a.ctaTitle} <span class="t-italic about-cta__accent">{a.ctaAccent}</span>
+    <div class="wrap about-cta__in reveal">
+      <h2 class="t-h2 about-cta__h" id="acta-h">
+        {a.ctaTitle} <span class="about-cta__accent">{a.ctaAccent}</span>
       </h2>
-      <div class="reveal" style="--reveal-delay:80ms">
+      <div>
         <a class="cta cta--solid" href={localePath('/contact', locale)}>
           {dict.booking} <span class="arw" aria-hidden="true">&#8594;</span>
         </a>

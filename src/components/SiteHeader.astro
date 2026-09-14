@@ -92,9 +92,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
   }
   .hdr[data-variant='over'] { color: var(--on-ink); }
   .hdr[data-solid='true'] {
-    background: color-mix(in srgb, var(--paper) 92%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
+    background: var(--paper);
     color: var(--ink);
     border-bottom-color: var(--line);
   }
@@ -108,9 +106,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     align-items: center;
     justify-content: space-between;
     gap: clamp(1rem, 2vw, 2rem);
-    transition: height .45s var(--ease);
   }
-  .hdr[data-solid='true'] .hdr__in { height: calc(var(--header-h) * .84); }
 
   .hdr__mark { --wm-size: clamp(.82rem, 1.35vw, 1rem); }
   .hdr[data-variant='over'][data-solid='false'] :global(.hdr__mark) { --wm-sub: var(--gold-lit); }
@@ -200,7 +196,6 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
   .menu.is-open { opacity: 1; }
 
   .menu__nav ul { list-style: none; margin: 0; padding: 0; }
-  .menu__nav li { overflow: hidden; }
   .menu__nav li + li { margin-top: .15em; }
   .menu__nav a {
     display: block;
@@ -209,11 +204,18 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     font-size: clamp(2.2rem, 10vw, 3.6rem);
     line-height: 1.22;
     letter-spacing: -.015em;
-    transform: translateY(105%);
-    transition: transform .7s var(--ease) calc(var(--i) * 55ms + 60ms);
   }
-  .menu.is-open .menu__nav a { transform: none; }
   .menu__nav a[aria-current='page'] { color: var(--gold-lit); }
+
+  /* the list and its footer rise together, as one */
+  .menu__nav,
+  .menu__foot {
+    transform: translate3d(0, 14px, 0);
+    transition: transform .45s var(--ease) .05s, opacity .4s var(--ease) .05s;
+    opacity: 0;
+  }
+  .menu.is-open .menu__nav,
+  .menu.is-open .menu__foot { transform: none; opacity: 1; }
 
   .menu__foot {
     display: flex;
@@ -223,16 +225,13 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     gap: 1rem 2rem;
     padding-top: 1.75rem;
     border-top: 1px solid var(--line-on-ink);
-    opacity: 0;
-    transition: opacity .5s var(--ease) calc(var(--i) * 55ms + 120ms);
   }
-  .menu.is-open .menu__foot { opacity: 1; }
 
   @media (max-width: 940px) {
     .hdr__nav { display: none; }
     .hdr__toggle { display: block; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .menu__nav a, .menu__foot { transform: none; opacity: 1; transition: none; }
+    .menu__nav, .menu__foot { transform: none; opacity: 1; transition: none; }
   }
 </style>

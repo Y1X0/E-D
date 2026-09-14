@@ -39,13 +39,13 @@ const schema = {
   description={dict.seo.bespoke.description}
   schema={schema}
 >
-  <PageHero eyebrow={b.eyebrow} title={b.title} accent={b.accent} lead={b.lead} />
+  <PageHero eyebrow={b.eyebrow} title={`${b.title} ${b.accent}`} lead={b.lead} />
 
   <div class="section steps">
     <div class="wrap">
       <ol class="steps__list">
         {b.steps.map((s, i) => (
-          <li class="steps__item reveal" style={`--reveal-delay:${(i % 2) * 60}ms`}>
+          <li class="steps__item reveal">
             <div class="steps__media" aria-hidden="true">
               <Plate
                 alt=""
@@ -67,15 +67,15 @@ const schema = {
 
   <section class="section section--tight bring ink" aria-labelledby="bring-h">
     <div class="wrap bring__in">
-      <div class="bring__head">
-        <p class="label eyebrow reveal">{b.bringEyebrow}</p>
-        <h2 class="t-display bring__h reveal" id="bring-h" style="--reveal-delay:60ms">
-          {b.bringTitle} <span class="t-italic bring__accent">{b.bringAccent}</span>
+      <div class="bring__head reveal">
+        <p class="label eyebrow">{b.bringEyebrow}</p>
+        <h2 class="t-display bring__h" id="bring-h">
+          {b.bringTitle} {b.bringAccent}
         </h2>
       </div>
-      <ul class="bring__list">
-        {b.bring.map((item, i) => (
-          <li class="bring__item reveal" style={`--reveal-delay:${i * 70}ms`}>
+      <ul class="bring__list reveal">
+        {b.bring.map((item) => (
+          <li class="bring__item">
             <h3 class="bring__t">{item.title}</h3>
             <p class="bring__d">{item.body}</p>
           </li>
@@ -85,12 +85,12 @@ const schema = {
   </section>
 
   <section class="section cta-band" aria-labelledby="cta-h">
-    <div class="wrap cta-band__in">
-      <h2 class="t-display cta-band__h reveal" id="cta-h">
-        {b.ctaTitle} <span class="t-italic cta-band__accent">{b.ctaAccent}</span>
+    <div class="wrap cta-band__in reveal">
+      <h2 class="t-display cta-band__h" id="cta-h">
+        {b.ctaTitle} <span class="cta-band__accent">{b.ctaAccent}</span>
       </h2>
-      <p class="lead cta-band__lead reveal" style="--reveal-delay:70ms">{b.ctaLead}</p>
-      <div class="reveal" style="--reveal-delay:120ms">
+      <p class="lead cta-band__lead">{b.ctaLead}</p>
+      <div>
         <a class="cta cta--solid" href={localePath('/contact', locale)}>
           {dict.booking} <span class="arw" aria-hidden="true">&#8594;</span>
         </a>

@@ -3,6 +3,8 @@
  * one for the header state, and the overlay menu. Everything degrades to a
  * fully usable static page if it never runs.
  */
+import { onReady } from './ready';
+
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function initReveal(): void {
@@ -31,21 +33,28 @@ function initHeader(): void {
   if (!hdr || hdr.dataset.variant !== 'over') return;
 
   const hero = document.querySelector<HTMLElement>('[data-hero]');
-  let ticking = false;
-  const apply = () => {
-    const h = hdr.offsetHeight;
-    const limit = hero ? Math.max(hero.offsetHeight - h, 40) : 40;
-    hdr.dataset.solid = String(window.scrollY > limit);
-    ticking = false;
+  if (!hero) { hdr.dataset.solid = 'true'; return; }
+
+  // The bar is transparent while any part of the hero is still below it.
+  // Watching the hero costs nothing per frame — no scroll listener at all.
+  let io: IntersectionObserver | null = null;
+  const watch = () => {
+    io?.disconnect();
+    io = new IntersectionObserver(
+      ([entry]) => { hdr.dataset.solid = String(!entry.isIntersecting); },
+      { rootMargin: `-${Math.round(hdr.offsetHeight)}px 0px 0px 0px`, threshold: 0 },
+    );
+    io.observe(hero);
   };
-  const onScroll = () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(apply);
-  };
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
-  apply();
+  watch();
+
+  // The header height is viewport-relative, so re-arm on resize — but only
+  // once the user has stopped, never mid-gesture.
+  let t: number | undefined;
+  window.addEventListener('resize', () => {
+    window.clearTimeout(t);
+    t = window.setTimeout(watch, 150);
+  }, { passive: true });
 }
 
 function initMenu(): void {
@@ -85,6 +94,4 @@ function boot(): void {
   initMenu();
 }
 
-document.addEventListener('astro:page-load', boot);
-// Release the scroll lock before a client-side navigation swaps the document.
-document.addEventListener('astro:before-swap', () => { document.documentElement.style.overflow = ''; });
+onReady(boot);
