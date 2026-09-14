@@ -61,6 +61,15 @@ async function upload(relPath, altGet) {
   return { _type: 'photo', asset: { _type: 'reference', _ref: asset._id }, alt: loc(altGet), ratio: '2/3' };
 }
 
+// Seeding is a one-time bootstrap. If the studio already holds content, stop:
+// createOrReplace would otherwise overwrite whatever the atelier has written.
+const existing = await client.fetch('count(*[_type in ["collection","look"]])');
+if (existing > 0 && process.env.SEED_FORCE !== '1') {
+  console.log(`${existing} documents already exist — leaving them alone.`);
+  console.log('Set SEED_FORCE=1 only if you mean to overwrite them.');
+  process.exit(0);
+}
+
 const docs = [];
 
 for (const [i, c] of collections.entries()) {
