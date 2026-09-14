@@ -54,8 +54,14 @@ export interface SiteContent {
     city?: string;
     streetLocal?: string;
     cityLocal?: string;
-    /** Checkout page used for any priced piece without one of its own. */
+    /** How the atelier takes a card. See src/lib/pay.ts. */
+    payProvider?: 'paypal' | 'template' | 'link' | '';
+    /** A PayPal business address — enough on its own to accept Visa. */
+    paypalEmail?: string;
+    /** One fixed checkout page, used when the amount is not passed in the URL. */
     payUrl?: string;
+    /** A checkout URL carrying {amount} and {item}. */
+    payTemplate?: string;
     /** What the checkout page actually accepts, e.g. 'Visa · Mastercard · Bit'. */
     payMethods?: string;
   } | null;

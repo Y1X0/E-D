@@ -108,6 +108,7 @@ export const siteSettings = defineType({
   type: 'document',
   groups: [
     { name: 'contact', title: 'التواصل · Contact', default: true },
+    { name: 'pay', title: 'الدفع · Payment' },
     { name: 'home', title: 'الصفحة الرئيسية · Home' },
     { name: 'brand', title: 'النصوص · Words' },
   ],
@@ -127,12 +128,36 @@ export const siteSettings = defineType({
     defineField({ name: 'streetLocal', title: 'الشارع بالعبرية · Street (Hebrew)', type: 'string', group: 'contact' }),
     defineField({ name: 'cityLocal', title: 'المدينة بالعبرية · City (Hebrew)', type: 'string', group: 'contact' }),
     defineField({
-      name: 'payUrl', title: 'رابط الدفع العام · Checkout link', type: 'url', group: 'contact',
-      description: 'صفحة الدفع التي تستقبل البطاقة. بدونها يذهب زر الشراء إلى واتساب.',
+      name: 'payProvider', title: 'طريقة استقبال الدفع · How payment is taken', type: 'string', group: 'pay',
+      options: {
+        list: [
+          { title: 'باي بال — يكفي إيميل الحساب التجاري، ويقبل فيزا وماستركارد', value: 'paypal' },
+          { title: 'رابط فيه المبلغ — لمزودي الدفع (Grow · Meshulam · PayPlus · Tranzila)', value: 'template' },
+          { title: 'رابط ثابت واحد — Stripe أو بِت أو صفحة المزود', value: 'link' },
+          { title: 'لا شيء بعد — زر الشراء يفتح واتساب', value: '' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: '',
     }),
     defineField({
-      name: 'payMethods', title: 'وسائل الدفع المقبولة · Payment methods', type: 'string', group: 'contact',
-      description: 'اكتبي ما تقبلينه فعلاً، مثل: Visa · Mastercard · Bit',
+      name: 'paypalEmail', title: 'إيميل باي بال · PayPal business address', type: 'string', group: 'pay',
+      hidden: ({ parent }) => parent?.payProvider !== 'paypal',
+      description: 'إيميل الحساب التجاري. صفحة باي بال تقبل البطاقة حتى لو الزبونة ما عندها حساب.',
+    }),
+    defineField({
+      name: 'payTemplate', title: 'رابط الدفع مع المبلغ · Checkout link with the amount', type: 'string', group: 'pay',
+      hidden: ({ parent }) => parent?.payProvider !== 'template',
+      description: 'الصقي رابط صفحة الدفع وضعي {amount} مكان المبلغ و{item} مكان اسم القطعة.',
+    }),
+    defineField({
+      name: 'payUrl', title: 'رابط الدفع الثابت · Checkout link', type: 'url', group: 'pay',
+      hidden: ({ parent }) => parent?.payProvider !== 'link',
+      description: 'صفحة دفع واحدة لكل القطع. المبلغ لا يُمرَّر إليها.',
+    }),
+    defineField({
+      name: 'payMethods', title: 'وسائل الدفع المقبولة · Payment methods', type: 'string', group: 'pay',
+      description: 'تظهر تحت زر الشراء. اكتبي ما تقبلينه فعلاً، مثل: Visa · Mastercard',
     }),
     defineField({
       name: 'formEndpoint', title: 'رابط نموذج الطلبات · Enquiry form endpoint', type: 'url', group: 'contact',

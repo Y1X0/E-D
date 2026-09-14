@@ -5,6 +5,7 @@ import LookCard from '~/components/LookCard.astro';
 import Lightbox from '~/components/Lightbox.astro';
 import { getContent, relatedTo } from '~/content';
 import { formatPrice } from '~/lib/price';
+import { checkoutUrl } from '~/lib/pay';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
@@ -24,7 +25,14 @@ const path = `/looks/${slug}`;
 // checkout page is the atelier's own; without one the order goes to WhatsApp,
 // which is where it would have been placed anyway.
 const price = look.price ? formatPrice(look.price) : null;
-const checkout = look.payUrl || settings?.payUrl || '';
+const checkout = look.price
+  ? checkoutUrl(settings, {
+      item: `${site.name} — ${copy.name} · ${title}`,
+      amount: look.price,
+      returnTo: new URL(localePath(path, locale), site.url).href,
+      locale,
+    }, look.payUrl)
+  : null;
 const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
 const orderHref = checkout
   || (whatsapp
