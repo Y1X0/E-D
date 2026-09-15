@@ -7,7 +7,13 @@ import { log } from '../logging.ts';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../db/migrations');
 const connectionString = process.env.DATABASE_URL?.trim();
-if (!connectionString) throw new Error('DATABASE_URL is not set');
+// Part of the start command, so it runs on every deploy. Before the database
+// is attached there is nothing to migrate and nothing to fail about — the
+// service itself is what refuses to serve production without one.
+if (!connectionString) {
+  log.info('no DATABASE_URL — skipping migrations');
+  process.exit(0);
+}
 
 const client = new pg.Client({
   connectionString,
