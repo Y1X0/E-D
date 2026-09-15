@@ -6,10 +6,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "npm run catalogue && astro build",
+    "catalogue": "node --experimental-strip-types --import ./scripts/register-hooks.mjs scripts/build-catalogue.mjs",
     "preview": "astro preview",
     "check": "astro check",
-    "seed": "node --experimental-strip-types scripts/seed-sanity.mjs"
+    "seed": "node --experimental-strip-types --import ./scripts/register-hooks.mjs scripts/seed-sanity.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.5",

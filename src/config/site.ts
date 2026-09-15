@@ -85,6 +85,13 @@ export const site = {
   locale: 'en',
   ogImage: '/og.jpg',
 
+  /**
+   * Origin of the payment service (server/). Empty until it is deployed, and
+   * while it is empty the site sells nothing online: a priced piece falls back
+   * to the hosted payment link or to WhatsApp, exactly as before.
+   */
+  paymentApi: (process.env.PAYMENT_API_URL ?? '').replace(/\/$/, ''),
+
   instagram: {
     handle: 'eliteevening.design',
     url: 'https://www.instagram.com/eliteevening.design/',

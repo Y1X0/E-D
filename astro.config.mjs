@@ -10,6 +10,8 @@ import react from '@astrojs/react';
 const SANITY_PROJECT_ID = process.env.SANITY_PROJECT_ID ?? '';
 const SANITY_DATASET = process.env.SANITY_DATASET ?? 'production';
 
+const PAYMENT_API = (process.env.PAYMENT_API_URL ?? '').replace(/\/$/, '');
+
 const SITE =
   process.env.SITE_URL ??
   process.env.RENDER_EXTERNAL_URL ??
@@ -17,6 +19,7 @@ const SITE =
 
 // Surfaced in the build log so the deployed origin is always verifiable.
 console.log(`[site] canonical origin: ${SITE}`);
+console.log(`[site] payments: ${PAYMENT_API ? `checkout through ${PAYMENT_API}` : 'no payment service — priced pieces fall back to the hosted link or WhatsApp'}`);
 console.log(`[site] content: ${SANITY_PROJECT_ID ? `Sanity (${SANITY_PROJECT_ID}/${SANITY_DATASET}), studio at /admin` : 'repository — set SANITY_PROJECT_ID to switch'}`);
 
 export default defineConfig({
@@ -25,7 +28,7 @@ export default defineConfig({
   integrations: [
     // The panel and the not-found pages are not content: search engines are
     // pointed at the collections, not at them.
-    sitemap({ filter: (page) => !/\/(admin|404)\/?$/.test(new URL(page).pathname) }),
+    sitemap({ filter: (page) => !/\/(admin|404|payments|checkout\/.*|payment\/.*)\/?$/.test(new URL(page).pathname) }),
     // The studio only exists once the atelier has a Sanity project. Until then
     // the site builds from the content in this repository and /admin is absent.
     ...(SANITY_PROJECT_ID
@@ -52,6 +55,7 @@ export default defineConfig({
     define: {
       'process.env.SANITY_PROJECT_ID': JSON.stringify(SANITY_PROJECT_ID),
       'process.env.SANITY_DATASET': JSON.stringify(SANITY_DATASET),
+      'process.env.PAYMENT_API_URL': JSON.stringify(PAYMENT_API),
     },
   },
 });

@@ -1,0 +1,11 @@
+---
+import Checkout from '~/views/Checkout.astro';
+import { getRoutes } from '~/content';
+
+/** Only a piece with a price is for sale online; everything else is commissioned. */
+export async function getStaticPaths() {
+  const { looks } = await getRoutes();
+  return looks.filter((l) => l.price).map((l) => ({ params: { slug: l.slug } }));
+}
+---
+<Checkout locale="en" slug={Astro.params.slug!} />

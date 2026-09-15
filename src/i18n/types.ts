@@ -101,6 +101,27 @@ export interface Dict {
 
   gallery: { eyebrow: string; title: string; accent: string; lead: string; all: string; empty: string };
 
+  checkout: {
+    eyebrow: string; title: string; accent: string;
+    summary: string; piece: string; quantity: string; unitPrice: string; subtotal: string; total: string;
+    details: string; name: string; phone: string; email: string; optional: string;
+    pay: string; paying: string;
+    secure: string; cards: string; noStore: string;
+    errorTitle: string; errorGeneric: string; errorGateway: string; errorFields: string;
+    backToLook: string;
+  };
+
+  payment: {
+    checking: string; checkingBody: string;
+    paidTitle: string; paidBody: string;
+    reference: string; amountPaid: string;
+    pendingTitle: string; pendingBody: string;
+    failedTitle: string; failedBody: string;
+    cancelledTitle: string; cancelledBody: string;
+    unknownTitle: string; unknownBody: string;
+    tryAgain: string; talkToAtelier: string; backHome: string;
+  };
+
   bespoke: {
     eyebrow: string; title: string; accent: string; lead: string;
     steps: [StepCopy, StepCopy, StepCopy, StepCopy, StepCopy];

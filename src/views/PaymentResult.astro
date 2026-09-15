@@ -1,0 +1,118 @@
+---
+import Base from '~/layouts/Base.astro';
+import { site } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale; kind: 'success' | 'failed' | 'cancelled' }
+const { locale, kind } = Astro.props;
+const dict = t(locale);
+const copy = dict.payment;
+
+// The redirect the gateway sends the buyer to is not evidence of anything. On
+// the success page the browser asks the payment service what the database
+// says, and only that decides what is shown.
+const heading = kind === 'success' ? copy.checking : kind === 'failed' ? copy.failedTitle : copy.cancelledTitle;
+const body = kind === 'success' ? copy.checkingBody : kind === 'failed' ? copy.failedBody : copy.cancelledBody;
+---
+
+<Base
+  locale={locale}
+  path={`/payment/${kind}`}
+  title={heading}
+  description={body}
+  noindex
+>
+  <section class="section pay" aria-labelledby="pay-h">
+    <div class="wrap pay__in">
+      <p class="label eyebrow" data-state>{dict.checkout.eyebrow}</p>
+      <h1 class="t-display pay__h" id="pay-h" data-heading>{heading}</h1>
+      <p class="pay__body" data-body>{body}</p>
+
+      <dl class="pay__meta" data-meta hidden>
+        <div><dt class="label">{copy.reference}</dt><dd data-ref></dd></div>
+        <div><dt class="label">{copy.amountPaid}</dt><dd data-amount></dd></div>
+      </dl>
+
+      <div class="pay__acts">
+        {kind !== 'success' && (
+          <a class="cta cta--solid" href={localePath('/collections/boutique', locale)}>
+            {copy.tryAgain} <span class="arw" aria-hidden="true">&#8594;</span>
+          </a>
+        )}
+        <a class="link" href={localePath('/contact', locale)}>
+          {copy.talkToAtelier} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+        <a class="link" href={localePath('/', locale)}>
+          {copy.backHome} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+{kind === 'success' && (
+  <script define:vars={{ api: site.paymentApi, copy }}>
+    const params = new URLSearchParams(location.search);
+    const reference = params.get('ref');
+    const token = params.get('t');
+
+    const heading = document.querySelector('[data-heading]');
+    const body = document.querySelector('[data-body]');
+    const meta = document.querySelector('[data-meta]');
+    const money = (agorot, currency) =>
+      currency === 'ILS' ? `${Math.round(agorot / 100).toLocaleString('en-US')} ₪` : `${agorot / 100} ${currency}`;
+
+    const show = (title, text) => { heading.textContent = title; body.textContent = text; };
+
+    if (!api || !reference || !token) {
+      show(copy.unknownTitle, copy.unknownBody);
+    } else {
+      // The order may still be settling when the buyer lands here: the webhook
+      // and the redirect are two different journeys. So ask again a few times
+      // before saying anything final — and never claim paid without being told.
+      const delays = [0, 1500, 3000, 5000, 8000];
+      let attempt = 0;
+
+      const ask = async () => {
+        try {
+          const res = await fetch(`${api}/api/orders/${encodeURIComponent(reference)}/status?t=${encodeURIComponent(token)}`);
+          if (res.status === 404) return show(copy.unknownTitle, copy.unknownBody);
+          const order = await res.json();
+
+          if (order.status === 'PAID') {
+            show(copy.paidTitle, copy.paidBody);
+            document.querySelector('[data-ref]').textContent = order.reference;
+            document.querySelector('[data-amount]').textContent = money(order.amount, order.currency);
+            meta.hidden = false;
+            return;
+          }
+          if (order.status === 'FAILED') return show(copy.failedTitle, copy.failedBody);
+          if (order.status === 'CANCELLED') return show(copy.cancelledTitle, copy.cancelledBody);
+
+          attempt += 1;
+          if (attempt < delays.length) return setTimeout(ask, delays[attempt]);
+          show(copy.pendingTitle, copy.pendingBody);
+        } catch {
+          show(copy.pendingTitle, copy.pendingBody);
+        }
+      };
+      ask();
+    }
+  </script>
+)}
+
+<style>
+  .pay__in {
+    padding-top: calc(var(--header-h) + clamp(2rem, 8vh, 5rem));
+    max-width: 56ch;
+  }
+  .pay__h { margin: .75rem 0 0; }
+  .pay__body { color: var(--ink-muted); font-size: var(--t-lead); line-height: 1.6; margin: 1.25rem 0 0; }
+  .pay__meta { margin: 2rem 0 0; border-top: 1px solid var(--line); }
+  .pay__meta > div {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    padding-block: .9rem; border-bottom: 1px solid var(--line);
+  }
+  .pay__meta dd { margin: 0; color: var(--ink); }
+  .pay__acts { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; margin-top: 2.5rem; }
+</style>

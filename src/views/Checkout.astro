@@ -1,0 +1,212 @@
+---
+import Base from '~/layouts/Base.astro';
+import Plate from '~/components/Plate.astro';
+import { getContent } from '~/content';
+import { formatPrice } from '~/lib/price';
+import { site } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale; slug: string }
+const { locale, slug } = Astro.props;
+const dict = t(locale);
+const { collections, looks } = await getContent(locale);
+const look = looks.find((l) => l.slug === slug)!;
+const line = collections.find((c) => c.slug === look.collection)!;
+const title = dict.ui.lookTitle(look.index);
+const price = look.price!;
+const plate = look.plates[0];
+---
+
+<Base
+  locale={locale}
+  path={`/checkout/${slug}`}
+  title={`${dict.checkout.eyebrow} — ${title}`}
+  description={dict.checkout.secure}
+  noindex
+>
+  <section class="section section--tight co" aria-labelledby="co-h">
+    <div class="wrap co__in">
+      <div class="co__order">
+        <p class="label eyebrow">{dict.checkout.summary}</p>
+        <div class="co__piece">
+          <div class="co__plate">{plate && <Plate {...plate} sizes="120px" />}</div>
+          <div>
+            <h1 class="t-h2 co__h" id="co-h">{title}</h1>
+            <p class="co__line">{line.name}</p>
+            <p class="co__note">{look.note}</p>
+          </div>
+        </div>
+
+        <dl class="co__rows">
+          <div><dt>{dict.checkout.unitPrice}</dt><dd>{formatPrice(price)}</dd></div>
+          <div>
+            <dt><label for="qty">{dict.checkout.quantity}</label></dt>
+            <dd>
+              <select id="qty" name="qty">
+                {[1, 2, 3, 4, 5].map((n) => <option value={n}>{n}</option>)}
+              </select>
+            </dd>
+          </div>
+          <div class="co__total">
+            <dt>{dict.checkout.total}</dt>
+            <dd data-total data-unit={price}>{formatPrice(price)}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <form class="co__form" id="pay" novalidate>
+        <p class="label eyebrow">{dict.checkout.details}</p>
+
+        <label class="co__field">
+          <span>{dict.checkout.name}</span>
+          <input name="name" autocomplete="name" required />
+        </label>
+        <label class="co__field">
+          <span>{dict.checkout.phone}</span>
+          <input name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
+        </label>
+        <label class="co__field">
+          <span>{dict.checkout.email} <em>{dict.checkout.optional}</em></span>
+          <input name="email" type="email" autocomplete="email" />
+        </label>
+
+        <p class="co__error" data-error hidden role="alert"></p>
+
+        <button class="cta cta--solid co__pay" type="submit">
+          <span data-label>{dict.checkout.pay}</span>
+          <span class="arw" aria-hidden="true">&#8594;</span>
+        </button>
+
+        <p class="co__secure">
+          <span class="co__cards">{dict.checkout.cards}</span>
+          {dict.checkout.secure} {dict.checkout.noStore}
+        </p>
+
+        <a class="link" href={localePath(`/looks/${slug}`, locale)}>
+          {dict.checkout.backToLook} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script
+  define:vars={{
+    api: site.paymentApi,
+    sku: slug,
+    locale,
+    unit: price,
+    labels: { pay: dict.checkout.pay, paying: dict.checkout.paying,
+              generic: dict.checkout.errorGeneric, gateway: dict.checkout.errorGateway, fields: dict.checkout.errorFields },
+  }}
+>
+  // The page never prices anything: it shows the figure it was built with, and
+  // the service prices the order again from its own catalogue before charging.
+  const form = document.getElementById('pay');
+  const qty = document.getElementById('qty');
+  const total = document.querySelector('[data-total]');
+  const error = document.querySelector('[data-error]');
+  const label = form.querySelector('[data-label]');
+  const button = form.querySelector('button');
+
+  const money = (agorot) => `${Math.round(agorot / 100).toLocaleString('en-US')} ₪`;
+  qty.addEventListener('change', () => { total.textContent = money(unit * 100 * Number(qty.value)); });
+
+  const fail = (message) => {
+    error.textContent = message;
+    error.hidden = false;
+    button.disabled = false;
+    label.textContent = labels.pay;
+  };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    error.hidden = true;
+    const data = new FormData(form);
+    const customer = {
+      name: String(data.get('name') || '').trim(),
+      phone: String(data.get('phone') || '').trim(),
+      email: String(data.get('email') || '').trim(),
+    };
+    if (!customer.name || (!customer.phone && !customer.email)) return fail(labels.fields);
+
+    button.disabled = true;
+    label.textContent = labels.paying;
+
+    try {
+      const response = await fetch(`${api}/api/checkout`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ sku, quantity: Number(qty.value), locale, customer }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 201 && body.redirectUrl) {
+        // the card is typed on the gateway's page, never on this one
+        window.location.href = body.redirectUrl;
+        return;
+      }
+      fail(response.status === 502 ? labels.gateway : body.message || labels.generic);
+    } catch {
+      fail(labels.gateway);
+    }
+  });
+</script>
+
+<style>
+  .co__in {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+    padding-top: calc(var(--header-h) + clamp(1rem, 4vh, 2.5rem));
+  }
+  .co__piece { display: flex; gap: 1.25rem; align-items: flex-start; margin-top: 1.25rem; }
+  .co__plate { width: clamp(84px, 22vw, 120px); flex: none; }
+  .co__h { margin: 0; }
+  .co__line { color: var(--gold-ink); font-size: var(--t-small); margin: .35rem 0 0; }
+  .co__note { color: var(--ink-muted); font-size: var(--t-small); margin: .6rem 0 0; max-width: 32ch; }
+
+  .co__rows { margin: 2rem 0 0; border-top: 1px solid var(--line); }
+  .co__rows > div {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    padding-block: .9rem; border-bottom: 1px solid var(--line);
+  }
+  .co__rows dt { color: var(--ink-muted); font-size: var(--t-small); }
+  .co__rows dd { margin: 0; }
+  .co__total dt, .co__total dd { font-size: var(--t-h3); color: var(--ink); }
+  .co__total dd { color: var(--gold-ink); }
+
+  select, input {
+    font: inherit; color: inherit;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    padding: .7rem .8rem;
+  }
+  select { padding-inline-end: 2rem; }
+  input { width: 100%; }
+  input:focus-visible, select:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+
+  .co__form { display: flex; flex-direction: column; gap: 1.1rem; }
+  .co__field { display: block; }
+  .co__field > span {
+    display: block; margin-bottom: .45rem;
+    font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .co__field em { font-style: normal; opacity: .7; text-transform: none; letter-spacing: 0; }
+
+  .co__error { color: #8c2f2f; font-size: var(--t-small); margin: 0; }
+  .co__pay { margin-top: .5rem; align-self: flex-start; }
+  .co__pay[disabled] { opacity: .6; cursor: progress; }
+
+  .co__secure { font-size: var(--t-small); color: var(--ink-muted); margin: 0; line-height: 1.6; }
+  .co__cards {
+    display: block; letter-spacing: var(--track-label); color: var(--ink);
+    margin-bottom: .35rem;
+  }
+
+  @media (max-width: 860px) {
+    .co__in { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+</style>

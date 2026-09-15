@@ -34,7 +34,13 @@ const checkout = look.price
     }, look.payUrl)
   : null;
 const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
-const orderHref = checkout
+// Three ways to buy, in the order they are trusted. Our own checkout, which
+// prices the order server-side and only calls it paid once the gateway's
+// webhook says so. A hosted payment link, when the atelier has one but no
+// service. And WhatsApp, which is where the order would have gone anyway.
+const ownCheckout = price && site.paymentApi ? localePath(`/checkout/${slug}`, locale) : '';
+const orderHref = ownCheckout
+  || checkout
   || (whatsapp
     ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(dict.lookPage.orderMessage(title, copy.name, price ?? ''))}`
     : '');
@@ -111,13 +117,13 @@ const schema = {
 
           <div class="look__acts">
             {price && orderHref && (
-              <a class="cta cta--solid" href={orderHref} rel={checkout ? 'noopener' : 'noopener nofollow'}>
-                {checkout ? dict.lookPage.buy : dict.lookPage.orderOnWhatsapp}
+              <a class="cta cta--solid" href={orderHref} rel={ownCheckout ? undefined : checkout ? 'noopener' : 'noopener nofollow'}>
+                {ownCheckout || checkout ? dict.lookPage.buy : dict.lookPage.orderOnWhatsapp}
                 <span class="arw" aria-hidden="true">&#8594;</span>
               </a>
             )}
-            {price && checkout && settings?.payMethods && (
-              <p class="look__pay">{dict.lookPage.payNote} <span>{settings.payMethods}</span></p>
+            {price && (ownCheckout || checkout) && (ownCheckout || settings?.payMethods) && (
+              <p class="look__pay">{dict.lookPage.payNote} <span>{settings?.payMethods || dict.checkout.cards}</span></p>
             )}
             <a class:list={['cta', !(price && orderHref) && 'cta--solid']} href={`${localePath('/contact', locale)}?enquiry=${encodeURIComponent(copy.name)}`}>
               {dict.lookPage.enquire} <span class="arw" aria-hidden="true">&#8594;</span>

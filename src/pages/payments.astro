@@ -1,0 +1,106 @@
+---
+import Base from '~/layouts/Base.astro';
+import { site } from '~/config/site';
+
+// The atelier's own ledger. The studio at /admin holds the content; payments
+// are not content, so they are read straight from the payment service with the
+// admin token — which is typed here and kept for the tab, never stored.
+---
+<Base locale="en" path="/payments" title="Payments" description="Payment reconciliation for the atelier." noindex>
+  <section class="section adm">
+    <div class="wrap adm__in">
+      <p class="label eyebrow">Atelier</p>
+      <h1 class="t-h2 adm__h">Payments</h1>
+
+      <form class="adm__key" id="key">
+        <label for="token">Admin token</label>
+        <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" />
+        <button class="cta" type="submit">Open</button>
+      </form>
+
+      <p class="adm__msg" data-msg hidden role="status"></p>
+
+      <div class="adm__scroll" hidden data-wrap>
+        <table class="adm__table">
+          <thead>
+            <tr>
+              <th>Order</th><th>Piece</th><th>Amount</th><th>Status</th>
+              <th>Gateway</th><th>Transaction</th><th>Paid</th><th>Failure</th>
+            </tr>
+          </thead>
+          <tbody data-rows></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script define:vars={{ api: site.paymentApi }}>
+  const form = document.getElementById('key');
+  const msg = document.querySelector('[data-msg]');
+  const wrap = document.querySelector('[data-wrap]');
+  const rows = document.querySelector('[data-rows]');
+
+  const say = (text) => { msg.textContent = text; msg.hidden = false; };
+  const money = (a, c) => (c === 'ILS' ? `${Math.round(a / 100).toLocaleString('en-US')} ₪` : `${a / 100} ${c}`);
+  const when = (iso) => (iso ? new Date(iso).toLocaleString() : '—');
+
+  if (!api) say('No payment service is configured for this site yet.');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const token = document.getElementById('token').value.trim();
+    if (!api || !token) return;
+    msg.hidden = true;
+
+    try {
+      const res = await fetch(`${api}/api/admin/payments?limit=100`, { headers: { authorization: `Bearer ${token}` } });
+      if (res.status === 401) return say('That token was not accepted.');
+      if (!res.ok) return say('The payment service did not answer.');
+
+      const { payments } = await res.json();
+      rows.textContent = '';
+      for (const p of payments) {
+        const tr = document.createElement('tr');
+        for (const cell of [
+          p.reference, p.title, money(p.amount, p.currency), p.status,
+          p.provider, p.providerTransactionId ?? '—', when(p.paidAt), p.failureReason ?? '—',
+        ]) {
+          const td = document.createElement('td');
+          td.textContent = String(cell);
+          tr.append(td);
+        }
+        tr.dataset.status = p.status;
+        rows.append(tr);
+      }
+      wrap.hidden = false;
+      if (!payments.length) say('No payments yet.');
+    } catch {
+      say('The payment service could not be reached.');
+    }
+  });
+</script>
+
+<style>
+  .adm__in { padding-top: calc(var(--header-h) + clamp(1.5rem, 5vh, 3rem)); }
+  .adm__h { margin: .5rem 0 2rem; }
+  .adm__key { display: flex; flex-wrap: wrap; align-items: end; gap: .9rem; }
+  .adm__key label {
+    display: block; width: 100%;
+    font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-muted);
+  }
+  .adm__key input {
+    font: inherit; color: inherit; background: transparent;
+    border: 1px solid var(--line-strong); border-radius: 0; padding: .7rem .8rem; min-width: min(28rem, 100%);
+  }
+  .adm__msg { margin-top: 1.25rem; color: var(--ink-muted); font-size: var(--t-small); }
+  .adm__scroll { margin-top: 2rem; overflow-x: auto; }
+  .adm__table { border-collapse: collapse; width: 100%; font-size: var(--t-small); white-space: nowrap; }
+  .adm__table th, .adm__table td { text-align: start; padding: .7rem 1rem .7rem 0; border-bottom: 1px solid var(--line); }
+  .adm__table th {
+    font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase;
+    color: var(--ink-muted); font-weight: 400;
+  }
+  .adm__table tr[data-status='PAID'] td:nth-child(4) { color: var(--gold-ink); }
+  .adm__table tr[data-status='FAILED'] td:nth-child(4) { color: #8c2f2f; }
+</style>
