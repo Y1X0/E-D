@@ -10,6 +10,9 @@
  *
  *   paypal   — a PayPal business address is enough. PayPal's own page takes
  *              Visa and Mastercard from buyers who have no PayPal account.
+ *   paypalme — a personal PayPal account, through its PayPal.Me link, with the
+ *              amount already in it. Whether a buyer without a PayPal account
+ *              may pay by card here is PayPal's decision, not this site's.
  *   template — any provider whose payment page accepts the amount in the URL
  *              (Grow, Meshulam, PayPlus, Tranzila…): paste the link with
  *              {amount} and {item} where they belong.
@@ -20,8 +23,10 @@
  * would have been placed anyway — so the button always does something real.
  */
 export interface PaySettings {
-  payProvider?: 'paypal' | 'template' | 'link' | '';
+  payProvider?: 'paypal' | 'paypalme' | 'template' | 'link' | '';
   paypalEmail?: string;
+  /** A PayPal.Me handle, or the whole link — either is accepted. */
+  paypalMe?: string;
   payUrl?: string;
   payTemplate?: string;
 }
@@ -48,7 +53,16 @@ export function checkoutUrl(settings: PaySettings | null | undefined, order: Ord
   if (!settings) return null;
 
   const provider = settings.payProvider
-    || (settings.paypalEmail ? 'paypal' : settings.payTemplate ? 'template' : settings.payUrl ? 'link' : '');
+    || (settings.paypalEmail ? 'paypal'
+      : settings.paypalMe ? 'paypalme'
+      : settings.payTemplate ? 'template'
+      : settings.payUrl ? 'link' : '');
+
+  if (provider === 'paypalme' && settings.paypalMe) {
+    // written as a handle or pasted as a link; both end at the handle
+    const handle = settings.paypalMe.trim().replace(/^.*paypal(?:\.me|\.com\/paypalme)\//i, '').replace(/^@/, '').split(/[/?#]/)[0];
+    if (handle) return `https://www.paypal.com/paypalme/${handle}/${Math.round(order.amount)}ILS`;
+  }
 
   if (provider === 'paypal' && settings.paypalEmail) {
     const q = new URLSearchParams({

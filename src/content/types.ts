@@ -55,9 +55,11 @@ export interface SiteContent {
     streetLocal?: string;
     cityLocal?: string;
     /** How the atelier takes a card. See src/lib/pay.ts. */
-    payProvider?: 'paypal' | 'template' | 'link' | '';
+    payProvider?: 'paypal' | 'paypalme' | 'template' | 'link' | '';
     /** A PayPal business address — enough on its own to accept Visa. */
     paypalEmail?: string;
+    /** A PayPal.Me handle, for a personal PayPal account. */
+    paypalMe?: string;
     /** One fixed checkout page, used when the amount is not passed in the URL. */
     payUrl?: string;
     /** A checkout URL carrying {amount} and {item}. */

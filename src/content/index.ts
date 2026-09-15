@@ -24,7 +24,7 @@ const QUERY = `{
   "settings": *[_type == "siteSettings"][0] {
     tagline, booking, instagramHandle, phone, whatsapp, email, formEndpoint,
     street, city, streetLocal, cityLocal,
-    payProvider, paypalEmail, payUrl, payTemplate, payMethods,
+    payProvider, paypalEmail, paypalMe, payUrl, payTemplate, payMethods,
     hero ${IMAGE_PROJECTION}
   }
 }`;
@@ -176,7 +176,7 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       instagramHandle: s.instagramHandle,
       phone: s.phone, whatsapp: s.whatsapp, email: s.email, formEndpoint: s.formEndpoint,
       street: s.street, city: s.city, streetLocal: s.streetLocal, cityLocal: s.cityLocal,
-      payProvider: s.payProvider, paypalEmail: s.paypalEmail,
+      payProvider: s.payProvider, paypalEmail: s.paypalEmail, paypalMe: s.paypalMe,
       payUrl: s.payUrl, payTemplate: s.payTemplate, payMethods: s.payMethods,
     },
   };

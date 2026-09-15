@@ -131,7 +131,8 @@ export const siteSettings = defineType({
       name: 'payProvider', title: 'طريقة استقبال الدفع · How payment is taken', type: 'string', group: 'pay',
       options: {
         list: [
-          { title: 'باي بال — يكفي إيميل الحساب التجاري، ويقبل فيزا وماستركارد', value: 'paypal' },
+          { title: 'باي بال تجاري — إيميل الحساب، ويقبل فيزا وماستركارد بدون حساب باي بال', value: 'paypal' },
+          { title: 'باي بال شخصي — رابط PayPal.Me، والمبلغ يُضاف تلقائياً', value: 'paypalme' },
           { title: 'رابط فيه المبلغ — لمزودي الدفع (Grow · Meshulam · PayPlus · Tranzila)', value: 'template' },
           { title: 'رابط ثابت واحد — Stripe أو بِت أو صفحة المزود', value: 'link' },
           { title: 'لا شيء بعد — زر الشراء يفتح واتساب', value: '' },
@@ -144,6 +145,11 @@ export const siteSettings = defineType({
       name: 'paypalEmail', title: 'إيميل باي بال · PayPal business address', type: 'string', group: 'pay',
       hidden: ({ parent }) => parent?.payProvider !== 'paypal',
       description: 'إيميل الحساب التجاري. صفحة باي بال تقبل البطاقة حتى لو الزبونة ما عندها حساب.',
+    }),
+    defineField({
+      name: 'paypalMe', title: 'رابط أو اسم PayPal.Me · PayPal.Me handle', type: 'string', group: 'pay',
+      hidden: ({ parent }) => parent?.payProvider !== 'paypalme',
+      description: 'مثال: paypal.me/yourname — أو الاسم وحده. المبلغ بالشيكل يُضاف إلى الرابط تلقائياً.',
     }),
     defineField({
       name: 'payTemplate', title: 'رابط الدفع مع المبلغ · Checkout link with the amount', type: 'string', group: 'pay',
