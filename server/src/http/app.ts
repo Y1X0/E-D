@@ -10,6 +10,8 @@ import { buildOrder, OrderRejected } from '../domain/orders.ts';
 import { TransitionError } from '../domain/state.ts';
 import { log } from '../logging.ts';
 import { cors, hardenedHeaders, rateLimit, sameOrigin } from './security.ts';
+import { MockProvider } from '../providers/mock.ts';
+import { mountSandbox } from './sandbox.ts';
 
 export interface Deps {
   env: Env;
@@ -26,6 +28,9 @@ export function createApp({ env, store, provider, catalogue }: Deps): Express {
   app.use(cors([env.siteUrl]));
 
   app.get('/healthz', (_req, res) => { res.json({ ok: true, provider: provider.name }); });
+
+  // Only ever present while the sandbox gateway is the configured one.
+  if (provider instanceof MockProvider) mountSandbox(app, provider);
 
   /** What the checkout page shows. Prices come from here, not from the page. */
   app.get('/api/catalogue/:sku', (req: Request, res: Response) => {

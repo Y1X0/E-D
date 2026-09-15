@@ -286,3 +286,47 @@ describe('the payment flow', () => {
   });
 
 });
+
+describe('the sandbox gateway', () => {
+  it('stands where the real gateway stands, and settles through the same webhook', async () => {
+    const h = await start();
+    after(() => h.stop());
+    const order = await h.checkout();
+
+    // the page the buyer is sent to
+    const page = await fetch(new URL(order.redirectUrl).toString().replace(/^https:\/\/pay\.atelier\.test/, h.url));
+    assert.equal(page.status, 200);
+    const html = await page.text();
+    assert.match(html, /بيئة تجريبية/, 'it says plainly that nothing is charged');
+    assert.match(html, new RegExp(order.reference), 'and which order it is');
+
+    // pressing "paid" posts a signed webhook, then returns the buyer
+    const params = new URL(order.redirectUrl).searchParams;
+    const settled = await fetch(`${h.url}/sandbox/settle`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      redirect: 'manual',
+      body: new URLSearchParams({
+        session: params.get('session')!, reference: order.reference,
+        amount: String(order.amount), outcome: 'PAID',
+        return: params.get('return')!, cancel: params.get('cancel')!,
+      }),
+    });
+    assert.equal(settled.status, 303);
+    assert.match(settled.headers.get('location') ?? '', /payment\/success/);
+
+    const seen = await statusOf(h, order.reference, order.statusToken);
+    assert.equal(seen.body.status, 'PAID');
+  });
+
+  it('does not exist when a real gateway is configured', async () => {
+    const real: PaymentProvider = {
+      name: 'stripe',
+      async createCheckout() { throw new Error('not used'); },
+      async readWebhook() { throw new Error('not used'); },
+    };
+    const h = await start({ provider: real });
+    after(() => h.stop());
+    assert.equal((await h.get('/sandbox/checkout?session=x&amount=1&return=y')).status, 404);
+  });
+});
