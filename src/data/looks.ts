@@ -20,7 +20,12 @@ export interface LookShape {
  * is made to measure and priced at consultation. A line missing from here shows
  * no price at all rather than a guess.
  */
-const prices: Record<string, number> = {};
+const prices: Record<string, number> = {
+  'boutique-01': 2500,
+  'boutique-02': 2500,
+  'boutique-03': 2500,
+  'boutique-04': 2500,
+};
 
 const PER_LINE = 4;
 
