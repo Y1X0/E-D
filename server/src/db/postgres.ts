@@ -9,6 +9,19 @@ const { Pool } = pg;
 // safely within Number range, so read it as a number rather than juggling both
 pg.types.setTypeParser(20, (value: string) => Number(value));
 
+/**
+ * Render's managed Postgres is reached two ways. Over the internet the host is
+ * a full domain and TLS is required — with Render's own chain, which is not in
+ * the system store. Inside Render the host is a bare name on a private network,
+ * where the server offers no TLS at all and asking for it fails the connection.
+ */
+const sslFor = (connectionString: string): false | { rejectUnauthorized: boolean } => {
+  let host = '';
+  try { host = new URL(connectionString).hostname; } catch { host = ''; }
+  const internal = !host.includes('.') || host === 'localhost' || /^127\./.test(host);
+  return internal ? false : { rejectUnauthorized: false };
+};
+
 const toOrder = (r: any): Order => ({
   id: r.id, reference: r.reference, status: r.status as PaymentState,
   sku: r.sku, title: r.title, quantity: r.quantity,
@@ -38,12 +51,7 @@ export class PostgresStore implements Store {
   #pool: pg.Pool;
 
   constructor(connectionString: string) {
-    this.#pool = new Pool({
-      connectionString,
-      max: 5,
-      // Render's managed Postgres terminates TLS with its own chain
-      ssl: /localhost|127\.0\.0\.1/.test(connectionString) ? false : { rejectUnauthorized: false },
-    });
+    this.#pool = new Pool({ connectionString, max: 5, ssl: sslFor(connectionString) });
   }
 
   async createOrderWithPayment(input: NewOrder, provider: string) {
