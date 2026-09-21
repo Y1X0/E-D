@@ -73,6 +73,9 @@ export function mountSandbox(app: Express, provider: MockProvider): void {
   });
 
   app.post('/sandbox/settle', express.urlencoded({ extended: false }), async (req: Request, res: Response) => {
+    // only from the sandbox page itself, which lives on this same origin
+    const from = req.get('origin');
+    if (from && from !== `${req.protocol}://${req.get('host')}`) { res.status(403).end(); return; }
     const { session, reference, amount, outcome } = req.body as Record<string, string>;
     const back = String(req.body.return ?? '');
     const cancel = String(req.body.cancel ?? '');

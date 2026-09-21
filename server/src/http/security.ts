@@ -35,15 +35,18 @@ export function rateLimit({ windowMs, max }: { windowMs: number; max: number }) 
 /**
  * Only the website may ask this service to start a payment.
  *
- * The browser sends JSON with a content type that is not form-encoded, so it is
- * already outside what a cross-site form can forge; this closes the rest by
- * requiring the request to come from the site's own origin. The webhook route
- * is exempt — it is called by the gateway, and its signature is what proves it.
+ * The site and this service are different origins, so a browser always states
+ * its origin on this request — which means a missing one is not a browser, and
+ * is refused along with a wrong one. Without that, anything that can reach the
+ * address could open orders in the atelier's ledger.
+ *
+ * The webhook route is exempt: it is called by the gateway, from a server, and
+ * its signature is what proves it.
  */
 export function sameOrigin(allowed: string[]) {
   return (req: Request, res: Response, next: NextFunction) => {
     const origin = req.get('origin');
-    if (!origin || allowed.includes(origin)) return next();
+    if (origin && allowed.includes(origin)) return next();
     res.status(403).json({ error: 'origin_not_allowed' });
   };
 }

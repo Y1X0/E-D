@@ -186,6 +186,24 @@ describe('the payment flow', () => {
     assert.equal(seen.body.paidAt, null);
   });
 
+  it('11b. refuses to open an order for anything that is not the website', async () => {
+    const h = await start();
+    after(() => h.stop());
+    const body = { sku: 'boutique-01', quantity: 1, locale: 'en', customer: { name: 'x', phone: '+972500000000' } };
+
+    // a script with the address but no browser behind it
+    const bare = await fetch(`${h.url}/api/checkout`, {
+      method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
+    });
+    assert.equal(bare.status, 403);
+
+    // and a page on another site
+    const elsewhere = await h.post('/api/checkout', body, { origin: 'https://not-the-atelier.example' });
+    assert.equal(elsewhere.status, 403);
+
+    assert.equal((await h.store.listPayments(10)).length, 0, 'nothing was written');
+  });
+
   it('12. answers 502 and fails the payment when the gateway is unreachable', async () => {
     const broken: PaymentProvider = {
       name: 'mock',
