@@ -17,8 +17,10 @@ const dicts = Object.fromEntries(await Promise.all(
 const CURRENCY = 'ILS';
 const MINOR = 100;
 
+// Same rule the site keeps: a piece is for sale only once it is photographed,
+// so the service cannot take money for something nobody has seen either.
 const items = looks
-  .filter((l) => typeof l.price === 'number' && l.price > 0)
+  .filter((l) => typeof l.price === 'number' && l.price > 0 && l.plates.some((p) => p.src))
   .map((l) => ({
     sku: l.slug,
     collection: l.collection,

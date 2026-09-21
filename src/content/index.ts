@@ -50,6 +50,16 @@ const placeholders = (slug: string, look?: number): Photo[] => {
   return (localLooks.find((l) => l.slug === key)?.plates ?? []).map((p) => ({ ...p }));
 };
 
+/**
+ * A piece is only for sale once it has been photographed.
+ *
+ * A price on an empty frame asks a buyer to spend 2,500 ₪ on something she
+ * cannot see, which is worse than no price at all: the figure is kept in the
+ * studio, and appears the moment a photograph does.
+ */
+const shown = (look: { price?: number; plates: Photo[] }): LookEntry['price'] =>
+  look.plates.some((p) => p.sanity || p.src) ? look.price : undefined;
+
 /** The price written in the repository for a look the studio has no price for. */
 const ownPrice = (slug: string) => {
   const price = localLooks.find((l) => l.slug === slug)?.price;
@@ -79,14 +89,18 @@ function localContent(locale: Locale): SiteContent {
         plates: c.plates.map((p) => ({ ...p })),
       } satisfies CollectionEntry;
     }),
-    looks: localLooks.map((l) => ({
-      slug: l.slug,
-      index: l.index,
-      collection: l.collection,
-      note: dict.lookNotes[l.collection][l.index - 1],
-      plates: l.plates.map((p) => ({ ...p })),
-      ...(l.price ? { price: l.price } : {}),
-    })),
+    looks: localLooks.map((l) => {
+      const plates = l.plates.map((p) => ({ ...p }));
+      const price = shown({ price: l.price, plates });
+      return {
+        slug: l.slug,
+        index: l.index,
+        collection: l.collection,
+        note: dict.lookNotes[l.collection][l.index - 1],
+        plates,
+        ...(price ? { price } : {}),
+      };
+    }),
     hero: null,
     settings: null,
   };
@@ -141,14 +155,18 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
   const looks: LookEntry[] = (data.looks ?? []).map((l: any) => {
     const n = l.number ?? (perLine.get(l.collection) ?? 0) + 1;
     perLine.set(l.collection, n);
+    const slug = `${l.collection}-${String(n).padStart(2, '0')}`;
     const fallback = dict.lookNotes[l.collection as keyof typeof dict.lookNotes];
+    const plates = photos(l.photos, locale, ['linen', 'shadow', 'paper'] as const, placeholders(l.collection, n));
+    const asked = typeof l.price === 'number' ? l.price : ownPrice(slug).price;
+    const price = shown({ price: asked, plates });
     return {
-      slug: `${l.collection}-${String(n).padStart(2, '0')}`,
+      slug,
       index: n,
       collection: l.collection,
       note: pick(l.note, locale) || fallback?.[n - 1] || '',
-      plates: photos(l.photos, locale, ['linen', 'shadow', 'paper'] as const, placeholders(l.collection, n)),
-      ...(typeof l.price === 'number' ? { price: l.price } : ownPrice(`${l.collection}-${String(n).padStart(2, '0')}`)),
+      plates,
+      ...(price ? { price } : {}),
       ...(l.payUrl ? { payUrl: l.payUrl } : {}),
     };
   });
