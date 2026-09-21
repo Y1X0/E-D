@@ -82,6 +82,10 @@ const plate = look.plates[0];
           {dict.checkout.secure} {dict.checkout.noStore}
         </p>
 
+        <a class="link co__terms" href={localePath('/terms', locale)}>
+          {dict.terms.title} {dict.terms.accent} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+
         <a class="link" href={localePath(`/looks/${slug}`, locale)}>
           {dict.checkout.backToLook} <span class="arw" aria-hidden="true">&#8594;</span>
         </a>
@@ -201,6 +205,7 @@ const plate = look.plates[0];
   .co__pay[disabled] { opacity: .6; cursor: progress; }
 
   .co__secure { font-size: var(--t-small); color: var(--ink-muted); margin: 0; line-height: 1.6; }
+  .co__terms { font-size: var(--t-small); }
   .co__cards {
     display: block; letter-spacing: var(--track-label); color: var(--ink);
     margin-bottom: .35rem;

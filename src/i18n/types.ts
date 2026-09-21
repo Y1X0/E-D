@@ -20,6 +20,7 @@ export interface CollectionCopy {
 }
 
 export interface StepCopy { title: string; body: string }
+export interface TermsSection { title: string; body: string[] }
 export interface PairCopy { title: string; body: string }
 
 /**
@@ -152,6 +153,14 @@ export interface Dict {
     waOpening: string; waOpeningBody: string;
     igTitle: string; igBody: (handle: string) => string;
     noteWhatsapp: string; noteInstagram: string; notePhone: string; noteEmail: string;
+  };
+
+  /** Everything a buyer is owed before she pays — the atelier's own terms. */
+  terms: {
+    eyebrow: string; title: string; accent: string; lead: string;
+    sections: [TermsSection, TermsSection, TermsSection, TermsSection, TermsSection];
+    statutory: string;
+    updated: (date: string) => string;
   };
 
   notFound: { eyebrow: string; title: string; accent: string; lead: string; home: string; collections: string };

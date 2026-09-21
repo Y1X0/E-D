@@ -1,0 +1,96 @@
+---
+import Base from '~/layouts/Base.astro';
+import PageHero from '~/components/PageHero.astro';
+import { site, addressLine, addressLineLocal, contactChannels, mapsUrl } from '~/config/site';
+import { t, localePath, type Locale } from '~/i18n';
+
+interface Props { locale: Locale }
+const { locale } = Astro.props;
+const dict = t(locale);
+const copy = dict.terms;
+
+// Written from what the atelier actually does — measured three ways, a day to a
+// week, collected or delivered, exchanged within four days. Nothing here is a
+// template clause, and nothing is claimed that the atelier has not said.
+const updated = new Date('2026-09-21').toLocaleDateString(locale === 'en' ? 'en-GB' : locale, {
+  year: 'numeric', month: 'long', day: 'numeric',
+});
+const whatsapp = contactChannels().find((c) => c.id === 'whatsapp');
+
+const schema = {
+  '@type': 'WebPage',
+  name: `${copy.title} ${copy.accent} — ${site.name}`,
+  url: new URL(localePath('/terms', locale), site.url).href,
+  description: copy.lead,
+  isPartOf: { '@id': `${site.url}/#website` },
+  inLanguage: locale,
+};
+---
+
+<Base
+  locale={locale}
+  path="/terms"
+  title={`${copy.title} ${copy.accent}`}
+  description={copy.lead}
+  schema={schema}
+>
+  <PageHero eyebrow={copy.eyebrow} title={copy.title} accent={copy.accent} lead={copy.lead} />
+
+  <section class="section section--tight terms" aria-labelledby="terms-h">
+    <div class="wrap terms__in">
+      <h2 class="sr-only" id="terms-h">{copy.title} {copy.accent}</h2>
+
+      <ol class="terms__list">
+        {copy.sections.map((section, i) => (
+          <li class="terms__item reveal">
+            <p class="label terms__n">{String(i + 1).padStart(2, '0')}</p>
+            <div class="terms__body">
+              <h3 class="t-h3 terms__h">{section.title}</h3>
+              {section.body.map((line) => <p>{line}</p>)}
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div class="terms__foot reveal">
+        <p class="terms__statutory">{copy.statutory}</p>
+        <p class="terms__where">
+          <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{addressLine}</a>
+          <span dir="rtl" lang="he">{addressLineLocal}</span>
+        </p>
+        {whatsapp && (
+          <a class="link" href={whatsapp.href} target="_blank" rel="noopener noreferrer">
+            {dict.payment.talkToAtelier} <span class="arw" aria-hidden="true">&#8594;</span>
+          </a>
+        )}
+        <p class="terms__updated">{copy.updated(updated)}</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .terms__in { max-width: 62ch; }
+  .terms__list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .terms__item {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+    gap: 1rem;
+    padding-block: clamp(1.5rem, 4vh, 2.5rem);
+    border-bottom: 1px solid var(--line);
+  }
+  .terms__n { color: var(--gold-ink); margin: .35rem 0 0; }
+  .terms__h { margin: 0 0 .85rem; }
+  .terms__body p { color: var(--ink-muted); line-height: 1.7; margin: 0; }
+  .terms__body p + p { margin-top: .85rem; }
+
+  .terms__foot { margin-top: clamp(2rem, 5vh, 3rem); display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .terms__statutory { margin: 0; font-size: var(--t-small); color: var(--ink); }
+  .terms__where { margin: 0; display: flex; flex-wrap: wrap; gap: .75rem; font-size: var(--t-small); color: var(--ink-muted); }
+  .terms__where a:hover { color: var(--gold-ink); }
+  .terms__updated { margin: 0; font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-muted); }
+
+  @media (max-width: 560px) {
+    .terms__item { grid-template-columns: 1fr; gap: .35rem; }
+  }
+</style>

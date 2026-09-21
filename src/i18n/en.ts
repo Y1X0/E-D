@@ -306,6 +306,53 @@ export const en: Dict = {
     noteEmail: 'For enquiries and appointments',
   },
 
+  terms: {
+    eyebrow: 'Before you order',
+    title: 'Measurements, delivery',
+    accent: 'and exchange',
+    lead: 'What is worth knowing before you order, written plainly.',
+    sections: [
+      {
+        title: 'Measurements',
+        body: [
+          'Three ways, whichever suits you: measured at the atelier in Lod, your own measurements sent to us and cut to them, or a ready size (S · M · L).',
+          'Being measured in person is the most accurate, and what we recommend for the dresses that matter.',
+        ],
+      },
+      {
+        title: 'How long it takes',
+        body: [
+          'Roughly one day to a week, depending on the piece and the area.',
+          'The date is agreed with you when you order — if you have an occasion to meet, say so at the start.',
+        ],
+      },
+      {
+        title: 'Collection and delivery',
+        body: [
+          'Collection from the atelier: Herzl 40, Lod — by appointment.',
+          'Delivery is available; the cost depends on the area and is agreed with you before anything is sent.',
+        ],
+      },
+      {
+        title: 'Exchange and return',
+        body: [
+          'Exchange: within 4 days of receiving the piece, in the condition it arrived, unworn and with its tags.',
+          'Pieces cut to measure are not returnable — they were made to your measurements alone and cannot be sold again.',
+          'Hired dresses come back on the agreed date, as part of the hire agreement itself.',
+        ],
+      },
+      {
+        title: 'Payment',
+        body: [
+          'Payment is taken on the payment provider\u2019s own secure page. Your card details never pass through this site and are never stored by the atelier.',
+          'Prices are in new shekels and cover what the piece\u2019s page describes.',
+        ],
+      },
+    ],
+    statutory: 'Nothing here reduces your rights under consumer protection law.',
+    updated: (date) => `Last updated: ${date}`,
+  },
+
   notFound: {
     eyebrow: 'Error 404',
     title: 'This page has',
