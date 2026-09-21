@@ -149,6 +149,7 @@ export interface Dict {
     sent: string; sentBody: string;
     failed: string; failedBody: string;
     mailOpening: string; mailOpeningBody: string;
+    waOpening: string; waOpeningBody: string;
     igTitle: string; igBody: (handle: string) => string;
     noteWhatsapp: string; noteInstagram: string; notePhone: string; noteEmail: string;
   };

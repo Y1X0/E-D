@@ -294,6 +294,8 @@ export const en: Dict = {
     sentBody: 'Your enquiry has reached the atelier. You will hear back personally.',
     failed: 'That did not send.',
     failedBody: 'Please try again, or message the atelier on Instagram.',
+    waOpening: 'WhatsApp is opening.',
+    waOpeningBody: 'Your enquiry is written out and ready — press send, and the atelier will reply there.',
     mailOpening: 'Your email is opening.',
     mailOpeningBody: 'Send the message from there and the atelier will reply.',
     igTitle: 'Instagram is the fastest way through.',

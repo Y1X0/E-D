@@ -8,7 +8,7 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const c = dict.contact;
 const { collections } = await getContent(locale);
-const { formEndpoint, email } = site.contact;
+const { formEndpoint, email, whatsapp } = site.contact;
 
 /** Messages the script shows; passed as data so it stays language-agnostic. */
 const ig = site.instagram;
@@ -20,6 +20,7 @@ const messages = {
   sent: strong(c.sent) + c.sentBody,
   failed: strong(c.failed) + c.failedBody.replace('Instagram', igPlain),
   mail: strong(c.mailOpening) + c.mailOpeningBody,
+  wa: strong(c.waOpening) + c.waOpeningBody,
   ig: strong(c.igTitle) + c.igBody(ig.handle).replace('@' + ig.handle, igLink),
   subject: c.formTitle,
 };
@@ -31,6 +32,7 @@ const messages = {
   action={formEndpoint || undefined}
   data-endpoint={formEndpoint}
   data-email={email}
+  data-whatsapp={whatsapp}
   data-messages={JSON.stringify(messages)}
 >
   <div class="form__grid">
@@ -157,7 +159,7 @@ const messages = {
 
     const status = form.querySelector<HTMLElement>('.form__status')!;
     const button = form.querySelector<HTMLButtonElement>('.form__send')!;
-    const { endpoint, email } = form.dataset as Record<string, string>;
+    const { endpoint, email, whatsapp } = form.dataset as Record<string, string>;
     const msg = JSON.parse(form.dataset.messages || '{}');
 
     const show = (html: string) => {
@@ -206,7 +208,17 @@ const messages = {
         return;
       }
 
-      // 3. Nothing published yet — Instagram is the atelier's live channel.
+      // 3. No inbox, but a published WhatsApp line — which is where enquiries
+      //    actually reach this atelier. The message is written out for her.
+      if (whatsapp) {
+        e.preventDefault();
+        const text = `${msg.subject}\n\n${summarise(data)}`;
+        window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+        show(msg.wa);
+        return;
+      }
+
+      // 4. Nothing published yet — Instagram is the atelier's live channel.
       e.preventDefault();
       show(msg.ig);
     });
