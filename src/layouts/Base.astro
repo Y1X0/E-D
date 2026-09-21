@@ -19,13 +19,20 @@ interface Props {
   noindex?: boolean;
   /** Path without a locale prefix, e.g. '/collections/bridal'. Drives hreflang. */
   path: string;
+  /**
+   * False for a page that exists in one language only — the ledger, the
+   * not-found page. The language switcher then offers each language's home
+   * rather than a translation of this path that was never built, and no
+   * hreflang is claimed for addresses that do not exist.
+   */
+  translated?: boolean;
   schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
   locale, title, description, titleExact = false,
   variant = 'solid', image = site.ogImage,
-  type = 'website', noindex = false, path, schema,
+  type = 'website', noindex = false, path, schema, translated = true,
 } = Astro.props;
 
 const dict = t(locale);
@@ -75,9 +82,9 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
 
     {/* every language of this page, plus the default for anything unmatched */}
     {LOCALES.map((l) => (
-      <link rel="alternate" hreflang={HREFLANG[l]} href={new URL(localePath(path, l), site.url).href} />
+      <link rel="alternate" hreflang={HREFLANG[l]} href={new URL(localePath(translated ? path : '/', l), site.url).href} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={new URL(localePath(path, DEFAULT_LOCALE), site.url).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(localePath(translated ? path : '/', DEFAULT_LOCALE), site.url).href} />
 
     <meta property="og:type" content={type} />
     <meta property="og:site_name" content={site.name} />
@@ -120,7 +127,7 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
 
   <body>
     <a class="skip" href="#main">{dict.ui.skip}</a>
-    <SiteHeader locale={locale} variant={variant} path={path} />
+    <SiteHeader locale={locale} variant={variant} path={path} switchTo={translated ? path : '/'} />
     <main id="main" tabindex="-1">
       <slot />
     </main>

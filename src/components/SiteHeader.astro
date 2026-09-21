@@ -9,8 +9,10 @@ interface Props {
   variant?: 'over' | 'solid';
   /** Path without a locale prefix — the switcher keeps you on the same page. */
   path: string;
+  /** Where the switcher should go, when this page has no translation of itself. */
+  switchTo?: string;
 }
-const { locale, variant = 'solid', path } = Astro.props;
+const { locale, variant = 'solid', path, switchTo = path } = Astro.props;
 const dict = t(locale);
 
 const nav = [
@@ -45,7 +47,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
           {LOCALES.map((l) => (
             <li>
               <a
-                href={localePath(path, l)}
+                href={localePath(switchTo, l)}
                 lang={HREFLANG[l]}
                 hreflang={HREFLANG[l]}
                 aria-current={l === locale ? 'true' : undefined}
