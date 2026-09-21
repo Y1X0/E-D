@@ -33,6 +33,8 @@ export interface LookEntry {
   plates: Photo[];
   /** Whole shekels. Absent for anything made to measure. */
   price?: number;
+  /** Whole shekels for one hire, when the atelier hires this piece out. */
+  hire?: number;
   /** A checkout page for this piece, when the atelier has one. */
   payUrl?: string;
 }

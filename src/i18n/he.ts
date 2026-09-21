@@ -164,6 +164,10 @@ export const he: Dict = {
     orderOnWhatsapp: 'להזמנה בוואטסאפ',
     payNote: 'התשלום מתבצע בעמוד תשלום מאובטח.',
     orderMessage: (look, line, price) => `שלום, אשמח להזמין את ${look} מקו ${line} (${price}).`,
+    hire: 'להשכרה',
+    hireCta: 'לשאול על השכרת הפריט',
+    hireNote: 'ההשכרה נסגרת מול האטלייה — התאריכים, המדידה והפיקדון מסוכמים לפני שהשמלה יוצאת.',
+    hireMessage: (look, line, price) => `שלום, אשמח לשכור את ${look} מקו ${line} (${price}). אפשר לבדוק תאריכים?`,
   },
 
   gallery: {

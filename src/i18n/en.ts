@@ -159,6 +159,10 @@ export const en: Dict = {
     orderOnWhatsapp: 'Order on WhatsApp',
     payNote: 'Payment is taken on a secure checkout page.',
     orderMessage: (look, line, price) => `Hello, I would like to order ${look} from the ${line} line (${price}).`,
+    hire: 'To hire',
+    hireCta: 'Ask about hiring this piece',
+    hireNote: 'Hire is arranged with the atelier — dates, fitting and the deposit are agreed before the dress leaves.',
+    hireMessage: (look, line, price) => `Hello, I would like to hire ${look} from the ${line} line (${price}). May I ask about the dates?`,
   },
 
   gallery: {

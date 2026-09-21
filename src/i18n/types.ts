@@ -98,6 +98,8 @@ export interface Dict {
     enquire: string; related: string;
     price: string; madeToMeasure: string; buy: string; orderOnWhatsapp: string;
     payNote: string; orderMessage: (look: string, line: string, price: string) => string;
+    hire: string; hireCta: string; hireNote: string;
+    hireMessage: (look: string, line: string, price: string) => string;
   };
 
   gallery: { eyebrow: string; title: string; accent: string; lead: string; all: string; empty: string };

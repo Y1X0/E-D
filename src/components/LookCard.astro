@@ -22,7 +22,11 @@ const plate = look.plates[0] ?? { alt: '', ratio: '2/3' as const, tone: 'linen' 
     <Plate {...plate} sizes={sizes} priority={priority} class="lookcard__plate" />
     <div class="lookcard__meta">
       <h3 class="lookcard__title">{dict.ui.lookTitle(look.index)}</h3>
-      <p class="label lookcard__line">{look.price ? formatPrice(look.price) : collectionName}</p>
+      <p class="label lookcard__line">
+        {look.price ? formatPrice(look.price)
+          : look.hire ? `${dict.lookPage.hire} · ${formatPrice(look.hire)}`
+          : collectionName}
+      </p>
     </div>
     <p class="lookcard__note">{look.note}</p>
   </a>

@@ -13,6 +13,8 @@ export interface LookShape {
   plates: Plate[];
   /** Whole shekels. Only the boutique line is sold at a fixed price. */
   price?: number;
+  /** Whole shekels, for a piece the atelier also hires out. */
+  hire?: number;
 }
 
 /**
@@ -20,6 +22,14 @@ export interface LookShape {
  * is made to measure and priced at consultation. A line missing from here shows
  * no price at all rather than a guess.
  */
+/**
+ * Pieces the atelier hires out, and what a hire costs.
+ *
+ * A dress can be both sold and hired, so this sits beside the price rather than
+ * replacing it. Empty until the atelier sets the figures — nothing is guessed.
+ */
+const hire: Record<string, number> = {};
+
 const prices: Record<string, number> = {
   'boutique-01': 2500,
   'boutique-02': 2500,
@@ -73,6 +83,9 @@ export const looks: LookShape[] = collections.flatMap((c) =>
       plates: photographed[`${c.slug}-${String(index).padStart(2, '0')}`] ?? platesFor(c.slug, index),
       ...(prices[`${c.slug}-${String(index).padStart(2, '0')}`]
         ? { price: prices[`${c.slug}-${String(index).padStart(2, '0')}`] }
+        : {}),
+      ...(hire[`${c.slug}-${String(index).padStart(2, '0')}`]
+        ? { hire: hire[`${c.slug}-${String(index).padStart(2, '0')}`] }
         : {}),
     } satisfies LookShape;
   }),

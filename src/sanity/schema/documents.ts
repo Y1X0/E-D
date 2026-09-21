@@ -77,6 +77,11 @@ export const look = defineType({
       description: 'اتركيه فارغاً للقطع المفصّلة على المقاس — عندها لا يظهر سعر إطلاقاً.',
     }),
     defineField({
+      name: 'hirePrice', title: 'سعر الإيجار بالشيكل · Hire price in shekels', type: 'number', group: 'selling',
+      validation: (r) => r.min(0),
+      description: 'اتركيه فارغاً إذا القطعة للبيع فقط. القطعة قد تكون للبيع وللإيجار معاً.',
+    }),
+    defineField({
       name: 'payUrl', title: 'رابط الدفع لهذه القطعة · Checkout link', type: 'url', group: 'selling',
       description: 'اختياري. بدونه يُستعمل رابط الدفع العام من إعدادات الأتيليه.',
     }),

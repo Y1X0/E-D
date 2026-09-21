@@ -164,6 +164,10 @@ export const ar: Dict = {
     orderOnWhatsapp: 'اطلبيها على واتساب',
     payNote: 'الدفع يتم على صفحة دفع آمنة.',
     orderMessage: (look, line, price) => `مرحباً، أرغب بطلب ${look} من خط ${line} (${price}).`,
+    hire: 'للإيجار',
+    hireCta: 'اسألي عن إيجار هذه القطعة',
+    hireNote: 'الإيجار يُرتَّب مع الأتيليه — التواريخ والبروفة والوديعة تُتفق قبل خروج الفستان.',
+    hireMessage: (look, line, price) => `مرحباً، أرغب باستئجار ${look} من خط ${line} (${price}). ممكن نشوف التواريخ؟`,
   },
 
   gallery: {

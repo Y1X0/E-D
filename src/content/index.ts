@@ -18,7 +18,7 @@ const QUERY = `{
   },
   "looks": *[_type == "look"] | order(number asc) {
     "collection": collection->slug.current,
-    "number": number, note, price, payUrl,
+    "number": number, note, price, hirePrice, payUrl,
     photos[] ${IMAGE_PROJECTION}
   },
   "settings": *[_type == "siteSettings"][0] {
@@ -57,13 +57,15 @@ const placeholders = (slug: string, look?: number): Photo[] => {
  * cannot see, which is worse than no price at all: the figure is kept in the
  * studio, and appears the moment a photograph does.
  */
-const shown = (look: { price?: number; plates: Photo[] }): LookEntry['price'] =>
-  look.plates.some((p) => p.sanity || p.src) ? look.price : undefined;
+const photographed = (plates: Photo[]): boolean => plates.some((p) => p.sanity || p.src);
 
-/** The price written in the repository for a look the studio has no price for. */
+const shown = (look: { price?: number; plates: Photo[] }): LookEntry['price'] =>
+  photographed(look.plates) ? look.price : undefined;
+
+/** What the repository says a look costs, for a studio that has said nothing. */
 const ownPrice = (slug: string) => {
-  const price = localLooks.find((l) => l.slug === slug)?.price;
-  return price ? { price } : {};
+  const look = localLooks.find((l) => l.slug === slug);
+  return { price: look?.price, hire: look?.hire };
 };
 
 const photos = (rows: any[] | undefined, locale: Locale, tones: readonly Photo['tone'][], fallback: Photo[]): Photo[] => {
@@ -91,14 +93,15 @@ function localContent(locale: Locale): SiteContent {
     }),
     looks: localLooks.map((l) => {
       const plates = l.plates.map((p) => ({ ...p }));
-      const price = shown({ price: l.price, plates });
+      const seen = photographed(plates);
       return {
         slug: l.slug,
         index: l.index,
         collection: l.collection,
         note: dict.lookNotes[l.collection][l.index - 1],
         plates,
-        ...(price ? { price } : {}),
+        ...(seen && l.price ? { price: l.price } : {}),
+        ...(seen && l.hire ? { hire: l.hire } : {}),
       };
     }),
     hero: null,
@@ -158,8 +161,12 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
     const slug = `${l.collection}-${String(n).padStart(2, '0')}`;
     const fallback = dict.lookNotes[l.collection as keyof typeof dict.lookNotes];
     const plates = photos(l.photos, locale, ['linen', 'shadow', 'paper'] as const, placeholders(l.collection, n));
-    const asked = typeof l.price === 'number' ? l.price : ownPrice(slug).price;
-    const price = shown({ price: asked, plates });
+    const own = ownPrice(slug);
+    const seen = photographed(plates);
+    const asked = typeof l.price === 'number' ? l.price : own.price;
+    const askedHire = typeof l.hirePrice === 'number' ? l.hirePrice : own.hire;
+    const price = seen ? asked : undefined;
+    const hire = seen ? askedHire : undefined;
     return {
       slug,
       index: n,
@@ -167,6 +174,7 @@ export async function getContent(locale: Locale): Promise<SiteContent> {
       note: pick(l.note, locale) || fallback?.[n - 1] || '',
       plates,
       ...(price ? { price } : {}),
+      ...(hire ? { hire } : {}),
       ...(l.payUrl ? { payUrl: l.payUrl } : {}),
     };
   });

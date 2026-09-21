@@ -24,7 +24,14 @@ const path = `/looks/${slug}`;
 // A piece is bought rather than commissioned only when it carries a price. The
 // checkout page is the atelier's own; without one the order goes to WhatsApp,
 // which is where it would have been placed anyway.
+const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
 const price = look.price ? formatPrice(look.price) : null;
+// A hire is a conversation, not a checkout: the dates, the fitting and the
+// deposit are settled with the atelier before the dress leaves the room.
+const hire = look.hire ? formatPrice(look.hire) : null;
+const hireHref = hire && whatsapp
+  ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(dict.lookPage.hireMessage(title, copy.name, hire))}`
+  : '';
 const checkout = look.price
   ? checkoutUrl(settings, {
       item: `${site.name} — ${copy.name} · ${title}`,
@@ -33,7 +40,6 @@ const checkout = look.price
       locale,
     }, look.payUrl)
   : null;
-const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
 // Three ways to buy, in the order they are trusted. Our own checkout, which
 // prices the order server-side and only calls it paid once the gateway's
 // webhook says so. A hosted payment link, when the atelier has one but no
@@ -95,6 +101,11 @@ const schema = {
           <p class="look__note">{note}</p>
 
           {price && <p class="look__price">{price}</p>}
+          {hire && (
+            <p class="look__hire">
+              <span class="label">{dict.lookPage.hire}</span> {hire}
+            </p>
+          )}
 
           <dl class="look__spec">
             <div>
@@ -113,6 +124,12 @@ const schema = {
               <dt class="label">{dict.lookPage.price}</dt>
               <dd>{price ?? dict.lookPage.madeToMeasure}</dd>
             </div>
+            {hire && (
+              <div>
+                <dt class="label">{dict.lookPage.hire}</dt>
+                <dd>{hire}</dd>
+              </div>
+            )}
           </dl>
 
           <div class="look__acts">
@@ -125,7 +142,13 @@ const schema = {
             {price && (ownCheckout || checkout) && (ownCheckout || settings?.payMethods) && (
               <p class="look__pay">{dict.lookPage.payNote} <span>{settings?.payMethods || dict.checkout.cards}</span></p>
             )}
-            <a class:list={['cta', !(price && orderHref) && 'cta--solid']} href={`${localePath('/contact', locale)}?enquiry=${encodeURIComponent(copy.name)}`}>
+            {hire && hireHref && (
+              <a class:list={['cta', !(price && orderHref) && 'cta--solid']} href={hireHref} rel="noopener nofollow">
+                {dict.lookPage.hireCta} <span class="arw" aria-hidden="true">&#8594;</span>
+              </a>
+            )}
+            {hire && <p class="look__pay">{dict.lookPage.hireNote}</p>}
+            <a class:list={['cta', !(price && orderHref) && !hire && 'cta--solid']} href={`${localePath('/contact', locale)}?enquiry=${encodeURIComponent(copy.name)}`}>
               {dict.lookPage.enquire} <span class="arw" aria-hidden="true">&#8594;</span>
             </a>
             <a class="link" href={localePath(`/collections/${look.collection}`, locale)}>
@@ -161,6 +184,13 @@ const schema = {
     color: var(--gold-ink);
     margin: .75rem 0 0;
   }
+  .look__hire {
+    margin: 0;
+    font-size: var(--t-lead);
+    color: var(--ink);
+  }
+  .look__hire .label { color: var(--gold-ink); margin-inline-end: .5rem; }
+
   .look__pay {
     font-size: var(--t-small);
     color: var(--ink-muted);
