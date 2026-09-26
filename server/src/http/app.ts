@@ -90,7 +90,12 @@ export function createApp({ env, store, provider, catalogue }: Deps): Express {
         await store.attachSession(payment.id, session.sessionId);
         // in flight: handed to the gateway, not yet settled by it
         await store.settle(payment.id, { status: 'PROCESSING' });
-        log.info('checkout opened', { reference: order.reference, sku: order.sku, amount: order.amount, provider: provider.name });
+        log.info('checkout opened', {
+          reference: order.reference,
+          pieces: order.items.map((i) => `${i.sku}\u00d7${i.quantity}`).join(' '),
+          amount: order.amount,
+          provider: provider.name,
+        });
         res.status(201).json({
           reference: order.reference,
           statusToken: order.statusToken,
@@ -215,7 +220,7 @@ export function createApp({ env, store, provider, catalogue }: Deps): Express {
         reference: order.reference,
         status: order.status,
         title: order.title,
-        quantity: order.quantity,
+        items: order.items,
         amount: order.amount,
         currency: order.currency,
         paidAt: order.paidAt,

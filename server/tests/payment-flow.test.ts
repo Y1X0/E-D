@@ -254,6 +254,31 @@ describe('the payment flow', () => {
     assert.equal(seen.body.status, 'PROCESSING');
   });
 
+  it('14b. takes a basket as one order, at the total it worked out itself', async () => {
+    const h = await start();
+    after(() => h.stop());
+
+    const res = await h.post('/api/checkout', {
+      items: [{ sku: 'boutique-01', quantity: 2 }, { sku: 'boutique-02', quantity: 1 }],
+      locale: 'ar',
+      customer: { name: 'Test Buyer', phone: '+972500000000' },
+      amount: 1, // what the browser claims, and what is ignored
+    });
+    assert.equal(res.status, 201);
+    const order = await res.json() as any;
+    assert.equal(order.amount, 2 * 250000 + 180000);
+
+    const session = new URL(order.redirectUrl).searchParams.get('session')!;
+    // the gateway confirms the total the service decided, not the one sent
+    await h.webhook(paid(order.reference, session, order.amount));
+
+    const seen = await statusOf(h, order.reference, order.statusToken);
+    assert.equal(seen.body.status, 'PAID');
+    assert.equal(seen.body.amount, 680000);
+    assert.equal(seen.body.items.length, 2);
+    assert.equal(seen.body.items[0].quantity, 2);
+  });
+
   it('15. keeps two attempts at the same piece apart', async () => {
     const h = await start();
     after(() => h.stop());

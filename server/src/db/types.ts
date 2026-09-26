@@ -1,14 +1,23 @@
 import type { PaymentState } from '../domain/state.ts';
 
+/** One piece in an order, priced when the order was made. */
+export interface OrderItem {
+  sku: string;
+  title: string;
+  quantity: number;
+  unitAmount: number;
+  amount: number;
+}
+
 /** An order is created before the buyer ever reaches the gateway. */
 export interface Order {
   id: string;
   reference: string;
   status: PaymentState;
-  sku: string;
+  /** A line per piece. One for a single dress, several for a basket. */
+  items: OrderItem[];
+  /** What the order reads as in a list — the first piece, and how many more. */
   title: string;
-  quantity: number;
-  unitAmount: number;
   amount: number;
   currency: string;
   locale: string;
@@ -41,10 +50,8 @@ export interface Payment {
 
 export interface NewOrder {
   reference: string;
-  sku: string;
+  items: OrderItem[];
   title: string;
-  quantity: number;
-  unitAmount: number;
   amount: number;
   currency: string;
   locale: string;

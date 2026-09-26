@@ -20,7 +20,9 @@ export class MemoryStore implements Store {
   async createOrderWithPayment(input: NewOrder, provider: string) {
     const now = new Date();
     const order: Order = {
-      id: randomUUID(), status: 'PENDING', createdAt: now, updatedAt: now, paidAt: null, ...input,
+      id: randomUUID(), status: 'PENDING', createdAt: now, updatedAt: now, paidAt: null,
+      ...input,
+      items: input.items.map((i) => ({ ...i })),
     };
     const payment: Payment = {
       id: randomUUID(), orderId: order.id, provider,

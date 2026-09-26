@@ -1,5 +1,5 @@
 import pg from 'pg';
-import type { NewOrder, Order, Payment, Settlement, Store } from './types.ts';
+import type { NewOrder, Order, OrderItem, Payment, Settlement, Store } from './types.ts';
 import type { PaymentState } from '../domain/state.ts';
 import { canTransition, TransitionError } from '../domain/state.ts';
 
@@ -22,10 +22,13 @@ const sslFor = (connectionString: string): false | { rejectUnauthorized: boolean
   return internal ? false : { rejectUnauthorized: false };
 };
 
-const toOrder = (r: any): Order => ({
+const toItem = (r: any): OrderItem => ({
+  sku: r.sku, title: r.title, quantity: r.quantity, unitAmount: r.unit_amount, amount: r.amount,
+});
+
+const toOrder = (r: any, items: OrderItem[] = []): Order => ({
   id: r.id, reference: r.reference, status: r.status as PaymentState,
-  sku: r.sku, title: r.title, quantity: r.quantity,
-  unitAmount: r.unit_amount, amount: r.amount, currency: r.currency, locale: r.locale,
+  items, title: r.title, amount: r.amount, currency: r.currency, locale: r.locale,
   customerName: r.customer_name, customerEmail: r.customer_email, customerPhone: r.customer_phone,
   statusToken: r.status_token, createdAt: r.created_at, updatedAt: r.updated_at, paidAt: r.paid_at,
 });
@@ -59,19 +62,26 @@ export class PostgresStore implements Store {
     try {
       await client.query('begin');
       const { rows: [orderRow] } = await client.query(
-        `insert into orders (reference, status, sku, title, quantity, unit_amount, amount, currency, locale,
+        `insert into orders (reference, status, title, amount, currency, locale,
                              customer_name, customer_email, customer_phone, status_token)
-         values ($1,'PENDING',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) returning *`,
-        [input.reference, input.sku, input.title, input.quantity, input.unitAmount, input.amount,
+         values ($1,'PENDING',$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
+        [input.reference, input.title, input.amount,
          input.currency, input.locale, input.customerName, input.customerEmail, input.customerPhone, input.statusToken],
       );
+      for (const [i, item] of input.items.entries()) {
+        await client.query(
+          `insert into order_items (order_id, position, sku, title, quantity, unit_amount, amount)
+           values ($1,$2,$3,$4,$5,$6,$7)`,
+          [orderRow.id, i + 1, item.sku, item.title, item.quantity, item.unitAmount, item.amount],
+        );
+      }
       const { rows: [paymentRow] } = await client.query(
         `insert into payments (order_id, provider, amount, currency, status)
          values ($1,$2,$3,$4,'PENDING') returning *`,
         [orderRow.id, provider, input.amount, input.currency],
       );
       await client.query('commit');
-      return { order: toOrder(orderRow), payment: toPayment(paymentRow) };
+      return { order: toOrder(orderRow, input.items), payment: toPayment(paymentRow) };
     } catch (err) {
       await client.query('rollback');
       throw err;
@@ -82,7 +92,10 @@ export class PostgresStore implements Store {
 
   async orderByReference(reference: string) {
     const { rows } = await this.#pool.query('select * from orders where reference = $1', [reference]);
-    return rows[0] ? toOrder(rows[0]) : null;
+    if (!rows[0]) return null;
+    const { rows: items } = await this.#pool.query(
+      'select * from order_items where order_id = $1 order by position', [rows[0].id]);
+    return toOrder(rows[0], items.map(toItem));
   }
 
   async paymentForOrder(orderId: string) {

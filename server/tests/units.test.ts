@@ -40,7 +40,8 @@ describe('an order', () => {
 
   it('is priced from the catalogue, never from the request', () => {
     const order = buildOrder(catalogue, { sku: 'boutique-01', quantity: 2, locale: 'ar', customer, amount: 1 } as any);
-    assert.equal(order.unitAmount, 250000);
+    assert.equal(order.items.length, 1);
+    assert.equal(order.items[0]!.unitAmount, 250000);
     assert.equal(order.amount, 500000);
     assert.equal(order.currency, 'ILS');
     assert.equal(order.title, 'البوتيك — إطلالة 01');
@@ -48,10 +49,44 @@ describe('an order', () => {
     assert.equal(order.statusToken.length, 32);
   });
 
+  it('holds a basket, and adds it up itself', () => {
+    const order = buildOrder(catalogue, {
+      items: [{ sku: 'boutique-01', quantity: 1 }, { sku: 'boutique-02', quantity: 2 }],
+      locale: 'ar', customer,
+    } as any);
+    assert.equal(order.items.length, 2);
+    assert.equal(order.amount, 250000 + 2 * 180000);
+    assert.match(order.title, /\+1$/, 'the list shows the first piece and how many more');
+  });
+
+  it('folds the same piece asked for twice into one line', () => {
+    const order = buildOrder(catalogue, {
+      items: [{ sku: 'boutique-01', quantity: 1 }, { sku: 'boutique-01', quantity: 2 }],
+      locale: 'en', customer,
+    } as any);
+    assert.equal(order.items.length, 1);
+    assert.equal(order.items[0]!.quantity, 3);
+    assert.equal(order.amount, 750000);
+  });
+
+  it('refuses a basket with a piece that is not for sale', () => {
+    assert.throws(() => buildOrder(catalogue, {
+      items: [{ sku: 'boutique-01', quantity: 1 }, { sku: 'not-real', quantity: 1 }],
+      locale: 'en', customer,
+    } as any), (err: unknown) => (err as OrderRejected).reason === 'sku_unknown');
+  });
+
+  it('refuses a basket longer than an order can hold', () => {
+    const items = Array.from({ length: 13 }, (_, i) => ({ sku: `x-${i}`, quantity: 1 }));
+    assert.throws(() => buildOrder(catalogue, { items, locale: 'en', customer } as any),
+      (err: unknown) => (err as OrderRejected).reason === 'too_many_lines');
+  });
+
   it('refuses what it should', () => {
     const cases: Array<[string, any]> = [
       ['sku_unknown', { sku: 'not-for-sale', quantity: 1, customer }],
       ['sku_missing', { quantity: 1, customer }],
+      ['sku_missing', { items: [], customer }],
       ['quantity_invalid', { sku: 'boutique-01', quantity: 0, customer }],
       ['quantity_invalid', { sku: 'boutique-01', quantity: 99, customer }],
       ['quantity_invalid', { sku: 'boutique-01', quantity: 1.5, customer }],
@@ -167,8 +202,9 @@ describe('the Stripe adapter', () => {
     await assert.rejects(
       offline.createCheckout({
         order: {
-          id: '1', reference: 'EED-ABCD1234', status: 'PENDING', sku: 'boutique-01', title: 'x',
-          quantity: 1, unitAmount: 250000, amount: 250000, currency: 'ILS', locale: 'en',
+          id: '1', reference: 'EED-ABCD1234', status: 'PENDING', title: 'x',
+          items: [{ sku: 'boutique-01', title: 'x', quantity: 1, unitAmount: 250000, amount: 250000 }],
+          amount: 250000, currency: 'ILS', locale: 'en',
           customerName: 'x', customerEmail: null, customerPhone: null, statusToken: 't',
           createdAt: new Date(), updatedAt: new Date(), paidAt: null,
         },

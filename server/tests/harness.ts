@@ -14,12 +14,20 @@ export const SITE = 'https://atelier.test';
 /** One priced piece, so the tests do not depend on what the atelier sells today. */
 export const catalogue: Catalogue = {
   currency: 'ILS',
-  items: new Map([['boutique-01', {
-    sku: 'boutique-01', collection: 'boutique',
-    unitAmount: 250000, currency: 'ILS', maxQuantity: 5,
-    titles: { en: 'Boutique — Look 01', ar: 'البوتيك — إطلالة 01', he: 'בוטיק — לוק 01' },
-    notes: { en: 'Light fabric.', ar: 'قماش خفيف.', he: 'בד קל.' },
-  }]]),
+  items: new Map([
+    ['boutique-01', {
+      sku: 'boutique-01', collection: 'boutique',
+      unitAmount: 250000, currency: 'ILS', maxQuantity: 5,
+      titles: { en: 'Boutique — Look 01', ar: 'البوتيك — إطلالة 01', he: 'בוטיק — לוק 01' },
+      notes: { en: 'Light fabric.', ar: 'قماش خفيف.', he: 'בד קל.' },
+    }],
+    ['boutique-02', {
+      sku: 'boutique-02', collection: 'boutique',
+      unitAmount: 180000, currency: 'ILS', maxQuantity: 5,
+      titles: { en: 'Boutique — Look 02', ar: 'البوتيك — إطلالة 02', he: 'בוטיק — לוק 02' },
+      notes: { en: 'A soft shoulder.', ar: 'كتف ناعم.', he: 'כתף רכה.' },
+    }],
+  ]),
 };
 
 export interface Harness {

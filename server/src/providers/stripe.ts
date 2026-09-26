@@ -30,15 +30,15 @@ export class StripeProvider implements PaymentProvider {
         mode: 'payment',
         client_reference_id: order.reference,
         // read back on the webhook and checked against the order in our own tables
-        metadata: { reference: order.reference, sku: order.sku },
-        line_items: [{
-          quantity: order.quantity,
+        metadata: { reference: order.reference, pieces: String(order.items.length) },
+        line_items: order.items.map((item) => ({
+          quantity: item.quantity,
           price_data: {
             currency: order.currency.toLowerCase(),
-            unit_amount: order.unitAmount,
-            product_data: { name: order.title },
+            unit_amount: item.unitAmount,
+            product_data: { name: item.title },
           },
-        }],
+        })),
         ...(order.customerEmail ? { customer_email: order.customerEmail } : {}),
         success_url: returnUrl,
         cancel_url: cancelUrl,
