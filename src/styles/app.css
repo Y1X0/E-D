@@ -135,6 +135,14 @@ body {
   overflow-x: hidden;
 }
 
+/* `hidden` means hidden, whatever else an element is told to be.
+   The attribute only carries `display: none` from the browser's own sheet, so
+   any rule here that sets `display` — a grid, a flex row — quietly outranks it
+   and the element stays on the page. Everything the site hides, it hides by
+   this attribute, so it is settled once, here, rather than remembered at each
+   of the dozen places that use it. */
+[hidden] { display: none !important; }
+
 img, svg, video { display: block; max-width: 100%; }
 img { height: auto; }
 button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
