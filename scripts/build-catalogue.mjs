@@ -8,7 +8,7 @@
  */
 import { writeFile } from 'node:fs/promises';
 
-const { looks } = await import('../src/data/looks.ts');
+const { looks, MAX_PER_PIECE } = await import('../src/data/looks.ts');
 const { collections } = await import('../src/data/collections.ts');
 const dicts = Object.fromEntries(await Promise.all(
   ['en', 'he', 'ar'].map(async (l) => [l, (await import(`../src/i18n/${l}.ts`))[l]]),
@@ -26,7 +26,7 @@ const items = looks
     collection: l.collection,
     unitAmount: Math.round(l.price * MINOR),
     currency: CURRENCY,
-    maxQuantity: 5,
+    maxQuantity: MAX_PER_PIECE,
     titles: Object.fromEntries(['en', 'he', 'ar'].map((lang) => [
       lang,
       `${dicts[lang].collections[l.collection].name} — ${dicts[lang].ui.lookTitle(l.index)}`,

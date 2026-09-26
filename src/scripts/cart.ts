@@ -8,6 +8,9 @@
  * worked out again by the payment service from its own catalogue. Editing this
  * storage by hand changes what is in the basket, and nothing about the bill.
  */
+
+import { MAX_PER_PIECE } from '~/data/basket';
+
 const KEY = 'eed.basket.v1';
 const CHANGED = 'eed:basket';
 
@@ -56,7 +59,7 @@ function write(lines: BasketLine[]): BasketLine[] {
 }
 
 /** Adds a piece, or adds to the count of one already there. */
-export function addToBasket(sku: string, quantity = 1, max = 5): BasketLine[] {
+export function addToBasket(sku: string, quantity = 1, max = MAX_PER_PIECE): BasketLine[] {
   const lines = readBasket();
   const line = lines.find((l) => l.sku === sku);
   if (line) line.quantity = Math.min(line.quantity + quantity, max);
@@ -64,7 +67,7 @@ export function addToBasket(sku: string, quantity = 1, max = 5): BasketLine[] {
   return write(lines);
 }
 
-export function setQuantity(sku: string, quantity: number, max = 5): BasketLine[] {
+export function setQuantity(sku: string, quantity: number, max = MAX_PER_PIECE): BasketLine[] {
   const lines = readBasket()
     .map((l) => (l.sku === sku ? { ...l, quantity: Math.max(0, Math.min(quantity, max)) } : l));
   return write(lines);

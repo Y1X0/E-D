@@ -1,5 +1,91 @@
 {
   "currency": "ILS",
   "generatedFrom": "src/data/looks.ts",
-  "items": []
+  "items": [
+    {
+      "sku": "boutique-01",
+      "collection": "boutique",
+      "unitAmount": 250000,
+      "currency": "ILS",
+      "maxQuantity": 1,
+      "titles": {
+        "en": "Boutique — Look 01",
+        "he": "בוטיק — לוק 01",
+        "ar": "البوتيك — إطلالة 01"
+      },
+      "notes": {
+        "en": "Fuchsia corded lace, a high neck, a lace flounce closing each sleeve.",
+        "he": "תחרה בגוון פוקסיה, צווארון גבוה וסיומת תחרה בכל שרוול.",
+        "ar": "دانتيل بلون الفوشيا، رقبة عالية وكمّ ينتهي بموجة دانتيل."
+      }
+    },
+    {
+      "sku": "boutique-02",
+      "collection": "boutique",
+      "unitAmount": 250000,
+      "currency": "ILS",
+      "maxQuantity": 1,
+      "titles": {
+        "en": "Boutique — Look 02",
+        "he": "בוטיק — לוק 02",
+        "ar": "البوتيك — إطلالة 02"
+      },
+      "notes": {
+        "en": "Lilac satin with a shoulder cape, crystal tracing the neck and the waist.",
+        "he": "סאטן לילכי עם כתפייה, ואבנים שמסמנות את הצוואר והמותן.",
+        "ar": "ساتان ليلكي بكاب على الكتف، وحجر يرسم خط الرقبة والخصر."
+      }
+    },
+    {
+      "sku": "boutique-03",
+      "collection": "boutique",
+      "unitAmount": 250000,
+      "currency": "ILS",
+      "maxQuantity": 1,
+      "titles": {
+        "en": "Boutique — Look 03",
+        "he": "בוטיק — לוק 03",
+        "ar": "البوتيك — إطلالة 03"
+      },
+      "notes": {
+        "en": "Aubergine lace, wrapped at the waist and falling to one side.",
+        "he": "תחרה בגוון חציל, כרוכה במותן ונופלת לצד אחד.",
+        "ar": "دانتيل باذنجاني، ملفوف عند الخصر وينسدل إلى جانب واحد."
+      }
+    },
+    {
+      "sku": "boutique-04",
+      "collection": "boutique",
+      "unitAmount": 250000,
+      "currency": "ILS",
+      "maxQuantity": 1,
+      "titles": {
+        "en": "Boutique — Look 04",
+        "he": "בוטיק — לוק 04",
+        "ar": "البوتيك — إطلالة 04"
+      },
+      "notes": {
+        "en": "Shimmer chiffon, ruched through the waist, a full sleeve gathered at the cuff.",
+        "he": "שיפון מבריק, מכווץ במותן ושרוול רחב שנאסף בשוליים.",
+        "ar": "شيفون لامع، مكرمش عند الخصر وكمّ واسع يُجمَع عند المعصم."
+      }
+    },
+    {
+      "sku": "boutique-05",
+      "collection": "boutique",
+      "unitAmount": 250000,
+      "currency": "ILS",
+      "maxQuantity": 1,
+      "titles": {
+        "en": "Boutique — Look 05",
+        "he": "בוטיק — לוק 05",
+        "ar": "البوتيك — إطلالة 05"
+      },
+      "notes": {
+        "en": "Two pieces: a draped bodice over a wide pleated skirt.",
+        "he": "שתי חתיכות: מחשוף נופל מעל חצאית פליסה רחבה.",
+        "ar": "قطعتان: صدر منسدل فوق تنورة بليسيه واسعة."
+      }
+    }
+  ]
 }

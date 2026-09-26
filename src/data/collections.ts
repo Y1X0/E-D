@@ -69,12 +69,32 @@ export const collections: CollectionShape[] = [
   },
   {
     slug: 'boutique',
-    cover: { alt: 'Softly cut boutique dress by Elite Evening Design', ratio: '2/3', tone: 'paper' },
+    cover: {
+      src: 'boutique/fuchsia-lace-gown.jpg',
+      alt: 'Fuchsia corded-lace gown from the boutique rail, high neck and lace-flounced sleeves',
+      ratio: '3/4', tone: 'ink', focus: '50% 40%',
+    },
     plates: [
-      { alt: 'Light fabric falling from the shoulder', ratio: '3/4', tone: 'linen' },
-      { alt: 'An easy sleeve, unembellished', ratio: '4/5', tone: 'paper' },
-      { alt: 'Soft boutique silhouette in movement', ratio: '2/3', tone: 'shadow' },
-      { alt: 'A clean hem, finished without ornament', ratio: '1/1', tone: 'linen' },
+      {
+        src: 'boutique/aubergine-lace-gown.jpg',
+        alt: 'Aubergine lace gown, the lace wrapped at the waist',
+        ratio: '3/4', tone: 'ink', focus: '50% 40%',
+      },
+      {
+        src: 'boutique/lilac-cape-gown.jpg',
+        alt: 'Lilac satin gown with a shoulder cape and crystal trim',
+        ratio: '3/4', tone: 'linen', focus: '50% 40%',
+      },
+      {
+        src: 'boutique/mauve-ruched-dress.jpg',
+        alt: 'Mauve shimmer chiffon, ruched through the waist',
+        ratio: '3/4', tone: 'shadow', focus: '50% 45%',
+      },
+      {
+        src: 'boutique/mauve-draped-set.jpg',
+        alt: 'A draped bodice over a wide pleated skirt, in mauve',
+        ratio: '3/4', tone: 'paper', focus: '50% 40%',
+      },
     ],
   },
 ];

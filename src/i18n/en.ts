@@ -109,11 +109,11 @@ export const en: Dict = {
     },
     boutique: {
       name: 'Boutique',
-      kicker: 'Soft, light, unembellished',
-      summary: 'The softer line — light fabrics, clean surfaces and no beadwork, cut to be easy to wear.',
+      kicker: 'Finished, on the rail, priced',
+      summary: 'Pieces already sewn and waiting — lace, satin and chiffon, long sleeves and closed necklines, each with its price in view.',
       intro: [
-        'Boutique is the quiet side of the atelier. The same cut and the same fittings, in lighter fabrics and softer silhouettes — pieces that move easily and ask nothing of the person wearing them.',
-        'No beading, no heavy structure. What carries these dresses is the line itself: a hem that falls right, a shoulder that sits, a colour that stays calm.',
+        'Boutique is the atelier\u2019s ready rail. The piece exists exactly as photographed, sewn and finished, at a price known before you ask \u2014 no waiting, no fittings.',
+        'The sewing and the finishing are the same as in the other lines; only the order changes, since these were made before they were asked for. Sizing and any alteration are settled in the shop.',
       ],
     },
   },
@@ -138,10 +138,11 @@ export const en: Dict = {
       'Finished entirely by hand, inside and out.',
     ],
     boutique: [
-      'Light fabric, cut to fall rather than hold.',
-      'A soft shoulder and an easy sleeve.',
-      'A clean surface, left unembellished.',
-      'Softened through the waist, quiet at the hem.',
+      'Fuchsia corded lace, a high neck, a lace flounce closing each sleeve.',
+      'Lilac satin with a shoulder cape, crystal tracing the neck and the waist.',
+      'Aubergine lace, wrapped at the waist and falling to one side.',
+      'Shimmer chiffon, ruched through the waist, a full sleeve gathered at the cuff.',
+      'Two pieces: a draped bodice over a wide pleated skirt.',
     ],
   },
 

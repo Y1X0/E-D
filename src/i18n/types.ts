@@ -92,7 +92,13 @@ export interface Dict {
 
   collectionsPage: { eyebrow: string; title: string; accent: string; lead: string; theLooks: string };
   collections: Record<'bridal' | 'evening' | 'couture' | 'boutique', CollectionCopy>;
-  lookNotes: Record<'bridal' | 'evening' | 'couture' | 'boutique', [string, string, string, string]>;
+  /**
+   * One note per place on each line, as a fixed-length tuple, so a look can
+   * never reach a page unwritten in one of the three languages. The boutique
+   * rail is a piece longer than the made-to-measure lines.
+   */
+  lookNotes: Record<'bridal' | 'evening' | 'couture', [string, string, string, string]>
+    & { boutique: [string, string, string, string, string] };
   lookPage: {
     line: string; made: string; madeValue: string; fabrics: string; fabricsValue: string;
     enquire: string; related: string;

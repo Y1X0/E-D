@@ -4,6 +4,7 @@ import Plate from '~/components/Plate.astro';
 import { getContent } from '~/content';
 import { formatPrice } from '~/lib/price';
 import { site } from '~/config/site';
+import { MAX_PER_PIECE } from '~/data/basket';
 import { t, localePath, type Locale } from '~/i18n';
 
 interface Props { locale: Locale }
@@ -58,6 +59,7 @@ const sellable = looks
         data-config={JSON.stringify({
           api: site.paymentApi,
           locale,
+          max: MAX_PER_PIECE,
           labels: {
             pay: dict.checkout.pay, paying: dict.checkout.paying,
             generic: dict.checkout.errorGeneric, gateway: dict.checkout.errorGateway, fields: dict.checkout.errorFields,
@@ -75,10 +77,19 @@ const sellable = looks
                   <p class="co__each" data-each={item.price}>{formatPrice(item.price)}</p>
                 </div>
                 <div class="co__qty">
-                  <label class="sr-only" for={`q-${item.sku}`}>{dict.checkout.quantity}</label>
-                  <select id={`q-${item.sku}`} data-qty={item.sku}>
-                    {[1, 2, 3, 4, 5].map((n) => <option value={n}>{n}</option>)}
-                  </select>
+                  {/* Only offered when there is a choice to make: a rail that
+                      holds one of each piece shows no quantity control at all,
+                      rather than a control whose every other value is refused. */}
+                  {MAX_PER_PIECE > 1 && (
+                    <>
+                      <label class="sr-only" for={`q-${item.sku}`}>{dict.checkout.quantity}</label>
+                      <select id={`q-${item.sku}`} data-qty={item.sku}>
+                        {Array.from({ length: MAX_PER_PIECE }, (_, i) => i + 1).map((n) => (
+                          <option value={n}>{n}</option>
+                        ))}
+                      </select>
+                    </>
+                  )}
                   <button type="button" class="co__remove" data-remove={item.sku}>{dict.basket.remove}</button>
                 </div>
                 <p class="co__amount" data-amount={item.sku}>{formatPrice(item.price)}</p>
@@ -139,7 +150,7 @@ const sellable = looks
 
   const empty = document.querySelector<HTMLElement>('[data-empty]');
   const wrap = document.querySelector<HTMLElement>('[data-basket]');
-  const { api, locale, labels } = JSON.parse(wrap?.dataset.config ?? '{}');
+  const { api, locale, labels, max } = JSON.parse(wrap?.dataset.config ?? '{}');
   const totalOut = document.querySelector<HTMLElement>('[data-total]')!;
   const form = document.getElementById('pay') as HTMLFormElement;
   const error = document.querySelector<HTMLElement>('[data-error]')!;
@@ -162,7 +173,8 @@ const sellable = looks
       const amount = each * 100 * line.quantity;
       total += amount;
       el.querySelector(`[data-amount="${CSS.escape(sku)}"]`)!.textContent = money(amount);
-      (el.querySelector(`[data-qty="${CSS.escape(sku)}"]`) as HTMLSelectElement).value = String(line.quantity);
+      const qty = el.querySelector<HTMLSelectElement>(`[data-qty="${CSS.escape(sku)}"]`);
+      if (qty) qty.value = String(line.quantity);
     }
 
     if (empty) empty.hidden = shown.length > 0;
@@ -173,7 +185,7 @@ const sellable = looks
   document.addEventListener('change', (event) => {
     const target = event.target as HTMLSelectElement;
     const sku = target?.dataset?.qty;
-    if (sku) setQuantity(sku, Number(target.value));
+    if (sku) setQuantity(sku, Number(target.value), max);
   });
   document.addEventListener('click', (event) => {
     const sku = (event.target as HTMLElement)?.dataset?.remove;

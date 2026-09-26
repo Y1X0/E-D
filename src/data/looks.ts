@@ -1,5 +1,6 @@
 import type { Plate } from './types';
 import { collections, type CollectionSlug } from './collections';
+export { MAX_PER_PIECE } from './basket';
 
 /**
  * Look structure — numbering and imagery only. The one-line note for each look
@@ -35,9 +36,16 @@ const prices: Record<string, number> = {
   'boutique-02': 2500,
   'boutique-03': 2500,
   'boutique-04': 2500,
+  'boutique-05': 2500,
 };
 
-const PER_LINE = 4;
+/**
+ * How many places each line shows. The made-to-measure lines keep four drawn
+ * panels; the boutique rail is exactly as long as the pieces hanging on it.
+ */
+const perLine: Record<CollectionSlug, number> = {
+  bridal: 4, evening: 4, couture: 4, boutique: 5,
+};
 
 const platesFor = (line: string, i: number): Plate[] => {
   const tones = ['linen', 'shadow', 'paper', 'ink'] as const;
@@ -71,10 +79,51 @@ const photographed: Record<string, Plate[]> = {
       ratio: '3/2', tone: 'shadow',
     },
   ],
+
+  'boutique-01': [
+    {
+      src: 'boutique/fuchsia-lace-gown.jpg',
+      alt: 'Fuchsia corded-lace gown with a high neck, long sleeves ending in a lace flounce, and a lace sash draped at the hip',
+      ratio: '3/4', tone: 'ink', focus: '50% 40%',
+    },
+  ],
+  'boutique-02': [
+    {
+      src: 'boutique/lilac-cape-gown.jpg',
+      alt: 'Lilac satin gown with a shoulder cape, crystal trim tracing the collar and the dropped waist',
+      ratio: '3/4', tone: 'linen', focus: '50% 40%',
+    },
+  ],
+  'boutique-03': [
+    {
+      src: 'boutique/aubergine-lace-gown.jpg',
+      alt: 'Aubergine lace gown with a high neck, the lace wrapped at the waist and falling to one side',
+      ratio: '3/4', tone: 'ink', focus: '50% 40%',
+    },
+    {
+      src: 'boutique/aubergine-lace-gown-side.jpg',
+      alt: 'The same aubergine lace gown from the side, showing the draped sash and the lace cuff',
+      ratio: '3/4', tone: 'shadow', focus: '50% 40%',
+    },
+  ],
+  'boutique-04': [
+    {
+      src: 'boutique/mauve-ruched-dress.jpg',
+      alt: 'Mauve shimmer-chiffon dress ruched through the waist, with full sleeves gathered into ruffled cuffs',
+      ratio: '3/4', tone: 'shadow', focus: '50% 45%',
+    },
+  ],
+  'boutique-05': [
+    {
+      src: 'boutique/mauve-draped-set.jpg',
+      alt: 'Two-piece look in mauve: a draped cowl bodice buttoned at the side over a wide pleated skirt',
+      ratio: '3/4', tone: 'paper', focus: '50% 40%',
+    },
+  ],
 };
 
 export const looks: LookShape[] = collections.flatMap((c) =>
-  Array.from({ length: PER_LINE }, (_, n) => {
+  Array.from({ length: perLine[c.slug] }, (_, n) => {
     const index = n + 1;
     return {
       slug: `${c.slug}-${String(index).padStart(2, '0')}`,
