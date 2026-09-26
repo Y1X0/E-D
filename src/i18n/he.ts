@@ -180,6 +180,18 @@ export const he: Dict = {
   },
 
 
+  basket: {
+    name: 'סל',
+    add: 'הוספה לסל',
+    added: 'נמצא בסל',
+    view: 'לצפייה בסל',
+    empty: 'הסל ריק',
+    emptyBody: 'פריטים שתוסיפי יתאספו כאן, ותשלמי עליהם בבת אחת.',
+    browse: 'לקולקציות',
+    remove: 'הסרה',
+    count: (n) => (n === 1 ? 'פריט אחד' : `${n} פריטים`),
+  },
+
   checkout: {
     eyebrow: 'תשלום',
     title: 'פריט אחד,',

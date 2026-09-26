@@ -104,6 +104,13 @@ export interface Dict {
 
   gallery: { eyebrow: string; title: string; accent: string; lead: string; all: string; empty: string };
 
+  basket: {
+    name: string;
+    add: string; added: string; view: string;
+    empty: string; emptyBody: string; browse: string;
+    remove: string; count: (n: number) => string;
+  };
+
   checkout: {
     eyebrow: string; title: string; accent: string;
     summary: string; piece: string; quantity: string; unitPrice: string; subtotal: string; total: string;

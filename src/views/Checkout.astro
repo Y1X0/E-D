@@ -6,117 +6,183 @@ import { formatPrice } from '~/lib/price';
 import { site } from '~/config/site';
 import { t, localePath, type Locale } from '~/i18n';
 
-interface Props { locale: Locale; slug: string }
-const { locale, slug } = Astro.props;
+interface Props { locale: Locale }
+const { locale } = Astro.props;
 const dict = t(locale);
 const { collections, looks } = await getContent(locale);
-const look = looks.find((l) => l.slug === slug)!;
-const line = collections.find((c) => c.slug === look.collection)!;
-const title = dict.ui.lookTitle(look.index);
-const price = look.price!;
-const plate = look.plates[0];
+
+/**
+ * Everything that can be in a basket, priced, rendered once and hidden.
+ *
+ * The basket itself is a list of slugs in the browser, so the page carries the
+ * pieces rather than fetching them: no request, no flash of an empty basket,
+ * and no price that came from anywhere but this build. The figure charged is
+ * still the payment service's own, worked out again from its catalogue.
+ */
+const sellable = looks
+  .filter((l) => l.price)
+  .map((l) => ({
+    sku: l.slug,
+    price: l.price!,
+    title: dict.ui.lookTitle(l.index),
+    line: collections.find((c) => c.slug === l.collection)?.name ?? l.collection,
+    note: l.note,
+    plate: l.plates[0],
+  }));
 ---
 
 <Base
   locale={locale}
-  path={`/checkout/${slug}`}
-  title={`${dict.checkout.eyebrow} — ${title}`}
+  path="/checkout"
+  title={dict.basket.name}
   description={dict.checkout.secure}
   noindex
 >
   <section class="section section--tight co" aria-labelledby="co-h">
-    <div class="wrap co__in">
-      <div class="co__order">
-        <p class="label eyebrow">{dict.checkout.summary}</p>
-        <div class="co__piece">
-          <div class="co__plate">{plate && <Plate {...plate} sizes="120px" />}</div>
-          <div>
-            <h1 class="t-h2 co__h" id="co-h">{title}</h1>
-            <p class="co__line">{line.name}</p>
-            <p class="co__note">{look.note}</p>
-          </div>
-        </div>
+    <div class="wrap">
+      <p class="label eyebrow">{dict.checkout.eyebrow}</p>
+      <h1 class="t-h2 co__title" id="co-h">{dict.basket.name}</h1>
 
-        <dl class="co__rows">
-          <div><dt>{dict.checkout.unitPrice}</dt><dd>{formatPrice(price)}</dd></div>
-          <div>
-            <dt><label for="qty">{dict.checkout.quantity}</label></dt>
-            <dd>
-              <select id="qty" name="qty">
-                {[1, 2, 3, 4, 5].map((n) => <option value={n}>{n}</option>)}
-              </select>
-            </dd>
-          </div>
-          <div class="co__total">
-            <dt>{dict.checkout.total}</dt>
-            <dd data-total data-unit={price}>{formatPrice(price)}</dd>
-          </div>
-        </dl>
+      <div class="co__empty" data-empty>
+        <p class="co__emptyh">{dict.basket.empty}</p>
+        <p class="co__emptyb">{dict.basket.emptyBody}</p>
+        <a class="cta cta--solid" href={localePath('/collections', locale)}>
+          {dict.basket.browse} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
       </div>
 
-      <form class="co__form" id="pay" novalidate>
-        <p class="label eyebrow">{dict.checkout.details}</p>
+      <div
+        class="co__in"
+        data-basket
+        hidden
+        data-config={JSON.stringify({
+          api: site.paymentApi,
+          locale,
+          labels: {
+            pay: dict.checkout.pay, paying: dict.checkout.paying,
+            generic: dict.checkout.errorGeneric, gateway: dict.checkout.errorGateway, fields: dict.checkout.errorFields,
+          },
+        })}
+      >
+        <div class="co__order">
+          <ul class="co__lines" data-lines>
+            {sellable.map((item) => (
+              <li class="co__line" data-line={item.sku} hidden>
+                <div class="co__plate">{item.plate && <Plate {...item.plate} sizes="110px" />}</div>
+                <div class="co__what">
+                  <p class="co__piece">{item.title}</p>
+                  <p class="co__lineName">{item.line}</p>
+                  <p class="co__each" data-each={item.price}>{formatPrice(item.price)}</p>
+                </div>
+                <div class="co__qty">
+                  <label class="sr-only" for={`q-${item.sku}`}>{dict.checkout.quantity}</label>
+                  <select id={`q-${item.sku}`} data-qty={item.sku}>
+                    {[1, 2, 3, 4, 5].map((n) => <option value={n}>{n}</option>)}
+                  </select>
+                  <button type="button" class="co__remove" data-remove={item.sku}>{dict.basket.remove}</button>
+                </div>
+                <p class="co__amount" data-amount={item.sku}>{formatPrice(item.price)}</p>
+              </li>
+            ))}
+          </ul>
 
-        <label class="co__field">
-          <span>{dict.checkout.name}</span>
-          <input name="name" autocomplete="name" required />
-        </label>
-        <label class="co__field">
-          <span>{dict.checkout.phone}</span>
-          <input name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
-        </label>
-        <label class="co__field">
-          <span>{dict.checkout.email} <em>{dict.checkout.optional}</em></span>
-          <input name="email" type="email" autocomplete="email" />
-        </label>
+          <dl class="co__rows">
+            <div class="co__total">
+              <dt>{dict.checkout.total}</dt>
+              <dd data-total>—</dd>
+            </div>
+          </dl>
+        </div>
 
-        <p class="co__error" data-error hidden role="alert"></p>
+        <form class="co__form" id="pay" novalidate>
+          <p class="label eyebrow">{dict.checkout.details}</p>
 
-        <button class="cta cta--solid co__pay" type="submit">
-          <span data-label>{dict.checkout.pay}</span>
-          <span class="arw" aria-hidden="true">&#8594;</span>
-        </button>
+          <label class="co__field">
+            <span>{dict.checkout.name}</span>
+            <input name="name" autocomplete="name" required />
+          </label>
+          <label class="co__field">
+            <span>{dict.checkout.phone}</span>
+            <input name="phone" type="tel" autocomplete="tel" inputmode="tel" required />
+          </label>
+          <label class="co__field">
+            <span>{dict.checkout.email} <em>{dict.checkout.optional}</em></span>
+            <input name="email" type="email" autocomplete="email" />
+          </label>
 
-        <p class="co__secure">
-          <span class="co__cards">{dict.checkout.cards}</span>
-          {dict.checkout.secure} {dict.checkout.noStore}
-        </p>
+          <p class="co__error" data-error hidden role="alert"></p>
 
-        <a class="link co__terms" href={localePath('/terms', locale)}>
-          {dict.terms.title} {dict.terms.accent} <span class="arw" aria-hidden="true">&#8594;</span>
-        </a>
+          <button class="cta cta--solid co__pay" type="submit">
+            <span data-label>{dict.checkout.pay}</span>
+            <span class="arw" aria-hidden="true">&#8594;</span>
+          </button>
 
-        <a class="link" href={localePath(`/looks/${slug}`, locale)}>
-          {dict.checkout.backToLook} <span class="arw" aria-hidden="true">&#8594;</span>
-        </a>
-      </form>
+          <p class="co__secure">
+            <span class="co__cards">{dict.checkout.cards}</span>
+            {dict.checkout.secure} {dict.checkout.noStore}
+          </p>
+
+          <a class="link co__terms" href={localePath('/terms', locale)}>
+            {dict.terms.title} {dict.terms.accent} <span class="arw" aria-hidden="true">&#8594;</span>
+          </a>
+        </form>
+      </div>
     </div>
   </section>
 </Base>
 
-<script
-  define:vars={{
-    api: site.paymentApi,
-    sku: slug,
-    locale,
-    unit: price,
-    labels: { pay: dict.checkout.pay, paying: dict.checkout.paying,
-              generic: dict.checkout.errorGeneric, gateway: dict.checkout.errorGateway, fields: dict.checkout.errorFields },
-  }}
->
-  // The page never prices anything: it shows the figure it was built with, and
-  // the service prices the order again from its own catalogue before charging.
-  const form = document.getElementById('pay');
-  const qty = document.getElementById('qty');
-  const total = document.querySelector('[data-total]');
-  const error = document.querySelector('[data-error]');
-  const label = form.querySelector('[data-label]');
-  const button = form.querySelector('button');
+<script>
+  // A module, so it can import the basket — which means its configuration
+  // arrives on the element rather than through define:vars, since a script
+  // with variables baked in is inlined as-is and never bundled.
+  import { readBasket, setQuantity, removeFromBasket, onBasketChange } from '~/scripts/cart';
 
-  const money = (agorot) => `${Math.round(agorot / 100).toLocaleString('en-US')} ₪`;
-  qty.addEventListener('change', () => { total.textContent = money(unit * 100 * Number(qty.value)); });
+  const empty = document.querySelector<HTMLElement>('[data-empty]');
+  const wrap = document.querySelector<HTMLElement>('[data-basket]');
+  const { api, locale, labels } = JSON.parse(wrap?.dataset.config ?? '{}');
+  const totalOut = document.querySelector<HTMLElement>('[data-total]')!;
+  const form = document.getElementById('pay') as HTMLFormElement;
+  const error = document.querySelector<HTMLElement>('[data-error]')!;
+  const label = form.querySelector<HTMLElement>('[data-label]')!;
+  const button = form.querySelector('button')!;
 
-  const fail = (message) => {
+  const money = (agorot: number) => `${Math.round(agorot / 100).toLocaleString('en-US')} ₪`;
+
+  function render() {
+    const lines = readBasket();
+    const shown = lines.filter((l) => document.querySelector(`[data-line="${CSS.escape(l.sku)}"]`));
+    let total = 0;
+
+    for (const el of document.querySelectorAll<HTMLElement>('[data-line]')) {
+      const sku = el.dataset.line!;
+      const line = shown.find((l) => l.sku === sku);
+      el.hidden = !line;
+      if (!line) continue;
+      const each = Number(el.querySelector<HTMLElement>('[data-each]')!.dataset.each);
+      const amount = each * 100 * line.quantity;
+      total += amount;
+      el.querySelector(`[data-amount="${CSS.escape(sku)}"]`)!.textContent = money(amount);
+      (el.querySelector(`[data-qty="${CSS.escape(sku)}"]`) as HTMLSelectElement).value = String(line.quantity);
+    }
+
+    if (empty) empty.hidden = shown.length > 0;
+    if (wrap) wrap.hidden = shown.length === 0;
+    totalOut.textContent = money(total);
+  }
+
+  document.addEventListener('change', (event) => {
+    const target = event.target as HTMLSelectElement;
+    const sku = target?.dataset?.qty;
+    if (sku) setQuantity(sku, Number(target.value));
+  });
+  document.addEventListener('click', (event) => {
+    const sku = (event.target as HTMLElement)?.dataset?.remove;
+    if (sku) removeFromBasket(sku);
+  });
+  onBasketChange(render);
+  render();
+
+  const fail = (message: string) => {
     error.textContent = message;
     error.hidden = false;
     button.disabled = false;
@@ -134,6 +200,9 @@ const plate = look.plates[0];
     };
     if (!customer.name || (!customer.phone && !customer.email)) return fail(labels.fields);
 
+    const items = readBasket();
+    if (!items.length) return;
+
     button.disabled = true;
     label.textContent = labels.paying;
 
@@ -141,11 +210,12 @@ const plate = look.plates[0];
       const response = await fetch(`${api}/api/checkout`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ sku, quantity: Number(qty.value), locale, customer }),
+        body: JSON.stringify({ items, locale, customer }),
       });
       const body = await response.json().catch(() => ({}));
       if (response.status === 201 && body.redirectUrl) {
-        // the card is typed on the gateway's page, never on this one
+        // the basket is cleared only once the gateway has the order
+        sessionStorage.setItem('eed.paying', body.reference);
         window.location.href = body.redirectUrl;
         return;
       }
@@ -157,61 +227,68 @@ const plate = look.plates[0];
 </script>
 
 <style>
+  .co__title { margin: .5rem 0 clamp(2rem, 5vh, 3rem); }
   .co__in {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
     gap: clamp(2rem, 6vw, 5rem);
     align-items: start;
-    padding-top: calc(var(--header-h) + clamp(1rem, 4vh, 2.5rem));
   }
-  .co__piece { display: flex; gap: 1.25rem; align-items: flex-start; margin-top: 1.25rem; }
-  .co__plate { width: clamp(84px, 22vw, 120px); flex: none; }
-  .co__h { margin: 0; }
-  .co__line { color: var(--gold-ink); font-size: var(--t-small); margin: .35rem 0 0; }
-  .co__note { color: var(--ink-muted); font-size: var(--t-small); margin: .6rem 0 0; max-width: 32ch; }
 
-  .co__rows { margin: 2rem 0 0; border-top: 1px solid var(--line); }
-  .co__rows > div {
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    padding-block: .9rem; border-bottom: 1px solid var(--line);
+  .co__lines { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .co__line {
+    display: grid;
+    grid-template-columns: clamp(72px, 16vw, 110px) minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: clamp(.9rem, 2vw, 1.5rem);
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--line);
   }
-  .co__rows dt { color: var(--ink-muted); font-size: var(--t-small); }
-  .co__rows dd { margin: 0; }
-  .co__total dt, .co__total dd { font-size: var(--t-h3); color: var(--ink); }
-  .co__total dd { color: var(--gold-ink); }
+  .co__piece { margin: 0; font-family: var(--serif); font-size: 1.15rem; }
+  .co__lineName { margin: .2rem 0 0; font-size: var(--t-small); color: var(--gold-ink); }
+  .co__each { margin: .35rem 0 0; font-size: var(--t-small); color: var(--ink-muted); }
+  .co__qty { display: flex; flex-direction: column; align-items: flex-start; gap: .4rem; }
+  .co__remove {
+    font: inherit; font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase;
+    background: none; border: 0; padding: 0; color: var(--ink-muted); cursor: pointer;
+  }
+  .co__remove:hover { color: var(--gold-ink); }
+  .co__amount { margin: 0; white-space: nowrap; }
+
+  .co__rows { margin: 1.5rem 0 0; }
+  .co__total { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .co__total dt { font-size: var(--t-h3); }
+  .co__total dd { margin: 0; font-size: var(--t-h3); color: var(--gold-ink); }
+
+  .co__empty { max-width: 42ch; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .co__emptyh { font-size: var(--t-h3); margin: 0; }
+  .co__emptyb { color: var(--ink-muted); margin: 0; }
 
   select, input {
-    font: inherit; color: inherit;
-    background: transparent;
-    border: 1px solid var(--line-strong);
-    border-radius: 0;
-    padding: .7rem .8rem;
+    font: inherit; color: inherit; background: transparent;
+    border: 1px solid var(--line-strong); border-radius: 0; padding: .6rem .7rem;
   }
-  select { padding-inline-end: 2rem; }
   input { width: 100%; }
   input:focus-visible, select:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
 
   .co__form { display: flex; flex-direction: column; gap: 1.1rem; }
-  .co__field { display: block; }
   .co__field > span {
     display: block; margin-bottom: .45rem;
-    font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase;
-    color: var(--ink-muted);
+    font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-muted);
   }
   .co__field em { font-style: normal; opacity: .7; text-transform: none; letter-spacing: 0; }
-
   .co__error { color: #8c2f2f; font-size: var(--t-small); margin: 0; }
   .co__pay { margin-top: .5rem; align-self: flex-start; }
   .co__pay[disabled] { opacity: .6; cursor: progress; }
-
   .co__secure { font-size: var(--t-small); color: var(--ink-muted); margin: 0; line-height: 1.6; }
+  .co__cards { display: block; letter-spacing: var(--track-label); color: var(--ink); margin-bottom: .35rem; }
   .co__terms { font-size: var(--t-small); }
-  .co__cards {
-    display: block; letter-spacing: var(--track-label); color: var(--ink);
-    margin-bottom: .35rem;
-  }
 
   @media (max-width: 860px) {
     .co__in { grid-template-columns: 1fr; gap: 2.5rem; }
+  }
+  @media (max-width: 560px) {
+    .co__line { grid-template-columns: 72px minmax(0, 1fr); row-gap: .75rem; }
+    .co__qty, .co__amount { grid-column: 2; }
   }
 </style>

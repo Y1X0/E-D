@@ -40,11 +40,11 @@ const checkout = look.price
       locale,
     }, look.payUrl)
   : null;
-// Three ways to buy, in the order they are trusted. Our own checkout, which
+// Three ways to buy, in the order they are trusted. Our own basket, which
 // prices the order server-side and only calls it paid once the gateway's
 // webhook says so. A hosted payment link, when the atelier has one but no
 // service. And WhatsApp, which is where the order would have gone anyway.
-const ownCheckout = price && site.paymentApi ? localePath(`/checkout/${slug}`, locale) : '';
+const ownCheckout = price && site.paymentApi ? localePath('/checkout', locale) : '';
 const orderHref = ownCheckout
   || checkout
   || (whatsapp
@@ -133,9 +133,20 @@ const schema = {
           </dl>
 
           <div class="look__acts">
-            {price && orderHref && (
-              <a class="cta cta--solid" href={orderHref} rel={ownCheckout ? undefined : checkout ? 'noopener' : 'noopener nofollow'}>
-                {ownCheckout || checkout ? dict.lookPage.buy : dict.lookPage.orderOnWhatsapp}
+            {price && ownCheckout && (
+              <div class="look__basket">
+                <button class="cta cta--solid" type="button" data-add={slug} data-added={dict.basket.added}>
+                  <span data-add-label>{dict.basket.add}</span>
+                  <span class="arw" aria-hidden="true">&#8594;</span>
+                </button>
+                <a class="link" href={ownCheckout} data-basket-link hidden>
+                  {dict.basket.view} <span class="arw" aria-hidden="true">&#8594;</span>
+                </a>
+              </div>
+            )}
+            {price && !ownCheckout && orderHref && (
+              <a class="cta cta--solid" href={orderHref} rel={checkout ? 'noopener' : 'noopener nofollow'}>
+                {checkout ? dict.lookPage.buy : dict.lookPage.orderOnWhatsapp}
                 <span class="arw" aria-hidden="true">&#8594;</span>
               </a>
             )}
@@ -175,6 +186,30 @@ const schema = {
   </div>
 
   <Lightbox locale={locale} />
+
+  {price && site.paymentApi && (
+    <script>
+      // A module so it can import the basket; its one word of copy rides on
+      // the button, because define:vars would stop it being bundled.
+      import { addToBasket, readBasket } from '~/scripts/cart';
+
+      const button = document.querySelector<HTMLButtonElement>('[data-add]');
+      const label = document.querySelector<HTMLElement>('[data-add-label]');
+      const link = document.querySelector<HTMLAnchorElement>('[data-basket-link]');
+      const sku = button?.dataset.add;
+      const added = button?.dataset.added ?? '';
+
+      const reflect = () => {
+        const line = readBasket().find((l) => l.sku === sku);
+        if (!line || !label || !link) return;
+        label.textContent = `${added} · ${line.quantity}`;
+        link.hidden = false;
+      };
+
+      button?.addEventListener('click', () => { if (sku) addToBasket(sku); reflect(); });
+      reflect();
+    </script>
+  )}
 </Base>
 
 <style>
@@ -184,6 +219,8 @@ const schema = {
     color: var(--gold-ink);
     margin: .75rem 0 0;
   }
+  .look__basket { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; }
+
   .look__hire {
     margin: 0;
     font-size: var(--t-lead);

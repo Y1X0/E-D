@@ -42,6 +42,12 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     </nav>
 
     <div class="hdr__end">
+      {site.paymentApi && (
+        <a class="hdr__basket" href={localePath('/checkout', locale)} data-basket-count hidden>
+          {dict.basket.name} <span class="hdr__n" data-n>0</span>
+        </a>
+      )}
+
       <nav class="lang" aria-label={dict.ui.language}>
         <ul>
           {LOCALES.map((l) => (
@@ -83,6 +89,22 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     <p class="label">{dict.tagline}</p>
   </div>
 </div>
+
+{site.paymentApi && (
+  <script>
+    import { basketCount, onBasketChange } from '~/scripts/cart';
+    const link = document.querySelector<HTMLAnchorElement>('[data-basket-count]');
+    const out = link?.querySelector('[data-n]');
+    const reflect = () => {
+      const n = basketCount();
+      if (!link || !out) return;
+      out.textContent = String(n);
+      link.hidden = n === 0;
+    };
+    onBasketChange(reflect);
+    reflect();
+  </script>
+)}
 
 <style>
   .hdr {

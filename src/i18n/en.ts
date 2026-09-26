@@ -175,6 +175,18 @@ export const en: Dict = {
   },
 
 
+  basket: {
+    name: 'Basket',
+    add: 'Add to basket',
+    added: 'In your basket',
+    view: 'View basket',
+    empty: 'Your basket is empty',
+    emptyBody: 'Pieces you add will gather here, and you settle for them in one go.',
+    browse: 'Browse the collections',
+    remove: 'Remove',
+    count: (n) => (n === 1 ? '1 piece' : `${n} pieces`),
+  },
+
   checkout: {
     eyebrow: 'Checkout',
     title: 'One piece,',
