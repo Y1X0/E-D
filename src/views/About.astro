@@ -135,7 +135,7 @@ const schema = {
   }
   .lines__head h2 { margin: 0; }
   .lines__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); }
-  .lines__item a:hover :global(.lines__plate img) { transform: scale(1.04); }
+  @media (hover: hover) { .lines__item a:hover :global(.lines__plate img) { transform: scale(1.04); } }
   .lines__name { margin: 1.15rem 0 .5rem; }
   .lines__d { color: var(--ink-muted); font-size: var(--t-small); max-width: 34ch; }
 

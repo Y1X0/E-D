@@ -115,7 +115,7 @@ const year = new Date().getFullYear();
     color: var(--on-ink-muted);
     transition: color .4s var(--ease);
   }
-  .ft__addr:hover { color: var(--on-ink); }
+  @media (hover: hover) { .ft__addr:hover { color: var(--on-ink); } }
   .ft__addr-local { font-size: .8125rem; text-align: start; }
 
   .ft__cols {
@@ -145,7 +145,7 @@ const year = new Date().getFullYear();
     transform-origin: var(--origin-end);
     transition: transform .45s var(--ease);
   }
-  .ft__col a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); }
+  @media (hover: hover) { .ft__col a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); } }
 
   .ft__bot {
     display: flex;

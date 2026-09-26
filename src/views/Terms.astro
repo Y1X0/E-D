@@ -87,7 +87,7 @@ const schema = {
   .terms__foot { margin-top: clamp(2rem, 5vh, 3rem); display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
   .terms__statutory { margin: 0; font-size: var(--t-small); color: var(--ink); }
   .terms__where { margin: 0; display: flex; flex-wrap: wrap; gap: .75rem; font-size: var(--t-small); color: var(--ink-muted); }
-  .terms__where a:hover { color: var(--gold-ink); }
+  @media (hover: hover) { .terms__where a:hover { color: var(--gold-ink); } }
   .terms__updated { margin: 0; font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-muted); }
 
   @media (max-width: 560px) {

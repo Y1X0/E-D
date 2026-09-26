@@ -176,7 +176,7 @@ const schema = {
   .lines__item:nth-child(2) { margin-top: clamp(1.5rem, 5vw, 4rem); }
   .lines__item:nth-child(3) { margin-top: clamp(3rem, 10vw, 8rem); }
 
-  .lines__a:hover :global(.lines__plate img) { transform: scale(1.045); }
+  @media (hover: hover) { .lines__a:hover :global(.lines__plate img) { transform: scale(1.045); } }
   .lines__meta { margin-top: 1.35rem; display: flex; flex-direction: column; gap: .55rem; align-items: flex-start; }
   .lines__name { margin: 0; }
   .lines__kicker { color: var(--ink-muted); font-size: var(--t-small); max-width: 30ch; }

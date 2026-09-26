@@ -160,8 +160,8 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     transform-origin: var(--origin-end);
     transition: transform .45s var(--ease);
   }
-  .hdr__nav a:hover::after,
   .hdr__nav a[aria-current='page']::after { transform: scaleX(1); transform-origin: var(--origin-start); }
+  @media (hover: hover) { .hdr__nav a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); } }
   .hdr__nav a[aria-current='page'] { color: var(--gold-ink); }
   .hdr[data-variant='over'][data-solid='false'] .hdr__nav a[aria-current='page'] { color: var(--gold-lit); }
 
@@ -191,7 +191,7 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     opacity: .7;
     transition: opacity .35s var(--ease), color .35s var(--ease);
   }
-  .lang a:hover { opacity: 1; }
+  @media (hover: hover) { .lang a:hover { opacity: 1; } }
   .lang a[aria-current='true'] { opacity: 1; color: var(--gold-ink); }
   .hdr[data-variant='over'][data-solid='false'] .lang a[aria-current='true'] { color: var(--gold-lit); }
   .lang li + li { border-color: color-mix(in srgb, currentColor 28%, transparent); }

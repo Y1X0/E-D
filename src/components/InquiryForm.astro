@@ -107,7 +107,7 @@ const messages = {
   .field textarea { resize: vertical; min-height: 6.5rem; line-height: 1.65; }
   .field input::placeholder,
   .field textarea::placeholder { color: color-mix(in srgb, var(--ink-muted) 62%, transparent); }
-  .field input:hover, .field textarea:hover, .select select:hover { border-bottom-color: var(--ink-muted); }
+  @media (hover: hover) { .field input:hover, .field textarea:hover, .select select:hover { border-bottom-color: var(--ink-muted); } }
   .field input:focus, .field textarea:focus, .select select:focus { border-bottom-color: var(--gold); }
   .field input:focus-visible, .field textarea:focus-visible, .select select:focus-visible {
     outline: 2px solid var(--gold);

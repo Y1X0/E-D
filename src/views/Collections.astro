@@ -77,7 +77,7 @@ const schema = {
   .coll__row[data-flip='true'] .coll__media { order: 2; }
 
   .coll__media { display: block; }
-  .coll__media:hover :global(.coll__plate img) { transform: scale(1.04); }
+  @media (hover: hover) { .coll__media:hover :global(.coll__plate img) { transform: scale(1.04); } }
 
   .coll__body { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; }
   .coll__idx { margin: 0; }
@@ -90,7 +90,7 @@ const schema = {
     transform: scaleX(0); transform-origin: var(--origin-end);
     transition: transform .5s var(--ease);
   }
-  .coll__name a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); }
+  @media (hover: hover) { .coll__name a:hover::after { transform: scaleX(1); transform-origin: var(--origin-start); } }
   .coll__kicker { font-family: var(--serif); font-size: var(--t-lead); color: var(--gold-ink); }
   .coll__summary { color: var(--ink-muted); max-width: 42ch; }
   .coll__count { margin-top: .25rem; }

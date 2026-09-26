@@ -103,7 +103,7 @@ const schema = {
     padding-block: 1.35rem;
     transition: padding-inline-start .5s var(--ease);
   }
-  .channel__a:hover { padding-inline-start: .6rem; }
+  @media (hover: hover) { .channel__a:hover { padding-inline-start: .6rem; } }
   .channel__label { color: var(--ink-muted); }
   .channel__value {
     font-family: var(--serif);
@@ -112,13 +112,13 @@ const schema = {
     line-height: 1.2;
     text-align: start;
   }
-  .channel__a:hover .channel__value { color: var(--gold-ink); }
+  @media (hover: hover) { .channel__a:hover .channel__value { color: var(--gold-ink); } }
   .channel__note { font-size: var(--t-small); color: var(--ink-muted); }
 
   .visit { display: flex; flex-direction: column; align-items: flex-start; gap: 1.1rem; }
   .visit__a { display: flex; flex-direction: column; gap: .35rem; }
   .visit__street { font-family: var(--serif); font-size: clamp(1.3rem, 2.2vw, 1.75rem); font-weight: 300; line-height: 1.2; }
-  .visit__a:hover .visit__street { color: var(--gold-ink); }
+  @media (hover: hover) { .visit__a:hover .visit__street { color: var(--gold-ink); } }
   .visit__city { font-size: var(--t-small); color: var(--ink-muted); }
   .visit__local { font-size: var(--t-small); color: var(--ink-muted); text-align: start; align-self: stretch; }
   .visit__map { margin-top: .65rem; color: var(--gold-ink); }

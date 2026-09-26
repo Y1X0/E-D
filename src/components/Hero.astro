@@ -121,7 +121,7 @@ const widths = img
     width: 1px; height: clamp(2rem, 5vh, 3.25rem);
     background: linear-gradient(var(--gold-lit), transparent);
   }
-  .hero__cue:hover { color: var(--on-ink); }
+  @media (hover: hover) { .hero__cue:hover { color: var(--on-ink); } }
 
   @keyframes rise { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: none; } }
   @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

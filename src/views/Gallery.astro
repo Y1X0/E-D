@@ -107,7 +107,7 @@ const schema = {
     transform: scaleX(0); transform-origin: var(--origin-end);
     transition: transform .45s var(--ease);
   }
-  .gal__filter:hover { color: var(--ink); }
+  @media (hover: hover) { .gal__filter:hover { color: var(--ink); } }
   .gal__filter[aria-pressed='true'] { color: var(--gold-ink); }
   .gal__filter[aria-pressed='true']::after { transform: scaleX(1); transform-origin: var(--origin-start); }
 
@@ -124,7 +124,7 @@ const schema = {
     display: block;
   }
   .gal__item[hidden] { display: none; }
-  .gal__item:hover :global(.plate img) { transform: scale(1.04); }
+  @media (hover: hover) { .gal__item:hover :global(.plate img) { transform: scale(1.04); } }
 
   .gal__cap { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: .8rem; }
   .gal__link {
@@ -143,8 +143,8 @@ const schema = {
     transition: opacity .4s var(--ease);
   }
   [dir='rtl'] .gal__link { text-transform: none; }
-  .gal__item:hover .gal__link,
   .gal__link:focus-visible { opacity: 1; }
+  @media (hover: hover) { .gal__item:hover .gal__link { opacity: 1; } }
 
   .gal__empty { margin-top: 3rem; color: var(--ink-muted); }
   .gal__empty[hidden] { display: none; }

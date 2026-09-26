@@ -62,7 +62,7 @@ const dict = t(locale);
     border: 1px solid color-mix(in srgb, #efe9de 22%, transparent);
     transition: background-color .35s var(--ease), border-color .35s var(--ease);
   }
-  .lb__btn:hover { background: color-mix(in srgb, #efe9de 12%, transparent); border-color: color-mix(in srgb, #efe9de 46%, transparent); }
+  @media (hover: hover) { .lb__btn:hover { background: color-mix(in srgb, #efe9de 12%, transparent); border-color: color-mix(in srgb, #efe9de 46%, transparent); } }
   .lb__btn:focus-visible { outline: 2px solid var(--gold-lit); outline-offset: 3px; }
   .lb__btn--prev { inset-inline-start: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }
   .lb__btn--next { inset-inline-end: clamp(.75rem, 2.5vw, 2rem); top: 50%; transform: translateY(-50%); }

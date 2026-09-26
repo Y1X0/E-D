@@ -35,7 +35,7 @@ const plate = look.plates[0] ?? { alt: '', ratio: '2/3' as const, tone: 'linen' 
 <style>
   .lookcard__a { display: block; }
   .lookcard :global(.lookcard__plate) { margin-bottom: 1.1rem; }
-  .lookcard__a:hover :global(.lookcard__plate img) { transform: scale(1.045); }
+  @media (hover: hover) { .lookcard__a:hover :global(.lookcard__plate img) { transform: scale(1.045); } }
 
   .lookcard__meta {
     display: flex;
@@ -46,7 +46,7 @@ const plate = look.plates[0] ?? { alt: '', ratio: '2/3' as const, tone: 'linen' 
     border-bottom: 1px solid var(--line);
     transition: border-color .5s var(--ease);
   }
-  .lookcard__a:hover .lookcard__meta { border-bottom-color: var(--line-strong); }
+  @media (hover: hover) { .lookcard__a:hover .lookcard__meta { border-bottom-color: var(--line-strong); } }
 
   .lookcard__title { font-family: var(--serif); font-weight: 300; font-size: 1.35rem; letter-spacing: .01em; }
   .lookcard__line { color: var(--gold-ink); }
