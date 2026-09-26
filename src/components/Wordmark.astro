@@ -29,7 +29,8 @@ const Tag = href ? 'a' : 'span';
   .wordmark__sub {
     font-family: var(--sans);
     font-weight: 300;
-    font-size: calc(var(--wm-size, 1.02rem) * .49);
+    /* Never below 9px: at the header's size the ratio alone rounds to 8. */
+    font-size: max(9px, calc(var(--wm-size, 1.02rem) * .49));
     letter-spacing: .42em;
     text-indent: .42em;
     color: var(--wm-sub, var(--gold-ink));

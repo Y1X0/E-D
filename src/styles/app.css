@@ -361,6 +361,8 @@ h1, h2, h3, h4 {
   padding-bottom: .5rem;
   position: relative;
   color: inherit;
+  /* the text sits where it did; the tap area reaches a fingertip */
+  padding-block: .45rem;
 }
 .link::after {
   content: '';
@@ -374,6 +376,13 @@ h1, h2, h3, h4 {
   transition: transform var(--dur) var(--ease), opacity var(--dur) var(--ease);
 }
 .link:hover::after { opacity: 1; transform: scaleX(1.02); }
+/* On a touch screen the same line needs a fingertip's worth of room. The type
+   and the rule under it do not move — only the invisible box around them grows,
+   and the rule is pulled back up to where it sat. */
+@media (pointer: coarse) {
+  .link { padding-block: .72rem; }
+  .link::after { bottom: .27rem; }
+}
 /* Arrows point the way the language reads, and travel that way on hover.
    `translate` is used rather than `transform`, so the RTL mirror composes. */
 .arw {

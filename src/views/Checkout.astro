@@ -250,7 +250,11 @@ const sellable = looks
   .co__qty { display: flex; flex-direction: column; align-items: flex-start; gap: .4rem; }
   .co__remove {
     font: inherit; font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase;
-    background: none; border: 0; padding: 0; color: var(--ink-muted); cursor: pointer;
+    background: none; border: 0; color: var(--ink-muted); cursor: pointer;
+    /* Removing a piece by mistake is worse than reaching for a small word, so
+       the word keeps its size and the box around it reaches a fingertip. */
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 0 .5rem; margin-inline-start: -.5rem;
   }
   .co__remove:hover { color: var(--gold-ink); }
   .co__amount { margin: 0; white-space: nowrap; }
@@ -267,6 +271,8 @@ const sellable = looks
   select, input {
     font: inherit; color: inherit; background: transparent;
     border: 1px solid var(--line-strong); border-radius: 0; padding: .6rem .7rem;
+    /* Thumb-sized on a phone; unchanged to the eye on a laptop. */
+    min-height: 44px;
   }
   input { width: 100%; }
   input:focus-visible, select:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }

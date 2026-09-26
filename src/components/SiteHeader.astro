@@ -174,9 +174,14 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
     list-style: none;
     margin: 0; padding: 0;
   }
-  .lang li + li { border-inline-start: 1px solid currentColor; }
+  .lang li { display: flex; align-items: center; }
+  .lang li + li { border-inline-start: 1px solid currentColor; height: 1em; }
   .lang a {
-    display: block;
+    /* the word stays small; the area a thumb has to find does not. Padding
+       rather than a taller line, so the header keeps its height */
+    display: flex;
+    align-items: center;
+    min-height: 44px;
     padding-inline: .55rem;
     font-size: var(--t-label);
     letter-spacing: .12em;

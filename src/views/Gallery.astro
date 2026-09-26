@@ -93,6 +93,12 @@ const schema = {
     padding: .4rem 0;
     transition: color .4s var(--ease);
   }
+  /* A filter is pressed with a thumb more often than clicked. The pill grows to
+     a fingertip on touch; the rule under it follows the word, not the box. */
+  @media (pointer: coarse) {
+    .gal__filter { padding-block: .72rem; }
+    .gal__filter::after { bottom: .32rem; }
+  }
   [dir='rtl'] .gal__filter { text-transform: none; }
   .gal__filter::after {
     content: '';
@@ -122,6 +128,13 @@ const schema = {
 
   .gal__cap { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-top: .8rem; }
   .gal__link {
+    display: inline-flex;
+    align-items: center;
+    /* The photograph itself opens the lightbox, so this small line is the only
+       way through to the piece — it gets a full fingertip, taken out of the
+       caption again with a negative margin so the grid keeps its rhythm. */
+    min-height: 44px;
+    margin-block: -11px;
     font-size: var(--t-label);
     letter-spacing: var(--track-label);
     text-transform: uppercase;

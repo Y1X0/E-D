@@ -244,6 +244,13 @@ const schema = {
     text-transform: uppercase;
     color: var(--ink-muted);
   }
+  /* A breadcrumb is a row of 11px words: readable, but nothing to aim a thumb
+     at. Each step keeps its size and gains a box around it, pulled back out of
+     the row so the trail still sits on one line. */
+  .look__crumb a, .look__crumb [aria-current='page'] {
+    display: inline-flex; align-items: center;
+    min-height: 44px; margin-block: -14px;
+  }
   .look__crumb a:hover { color: var(--gold-ink); }
   .look__crumb [aria-current='page'] { color: var(--ink); }
 

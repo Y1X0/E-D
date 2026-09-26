@@ -124,9 +124,12 @@ const year = new Date().getFullYear();
     gap: 2rem;
   }
   .ft__col ul { list-style: none; margin: 1.35rem 0 0; padding: 0; }
-  .ft__col li + li { margin-top: .6rem; }
+  /* the gap between rows is now mostly the links' own tap area, so the list
+     reads at the same rhythm while each row clears a fingertip */
+  .ft__col li + li { margin-top: .1rem; }
   .ft__col a {
     display: inline-block;
+    padding-block: .45rem;
     font-size: var(--t-small);
     color: var(--on-ink);
     position: relative;
@@ -134,7 +137,8 @@ const year = new Date().getFullYear();
   .ft__col a::after {
     content: '';
     position: absolute;
-    inset-inline: 0; bottom: -2px;
+    /* just under the word, inside the padding that makes the tap area */
+    inset-inline: 0; bottom: .3rem;
     height: 1px;
     background: currentColor;
     transform: scaleX(0);
