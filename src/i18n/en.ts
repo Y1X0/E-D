@@ -358,6 +358,15 @@ export const en: Dict = {
         ],
       },
       {
+        title: 'Hire',
+        body: [
+          'A hire runs for one week from the day the dress is collected, and it comes back on the agreed date.',
+          'A deposit is taken. It is set and agreed before the dress leaves, and returned once it comes back sound.',
+          'A late return is charged for each day beyond the date, at the rate set in the hire agreement when you book.',
+          'Damage is charged at what it actually costs.',
+        ],
+      },
+      {
         title: 'Payment',
         body: [
           'Payment is taken on the payment provider\u2019s own secure page. Your card details never pass through this site and are never stored by the atelier.',

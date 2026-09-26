@@ -167,7 +167,7 @@ export interface Dict {
   /** Everything a buyer is owed before she pays — the atelier's own terms. */
   terms: {
     eyebrow: string; title: string; accent: string; lead: string;
-    sections: [TermsSection, TermsSection, TermsSection, TermsSection, TermsSection];
+    sections: [TermsSection, TermsSection, TermsSection, TermsSection, TermsSection, TermsSection];
     statutory: string;
     updated: (date: string) => string;
   };
