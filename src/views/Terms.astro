@@ -12,7 +12,17 @@ const copy = dict.terms;
 // Written from what the atelier actually does — measured three ways, a day to a
 // week, collected or delivered, exchanged within four days. Nothing here is a
 // template clause, and nothing is claimed that the atelier has not said.
-const updated = new Date('2026-09-21').toLocaleDateString(locale === 'en' ? 'en-GB' : locale, {
+/**
+ * The day these terms last changed — not the day the site was last built.
+ *
+ * A buyer reads this date to know whether what she agreed to has moved since.
+ * A date that ticked over with every deploy would tell her nothing, so it is
+ * set by hand: change a clause above, change this line in the same commit.
+ * Last moved when the hire terms were written in.
+ */
+const TERMS_CHANGED = '2026-09-26';
+
+const updated = new Date(TERMS_CHANGED).toLocaleDateString(locale === 'en' ? 'en-GB' : locale, {
   year: 'numeric', month: 'long', day: 'numeric',
 });
 const whatsapp = contactChannels().find((c) => c.id === 'whatsapp');
