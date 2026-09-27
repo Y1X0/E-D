@@ -22,6 +22,8 @@ const Tag = href ? 'a' : 'span';
     color: inherit;
   }
   .wordmark__name {
+    /* Two words, one line, whatever else is crowding the header. */
+    white-space: nowrap;
     font-size: var(--wm-size, 1.02rem);
     letter-spacing: .17em;
     text-indent: .17em;

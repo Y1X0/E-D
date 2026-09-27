@@ -61,7 +61,7 @@
     padding: 2rem;
     text-align: center;
     /* Everything inside leaves together, a breath before the ground does. */
-    animation: intro-content-out .38s var(--ease) 1.52s both;
+    animation: intro-content-out .42s var(--ease) 2.72s both;
   }
 
   /* ---- the monogram, written ---- */
@@ -87,8 +87,8 @@
   }
   /* The E is written first and the D follows a beat later, the way a hand
      would; each then slides in from where it began to where it belongs. */
-  .intro__glyph--e { animation: intro-write .55s linear .04s both, intro-close-e .46s var(--ease) .70s both, intro-flood .42s var(--ease) .76s both; }
-  .intro__glyph--d { animation: intro-write .55s linear .14s both, intro-close-d .46s var(--ease) .70s both, intro-flood .42s var(--ease) .76s both; }
+  .intro__glyph--e { animation: intro-write 1.05s linear .12s both, intro-close-e .62s var(--ease) 1.48s both, intro-flood .58s var(--ease) 1.54s both; }
+  .intro__glyph--d { animation: intro-write 1.05s linear .38s both, intro-close-d .62s var(--ease) 1.48s both, intro-flood .58s var(--ease) 1.54s both; }
 
   @keyframes intro-write {
     from { stroke-dashoffset: 1; }
@@ -119,7 +119,7 @@
     text-transform: uppercase;
     line-height: 1;
     /* The tracking settles as it arrives — the letters come to rest. */
-    animation: intro-name .58s var(--ease) .92s both;
+    animation: intro-name .66s var(--ease) 1.86s both;
   }
   .intro__sub {
     margin: 0;
@@ -130,7 +130,7 @@
     text-indent: .42em;
     text-transform: uppercase;
     color: var(--gold-lit);
-    animation: intro-fade .5s var(--ease) 1.04s both;
+    animation: intro-fade .56s var(--ease) 2.04s both;
   }
   .intro__rule {
     display: block;
@@ -138,12 +138,12 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
     margin-top: .3rem;
-    animation: intro-rule .48s var(--ease) 1.12s both;
+    animation: intro-rule .54s var(--ease) 2.16s both;
   }
 
   /* The ground itself lifts away, revealing the page from the bottom up. */
   :global(html.is-intro) .intro {
-    animation: intro-lift .68s cubic-bezier(.76, 0, .24, 1) 1.68s both;
+    animation: intro-lift .72s cubic-bezier(.76, 0, .24, 1) 2.90s both;
   }
 
   @keyframes intro-name {

@@ -167,6 +167,51 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
 
   .hdr__end { display: flex; align-items: center; gap: clamp(.75rem, 1.6vw, 1.5rem); }
 
+  /* ---- basket ----
+     It had no styles at all, so it arrived as two loose words that wrapped and
+     pushed the name on to a second line. It is a quiet count beside the
+     language switcher, and never more than one line high. */
+  .hdr__basket {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    min-height: 44px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-family: var(--sans);
+    font-size: var(--t-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    color: inherit;
+    opacity: .78;
+    transition: opacity .35s var(--ease);
+  }
+  @media (hover: hover) { .hdr__basket:hover { opacity: 1; } }
+  .hdr__n {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.7em;
+    height: 1.7em;
+    padding-inline: .3em;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, var(--gold-ink) 45%, transparent);
+    color: var(--gold-ink);
+    font-size: .92em;
+    line-height: 1;
+    letter-spacing: 0;
+  }
+  .hdr[data-variant='over'][data-solid='false'] .hdr__n {
+    border-color: color-mix(in srgb, var(--gold-lit) 55%, transparent);
+    color: var(--gold-lit);
+  }
+  /* On a phone the header belongs to the name. The basket keeps its count and
+     gives up its word — the word stays in the markup, so the link still reads
+     as "basket, one" to a screen reader. */
+  @media (max-width: 820px) {
+    .hdr__basket { font-size: 0; gap: 0; }
+    .hdr__n { font-size: var(--t-label); }
+  }
+
   /* ---- language switcher ---- */
   .lang ul {
     display: flex;
@@ -262,5 +307,22 @@ const isCurrent = (href: string) => current === href || (href !== '/' && current
   }
   @media (prefers-reduced-motion: reduce) {
     .menu__nav, .menu__foot { transform: none; opacity: 1; transition: none; }
+  }
+
+  /* The narrowest phones still in use are 320 wide. The name, three languages,
+     a count and a menu button do not fit there at full size, and what went off
+     the edge was the menu button itself — so every part gives a little rather
+     than one being pushed off the screen. Last in the sheet, because each of
+     these overrides a rule written above it. */
+  @media (max-width: 390px) {
+    .hdr__in { gap: .4rem; }
+    .hdr__end { gap: .3rem; }
+    /* the wordmark belongs to another component, so its variable is set
+       through the class it was handed */
+    :global(.hdr__mark) { --wm-size: .8rem; }
+    .lang a { padding-inline: .28rem; letter-spacing: .05em; }
+    .hdr__toggle { padding: .75rem .35rem; margin-inline-end: -.35rem; }
+    .hdr__bars { width: 21px; }
+    .hdr__n { min-width: 1.5em; height: 1.5em; }
   }
 </style>
