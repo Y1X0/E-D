@@ -1,5 +1,6 @@
 ---
 import SiteHeader from '~/components/SiteHeader.astro';
+import Intro from '~/components/Intro.astro';
 import SiteFooter from '~/components/SiteFooter.astro';
 import { site, location, mapsUrl } from '~/config/site';
 import {
@@ -123,9 +124,40 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
     )}
 
     <script set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': graph })} type="application/ld+json" is:inline />
+
+    {/* Decides, before a single pixel is painted, whether this visitor meets
+        the opening — and sets the timer that takes it away again. It runs here
+        rather than at the foot of the page so the curtain is never seen to
+        appear: it is either there from the first paint or not at all. */}
+    <script is:inline>
+      (function () {
+        var KEY = 'eed.greeted';
+        try {
+          if (sessionStorage.getItem(KEY)) return;
+          sessionStorage.setItem(KEY, '1');
+          if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        } catch (e) {
+          /* private windows and blocked storage: greet once and no more than
+             once, rather than on every page of the visit */
+          return;
+        }
+        var html = document.documentElement;
+        html.classList.add('is-intro');
+        var done = function () { html.classList.remove('is-intro'); };
+        /* the curtain lifts on its own clock, so nothing below — a slow font,
+           a failed script — can hold it up */
+        setTimeout(done, 1900);
+        /* and it never survives a page restored from the back/forward cache,
+           where the timer above has long since run. Only `persisted` restores:
+           `pageshow` also fires on an ordinary load, which would take the
+           curtain away the moment the page finished loading. */
+        addEventListener('pageshow', function (e) { if (e.persisted) done(); });
+      })();
+    </script>
   </head>
 
   <body>
+    <Intro />
     <a class="skip" href="#main">{dict.ui.skip}</a>
     <SiteHeader locale={locale} variant={variant} path={path} switchTo={translated ? path : '/'} />
     <main id="main" tabindex="-1">

@@ -1,0 +1,142 @@
+---
+/**
+ * The house announces itself, once.
+ *
+ * A visitor arriving for the first time is held for a moment on the seal and
+ * the name before the page is revealed. It is a greeting, not a loading
+ * screen: it never waits on an image or a request, so it cannot become the
+ * reason someone leaves. Four rules keep it a pleasure rather than a toll:
+ *
+ *   · once a visit, not once a page. Every link here is a full page load, so
+ *     without a flag in sessionStorage this would play on every click.
+ *   · never without JavaScript. The curtain is `display: none` until a script
+ *     in the head says otherwise, so a reader with scripts off — or one whose
+ *     script failed — never meets a screen that will not lift.
+ *   · never against someone's wishes. Reduced motion skips it outright.
+ *   · never longer than it promised. The same head script sets the timer that
+ *     takes it away, so nothing that happens afterwards can strand it.
+ *
+ * The page underneath is complete in the markup the whole time — this is a
+ * sheet laid over a finished page, not a gate in front of an empty one, so
+ * search engines and screen readers are unaffected.
+ */
+---
+
+<div class="intro" aria-hidden="true">
+  <div class="intro__in">
+    <img
+      class="intro__seal"
+      src="/brand/seal.webp"
+      width="96" height="96" alt=""
+      fetchpriority="high" decoding="sync"
+    />
+    <p class="intro__name">Elite Evening</p>
+    <p class="intro__sub">Design</p>
+    <span class="intro__rule"></span>
+  </div>
+</div>
+
+<style>
+  .intro {
+    /* Hidden to everyone until the head script opens it — see the note above. */
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    place-items: center;
+    background: var(--ink-900);
+    color: var(--on-ink);
+    /* The page beneath is live the moment the curtain starts to leave. */
+    pointer-events: none;
+  }
+  :global(html.is-intro) .intro { display: grid; }
+
+  /* The visit is held still while the house is announced. */
+  :global(html.is-intro),
+  :global(html.is-intro) :global(body) { overflow: hidden; }
+
+  .intro__in {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.15rem;
+    padding: 2rem;
+    text-align: center;
+    /* Everything inside leaves together, a breath before the ground does. */
+    animation: intro-content-out .42s var(--ease) 1.02s both;
+  }
+
+  .intro__seal {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    animation: intro-seal .72s var(--ease) .06s both;
+  }
+
+  .intro__name {
+    margin: 0;
+    font-family: var(--serif);
+    font-weight: 300;
+    font-size: clamp(1.25rem, 4.4vw, 1.65rem);
+    text-transform: uppercase;
+    line-height: 1;
+    /* The tracking settles as it arrives — the letters come to rest. */
+    animation: intro-name .82s var(--ease) .24s both;
+  }
+
+  .intro__sub {
+    margin: 0;
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: clamp(.58rem, 2vw, .72rem);
+    letter-spacing: .42em;
+    text-indent: .42em;
+    text-transform: uppercase;
+    color: var(--gold-lit);
+    animation: intro-fade .62s var(--ease) .44s both;
+  }
+
+  .intro__rule {
+    display: block;
+    width: clamp(64px, 22vw, 110px);
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin-top: .35rem;
+    animation: intro-rule .66s var(--ease) .56s both;
+  }
+
+  /* The ground itself lifts away, revealing the page from the bottom up. */
+  :global(html.is-intro) .intro {
+    animation: intro-lift .72s cubic-bezier(.76, 0, .24, 1) 1.16s both;
+  }
+
+  @keyframes intro-seal {
+    from { opacity: 0; transform: scale(.9); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  @keyframes intro-name {
+    from { opacity: 0; letter-spacing: .42em; transform: translateY(.5rem); }
+    to   { opacity: 1; letter-spacing: .17em; transform: translateY(0); }
+  }
+  @keyframes intro-fade {
+    from { opacity: 0; transform: translateY(.35rem); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes intro-rule {
+    from { opacity: 0; transform: scaleX(0); }
+    to   { opacity: 1; transform: scaleX(1); }
+  }
+  @keyframes intro-content-out {
+    to { opacity: 0; transform: translateY(-.6rem); }
+  }
+  @keyframes intro-lift {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-101%); }
+  }
+
+  /* Belt and braces: if motion is reduced the script never opens the curtain,
+     and if it somehow did, nothing here would move. */
+  @media (prefers-reduced-motion: reduce) {
+    :global(html.is-intro) .intro { display: none; }
+  }
+</style>
