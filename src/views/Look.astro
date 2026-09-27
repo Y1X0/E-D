@@ -111,11 +111,13 @@ const schema = {
             </p>
           )}
 
+
+          {/* Only what is not already said above it. The line is in the
+              eyebrow and the price is set in full a few lines up, so a row for
+              each of them was the same fact twice inside one screen. A piece
+              with no price keeps its row, because "priced at consultation" is
+              the answer to a question the page has not otherwise answered. */}
           <dl class="look__spec">
-            <div>
-              <dt class="label">{dict.lookPage.line}</dt>
-              <dd>{copy.name}</dd>
-            </div>
             <div>
               <dt class="label">{dict.lookPage.made}</dt>
               <dd>{ready ? dict.lookPage.readyValue : dict.lookPage.madeValue}</dd>
@@ -124,14 +126,10 @@ const schema = {
               <dt class="label">{dict.lookPage.fabrics}</dt>
               <dd>{ready ? dict.lookPage.fabricsReadyValue : dict.lookPage.fabricsValue}</dd>
             </div>
-            <div>
-              <dt class="label">{dict.lookPage.price}</dt>
-              <dd>{price ?? dict.lookPage.madeToMeasure}</dd>
-            </div>
-            {hire && (
+            {!price && (
               <div>
-                <dt class="label">{dict.lookPage.hire}</dt>
-                <dd>{hire}</dd>
+                <dt class="label">{dict.lookPage.price}</dt>
+                <dd>{dict.lookPage.madeToMeasure}</dd>
               </div>
             )}
           </dl>

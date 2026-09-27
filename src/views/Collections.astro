@@ -48,7 +48,9 @@ const schema = {
               <Plate {...c.cover} sizes="(max-width: 900px) 90vw, 50vw" class="coll__plate" />
             </a>
             <div class="coll__body">
-              <p class="label label--gold coll__idx">{String(i + 1).padStart(2, '0')} &mdash; {copy.name}</p>
+              {/* The name is the heading directly beneath; the number alone
+                  keeps the sequence without saying it twice. */}
+              <p class="label label--gold coll__idx">{String(i + 1).padStart(2, '0')}</p>
               <h2 class="t-h2 coll__name">
                 <a href={localePath(`/collections/${c.slug}`, locale)}>{copy.name}</a>
               </h2>

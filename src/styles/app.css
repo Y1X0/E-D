@@ -49,10 +49,18 @@
 
   /* — space ——————————————————————————————————————————————— */
   --gutter:    clamp(1.25rem, 5vw, 4rem);
-  --section:   clamp(4.5rem, 10.5vh, 8.5rem);
-  /* close, ordinary, and given room — used deliberately, not by default */
-  --section-close: clamp(3rem, 6vh, 4.75rem);
-  --section-wide:  clamp(6rem, 15vh, 12rem);
+  /* Vertical rhythm follows the WIDTH of the page, not its height.
+     Measured in `vh`, these gave a 393-wide phone 89px of section padding
+     against a 1440 laptop's 95 — desktop breathing room applied to a single
+     column a third as wide, which is most of why the pages ran long. In `vw`
+     the laptop keeps what it had and the phone is drawn in by about half.
+     The three steps are the hierarchy: a hero or a closing invitation is
+     given room, an ordinary section is ordinary, and a supporting passage
+     sits close. On a phone they now read 64 / 44 / 28 — a spread you can
+     feel — where before they were 128 / 89 / 51 and nearly the same. */
+  --section-wide:  clamp(4rem, 9vw, 9rem);
+  --section:       clamp(2.75rem, 6.2vw, 7.5rem);
+  --section-close: clamp(1.75rem, 3.6vw, 4rem);
   --container: 1360px;
   --measure:   62ch;
   --header-h:  clamp(4.25rem, 7vh, 5.5rem);
@@ -88,6 +96,10 @@
   --serif: 'Frank Ruhl Libre', 'Cormorant Garamond', 'David Libre', serif;
   --sans: 'Assistant', 'Jost', 'Helvetica Neue', Arial, sans-serif;
   --track-label: .14em;
+  /* 11px is a Latin small-cap size. Hebrew has no lowercase, so every letter
+     runs full height and the same measure reads cramped; a single step up
+     costs the design nothing. */
+  --t-label:   0.75rem;
   /* Hebrew sets much larger than Latin at the same size — it has no lowercase,
      so every letter is full height. The display scale comes down to match. */
   --t-hero:    clamp(2.1rem, 5.8vw, 4.75rem);
@@ -100,6 +112,9 @@
   --serif: 'Amiri', 'Cormorant Garamond', 'Times New Roman', serif;
   --sans: 'Tajawal', 'Jost', 'Helvetica Neue', Arial, sans-serif;
   --track-label: 0em;
+  /* Arabic carries diacritics above and below the line; at 11px they close up
+     into the letters. */
+  --t-label:   0.75rem;
   /* Amiri is wider still, and its ascenders and descenders need room. */
   --t-hero:    clamp(1.95rem, 5.2vw, 4.35rem);
   --t-display: clamp(1.6rem, 3.4vw, 2.8rem);
@@ -292,11 +307,33 @@ h1, h2, h3, h4 {
    seal. The seal is blended rather than laid on top, so its plate dissolves
    into the panel instead of reading as a pasted disc. */
 .plate--empty {
+  /* A panel that stands in for a photograph should not occupy a photograph's
+     height. It keeps its width, its tone and the seal — the identity is
+     unchanged — and gives up the vertical room it was only borrowing. Nine of
+     these down a page was the difference between a line that reads as quiet
+     and one that reads as unfinished. */
+  aspect-ratio: auto;
+  height: clamp(130px, 21vw, 230px);
+
   background-image:
     radial-gradient(124% 92% at 30% 20%, color-mix(in srgb, #fff 15%, transparent), transparent 64%),
     repeating-linear-gradient(135deg,
       transparent 0 7px,
       color-mix(in srgb, var(--plate-mark) 4%, transparent) 7px 8px);
+}
+
+/* A card's face is different: the plate IS the card, and the arrangements on
+   the home page and the collections index are staggered on the assumption that
+   every card is the same shape. A short band there pulls the composition
+   apart, so inside a card the panel keeps a card's proportion — shallower than
+   a photograph, but still a card. */
+@media (min-width: 721px) {
+  .lines__plate.plate--empty,
+  .lookcard__plate.plate--empty,
+  .coll__plate.plate--empty {
+    aspect-ratio: 4 / 5;
+    height: auto;
+  }
 }
 
 /* inset hairline frame */

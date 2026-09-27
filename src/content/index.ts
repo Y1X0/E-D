@@ -216,15 +216,34 @@ export async function getRoutes() {
 
 export interface GalleryItem { plate: Photo; line: string; href: string }
 
-/** The gallery run, assembled from the collections and looks already loaded. */
+/**
+ * The gallery run.
+ *
+ * A gallery is a room the atelier hangs its work in, so only work that exists
+ * hangs there: a panel standing in for a photograph belongs on the page of the
+ * piece it stands for, where it says "not photographed yet" in context, and
+ * not in a room of eighty of them. And each photograph hangs once — the run is
+ * assembled from three overlapping sources, and the same file reached it as a
+ * collection's cover, as a look's plate and again as a collection plate.
+ *
+ * The rule the rest of the site keeps is kept here too: nothing is shown as
+ * work that has not been photographed. Nothing is invented to fill the wall.
+ */
 export function galleryFrom(content: SiteContent): GalleryItem[] {
+  const seen = new Set<string>();
+  const once = (item: GalleryItem): boolean => {
+    const key = item.plate.sanity?.asset?._ref ?? item.plate.src;
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  };
   return [
-    ...content.collections.map((c) => ({ plate: c.cover, line: c.slug, href: `/collections/${c.slug}` })),
     ...content.looks.flatMap((l) =>
-      l.plates.slice(0, 2).map((plate) => ({ plate, line: l.collection, href: `/looks/${l.slug}` }))),
+      l.plates.map((plate) => ({ plate, line: l.collection, href: `/looks/${l.slug}` }))),
+    ...content.collections.map((c) => ({ plate: c.cover, line: c.slug, href: `/collections/${c.slug}` })),
     ...content.collections.flatMap((c) =>
       c.plates.map((plate) => ({ plate, line: c.slug, href: `/collections/${c.slug}` }))),
-  ];
+  ].filter(once);
 }
 
 /** Other looks from the same line first, for the foot of a design page. */

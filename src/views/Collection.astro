@@ -16,6 +16,22 @@ const collection = collections.find((c) => c.slug === slug)!;
 const copy = collection;
 const looks = allLooks.filter((l) => l.collection === slug);
 const others = collections.filter((c) => c.slug !== slug);
+
+/**
+ * The plate run between the introduction and the looks is decoration: a few
+ * photographs from the line, to be walked past. It was showing every plate the
+ * line holds, which on the boutique rail is the same four dresses the grid
+ * below shows again a moment later — each piece twice on one page — and on a
+ * line with no photography yet, four stand-in panels in a row.
+ *
+ * So it shows only what is photographed and not already below it. Nothing is
+ * hidden from the visitor: every one of these images is on the page anyway, on
+ * the card of the piece it belongs to.
+ */
+const key = (p: { sanity?: { asset?: { _ref: string } }; src?: string }) =>
+  p.sanity?.asset?._ref ?? p.src ?? '';
+const shownBelow = new Set(looks.flatMap((l) => l.plates.map(key)).filter(Boolean));
+const run = collection.plates.filter((p) => key(p) && !shownBelow.has(key(p)));
 const path = `/collections/${slug}`;
 
 const schema = {
@@ -58,15 +74,17 @@ const schema = {
   </section>
 
   <!-- imagery only: presentational, so it is not announced as a second landmark -->
-  <div class="section--tight run">
-    <div class="wrap run__grid reveal">
-      {collection.plates.map((p) => (
-        <figure class="run__item" data-zoom>
-          <Plate {...p} sizes="(max-width: 720px) 90vw, 46vw" />
-        </figure>
-      ))}
+  {run.length > 0 && (
+    <div class="section--tight run">
+      <div class="wrap run__grid reveal">
+        {run.map((p) => (
+          <figure class="run__item" data-zoom>
+            <Plate {...p} sizes="(max-width: 720px) 90vw, 46vw" />
+          </figure>
+        ))}
+      </div>
     </div>
-  </div>
+  )}
 
   <section class="section looks" aria-labelledby="looks-h">
     <div class="wrap">

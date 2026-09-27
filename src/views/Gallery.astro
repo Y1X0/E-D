@@ -15,9 +15,12 @@ const { collections } = content;
 const galleryItems = galleryFrom(content);
 const nameOf = (slug: string) => collections.find((c) => c.slug === slug)?.name ?? slug;
 
+/* A filter for a line with nothing photographed is a button that empties the
+   room. The lines on offer are the lines actually hanging in it. */
+const hung = new Set(galleryItems.map((i) => i.line));
 const filters = [
   { slug: 'all', name: dict.gallery.all },
-  ...collections.map((c) => ({ slug: c.slug, name: c.name })),
+  ...collections.filter((c) => hung.has(c.slug)).map((c) => ({ slug: c.slug, name: c.name })),
 ];
 
 const schema = {

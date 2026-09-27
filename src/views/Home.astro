@@ -46,7 +46,11 @@ const schema = {
   <!-- ——— opening statement ——— -->
   <section class="section--tight opening" id="opening" aria-labelledby="opening-h">
     <div class="wrap opening__in reveal">
-      <p class="label eyebrow">{h.openingEyebrow}</p>
+      {/* Four of the seven sections opened with an eyebrow over a display
+          heading. Repeated that often the pattern stops marking importance:
+          the two sections that are genuinely the page's own voice — this one
+          and the closing invitation — keep it, the rest let their heading
+          speak. */}
       <h2 class="t-display opening__h" id="opening-h">
         {h.openingTitle} {h.openingAccent}
       </h2>
@@ -106,11 +110,10 @@ const schema = {
   </section>
 
   <!-- ——— bespoke ——— -->
-  <section class="section bespoke" aria-labelledby="bespoke-h">
+  <section class="section--tight bespoke" aria-labelledby="bespoke-h">
     <div class="wrap bespoke__in">
       <div class="bespoke__aside">
         <SectionHead
-          eyebrow={h.bespokeEyebrow}
           title={`${h.bespokeTitle} ${h.bespokeAccent}`}
           lead={h.bespokeLead}
           href={localePath('/bespoke', locale)}
