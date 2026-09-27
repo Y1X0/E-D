@@ -101,6 +101,9 @@ export interface Dict {
     & { boutique: [string, string, string, string, string] };
   lookPage: {
     line: string; made: string; madeValue: string; fabrics: string; fabricsValue: string;
+    /* A boutique piece is already sewn, so the two rows that describe a
+       commission would be untrue of it. It answers with its own pair. */
+    readyValue: string; fabricsReadyValue: string;
     enquire: string; related: string;
     price: string; madeToMeasure: string; buy: string; orderOnWhatsapp: string;
     payNote: string; orderMessage: (look: string, line: string, price: string) => string;
@@ -168,6 +171,10 @@ export interface Dict {
     waOpening: string; waOpeningBody: string;
     igTitle: string; igBody: (handle: string) => string;
     noteWhatsapp: string; noteInstagram: string; notePhone: string; noteEmail: string;
+    /* What each way of reaching the atelier is called. WhatsApp and Instagram
+       are names and stay as they are; a telephone is a telephone in every
+       language, and the footer prints one number twice without them. */
+    channelWhatsapp: string; channelInstagram: string; channelPhone: string; channelEmail: string;
   };
 
   /** Everything a buyer is owed before she pays — the atelier's own terms. */

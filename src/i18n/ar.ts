@@ -157,6 +157,8 @@ export const ar: Dict = {
     madeValue: 'على المقاس، داخل الأتيليه',
     fabrics: 'الأقمشة واللمسات',
     fabricsValue: 'تُختار معك في الاستشارة',
+    readyValue: 'مخيط وجاهز — القطعة في المحل',
+    fabricsReadyValue: 'كما تظهر في الصور',
     enquire: 'استفسري عن هذه الإطلالة',
     related: 'قد يعجبك أيضاً',
     price: 'السعر',
@@ -326,6 +328,10 @@ export const ar: Dict = {
     noteInstagram: 'رسالة مباشرة إلى الأتيليه',
     notePhone: 'اتصلي خلال ساعات العمل',
     noteEmail: 'للاستفسارات والمواعيد',
+    channelWhatsapp: 'واتساب',
+    channelInstagram: 'إنستغرام',
+    channelPhone: 'هاتف',
+    channelEmail: 'بريد',
   },
 
   terms: {

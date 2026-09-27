@@ -152,6 +152,8 @@ export const en: Dict = {
     madeValue: 'To measure, in the atelier',
     fabrics: 'Fabrics & finish',
     fabricsValue: 'Chosen with you at consultation',
+    readyValue: 'Sewn and ready — the piece is in the shop',
+    fabricsReadyValue: 'As photographed',
     enquire: 'Enquire about this look',
     related: 'You may also like',
     price: 'Price',
@@ -321,6 +323,10 @@ export const en: Dict = {
     noteInstagram: 'Direct message the atelier',
     notePhone: 'Call during atelier hours',
     noteEmail: 'For enquiries and appointments',
+    channelWhatsapp: 'WhatsApp',
+    channelInstagram: 'Instagram',
+    channelPhone: 'Telephone',
+    channelEmail: 'Email',
   },
 
   terms: {

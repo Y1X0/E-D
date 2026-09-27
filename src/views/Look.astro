@@ -26,6 +26,10 @@ const path = `/looks/${slug}`;
 // which is where it would have been placed anyway.
 const whatsapp = settings?.whatsapp ?? site.contact.whatsapp;
 const price = look.price ? formatPrice(look.price) : null;
+// The same fact, read the other way: a piece with a price is one that already
+// exists, so the page must not tell a buyer it will be cut to her measurements
+// or that she will choose its cloth. Those two rows answer differently for it.
+const ready = look.price != null;
 // A hire is a conversation, not a checkout: the dates, the fitting and the
 // deposit are settled with the atelier before the dress leaves the room.
 const hire = look.hire ? formatPrice(look.hire) : null;
@@ -114,11 +118,11 @@ const schema = {
             </div>
             <div>
               <dt class="label">{dict.lookPage.made}</dt>
-              <dd>{dict.lookPage.madeValue}</dd>
+              <dd>{ready ? dict.lookPage.readyValue : dict.lookPage.madeValue}</dd>
             </div>
             <div>
               <dt class="label">{dict.lookPage.fabrics}</dt>
-              <dd>{dict.lookPage.fabricsValue}</dd>
+              <dd>{ready ? dict.lookPage.fabricsReadyValue : dict.lookPage.fabricsValue}</dd>
             </div>
             <div>
               <dt class="label">{dict.lookPage.price}</dt>

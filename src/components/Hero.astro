@@ -23,7 +23,7 @@ const widths = img
   : [];
 ---
 
-<section class="hero ink" data-hero>
+<section class="hero ink" data-hero data-photo={hero?.sanity || img ? '' : undefined}>
   <div class="hero__bg" aria-hidden="true">
     {hero?.sanity && <Plate {...hero} alt="" ratio="16/9" sizes="100vw" priority class="hero__plate" />}
     {img && (
@@ -71,6 +71,9 @@ const widths = img
 
   .hero__bg { position: absolute; inset: 0; z-index: -2; }
   .hero__bg :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; }
+  /* A wide screen crops a standing figure to a band across the middle; sliding
+     the frame up keeps the bodice and the drape rather than the waist alone. */
+  @media (min-aspect-ratio: 1/1) { .hero__bg :global(img) { object-position: 50% 26%; } }
 
   /* tonal ground + scrim: legible type whether or not a photograph is present */
   .hero::before {
@@ -82,6 +85,15 @@ const widths = img
       radial-gradient(120% 86% at 76% 14%, color-mix(in srgb, var(--gold) 15%, transparent), transparent 58%),
       linear-gradient(196deg, color-mix(in srgb, #000 34%, transparent), color-mix(in srgb, #000 74%, transparent));
   }
+  /* With a photograph behind it the type has cloth to sit on, not a flat
+     ground, so the same scrim is pressed darker — and only then, so the
+     photograph-less opening keeps the lighter wash it was drawn with. */
+  .hero[data-photo]::before {
+    background:
+      radial-gradient(120% 86% at 76% 14%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 58%),
+      linear-gradient(196deg, color-mix(in srgb, #000 44%, transparent), color-mix(in srgb, #000 84%, transparent));
+  }
+
   .hero__in {
     display: flex;
     flex-direction: column;

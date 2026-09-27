@@ -9,13 +9,17 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const { collections } = await getContent(locale);
 
+type ChannelId = 'whatsapp' | 'instagram' | 'phone' | 'email';
+const NOTE = { whatsapp: 'noteWhatsapp', instagram: 'noteInstagram', phone: 'notePhone', email: 'noteEmail' } as const;
+const NAME = { whatsapp: 'channelWhatsapp', instagram: 'channelInstagram', phone: 'channelPhone', email: 'channelEmail' } as const;
+
 const channels = contactChannels().map((c) => ({
   ...c,
-  note: dict.contact[
-    ({ whatsapp: 'noteWhatsapp', instagram: 'noteInstagram', phone: 'notePhone', email: 'noteEmail' } as const)[
-      c.id as 'whatsapp' | 'instagram' | 'phone' | 'email'
-    ]
-  ],
+  note: dict.contact[NOTE[c.id as ChannelId]],
+  // The atelier answers WhatsApp and the telephone on the same line, so the
+  // footer printed one number twice with nothing to tell the two apart. Each
+  // now carries its name, in the language being read.
+  name: dict.contact[NAME[c.id as ChannelId]],
 }));
 
 const atelierLinks = [
@@ -61,14 +65,16 @@ const year = new Date().getFullYear();
           <h2 class="label">{dict.footer.enquiries}</h2>
           <ul>
             {channels.map((ch) => (
-              <li>
+              <li class="ft__ch">
                 <a
                   href={ch.href}
-                  dir="ltr"
                   {...ch.id === 'instagram' || ch.id === 'whatsapp'
                     ? { target: '_blank', rel: 'noopener noreferrer' }
                     : {}}
-                >{ch.value}</a>
+                >
+                  <span class="ft__chName">{ch.name}</span>
+                  <span dir="ltr">{ch.value}</span>
+                </a>
               </li>
             ))}
           </ul>
@@ -127,6 +133,18 @@ const year = new Date().getFullYear();
   /* the gap between rows is now mostly the links' own tap area, so the list
      reads at the same rhythm while each row clears a fingertip */
   .ft__col li + li { margin-top: .1rem; }
+  /* A contact row carries its name above the number, so it needs a little more
+     air than a plain link and the name has to sit quieter than the value. */
+  .ft__ch + .ft__ch { margin-top: .55rem; }
+  .ft__chName {
+    display: block;
+    font-size: var(--t-label);
+    letter-spacing: var(--track-label);
+    text-transform: uppercase;
+    opacity: .5;
+    margin-bottom: .05rem;
+  }
+
   .ft__col a {
     display: inline-block;
     padding-block: .45rem;

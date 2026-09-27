@@ -157,6 +157,8 @@ export const he: Dict = {
     madeValue: 'למידה, באטלייה',
     fabrics: 'בדים וגימור',
     fabricsValue: 'נבחרים איתך בייעוץ',
+    readyValue: 'תפורה ומוכנה — הפריט בחנות',
+    fabricsReadyValue: 'כפי שנראה בתמונות',
     enquire: 'לפנייה על הלוק הזה',
     related: 'אולי יעניין אותך גם',
     price: 'מחיר',
@@ -326,6 +328,10 @@ export const he: Dict = {
     noteInstagram: 'הודעה ישירה לאטלייה',
     notePhone: 'התקשרי בשעות הפעילות',
     noteEmail: 'לפניות ולתיאום מועדים',
+    channelWhatsapp: 'ווטסאפ',
+    channelInstagram: 'אינסטגרם',
+    channelPhone: 'טלפון',
+    channelEmail: 'דוא\u2019ל',
   },
 
   terms: {
