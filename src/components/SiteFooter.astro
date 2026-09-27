@@ -102,7 +102,10 @@ const year = new Date().getFullYear();
 
   .ft__brand { display: flex; flex-direction: column; align-items: flex-start; gap: 1.35rem; }
   .ft__seal { width: 76px; height: 76px; border-radius: 50%; }
-  .ft__mark { --wm-size: clamp(1rem, 1.6vw, 1.2rem); --wm-sub: var(--gold-lit); align-items: flex-start; }
+  /* The wordmark is another component's element and carries that component's
+     scope, so a plain `.ft__mark` here never matched it — the size and the
+     alignment below had been doing nothing at all. */
+  :global(.ft__mark) { --wm-size: clamp(1rem, 1.6vw, 1.2rem); --wm-sub: var(--gold-lit); align-items: flex-start; }
   .ft__tag {
     font-family: var(--serif);
     font-style: italic;
@@ -176,5 +179,66 @@ const year = new Date().getFullYear();
   @media (max-width: 860px) {
     .ft__top { grid-template-columns: 1fr; }
     .ft__cols { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 2.25rem; }
+  }
+
+  /* On a phone this ran to nine hundred and seventy-eight pixels — longer than
+     the screen it sits at the bottom of, and a third of the whole contact page.
+     A footer is a place to leave from, not a page of its own, so every part of
+     it is drawn in: the seal is a mark rather than a medallion, the stacks lose
+     the air they were given for a wide screen, and the columns sit three
+     abreast where three short words fit. Nothing is removed — an address, a
+     line and a way to reach the atelier are why anyone scrolls this far. */
+  @media (max-width: 640px) {
+    .ft { padding-block: 2.25rem 1.4rem; }
+    .ft__top { gap: 1.6rem; padding-bottom: 1.6rem; }
+
+    /* The seal stood above the name with the whole width of the screen empty
+       beside it. On a phone the two sit together as one lockup, and the line
+       and the address run under them. */
+    .ft__brand {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: .85rem;
+      row-gap: .6rem;
+      align-items: center;
+    }
+    .ft__seal { width: 50px; height: 50px; grid-row: 1; }
+    :global(.ft__mark) { grid-column: 2; grid-row: 1; }
+    .ft__tag, .ft__addr { grid-column: 1 / -1; }
+    /* A grid cell stretches its item, which centred the name and threw the
+       Hebrew address to the far edge — a right-to-left line in a stretched box
+       aligns to its own start. Each sits at the column's start instead. */
+    :global(.ft__mark), .ft__tag, .ft__addr { justify-self: start; }
+    .ft__tag { margin: 0; }
+
+    .ft__cols { gap: 1.5rem 1.25rem; }
+    .ft__col ul { margin-top: .7rem; }
+    /* The body's line height is set for reading paragraphs; a column of
+       single words spaced that far apart is most of why this footer ran long.
+       The rows still clear the 24px a fingertip needs. */
+    .ft__col a { padding-block: .4rem; font-size: .8125rem; line-height: 1.3; }
+    .ft__col li + li { margin-top: .15rem; }
+    .ft__col h2 { line-height: 1.3; }
+    .ft__col a::after { bottom: .2rem; }
+    .ft__ch + .ft__ch { margin-top: .3rem; }
+    .ft__chName { margin-bottom: 0; }
+
+    .ft__bot { padding-top: 1.1rem; gap: .4rem 1.25rem; }
+  }
+  /* A phone is too narrow for three columns without breaking a telephone
+     number across lines, so the two lists of links sit side by side and the
+     ways of reaching the atelier run underneath them — in two columns of their
+     own, which is a row and a half rather than a stack of six lines. */
+  @media (max-width: 640px) {
+    .ft__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .ft__cols > :last-child { grid-column: 1 / -1; }
+    .ft__cols > :last-child ul {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: .4rem 1.25rem;
+    }
+    .ft__ch + .ft__ch { margin-top: 0; }
+    /* an address is long and a column is narrow: it wraps rather than spills */
+    .ft__col a { overflow-wrap: anywhere; }
   }
 </style>
