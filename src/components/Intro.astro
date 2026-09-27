@@ -2,34 +2,32 @@
 /**
  * The house announces itself, once.
  *
- * A visitor arriving for the first time is held for a moment on the seal and
- * the name before the page is revealed. It is a greeting, not a loading
- * screen: it never waits on an image or a request, so it cannot become the
- * reason someone leaves. Four rules keep it a pleasure rather than a toll:
+ * The monogram is not a picture of letters — it is the letters. The E and the
+ * D are the real outlines of Cormorant Garamond, the same serif the pages are
+ * set in, lifted from the font file the site already ships and written into
+ * the markup as two paths. So they can be drawn: each contour is dashed to its
+ * own length and the dash is pulled off, which traces the letterform the way a
+ * nib would, and only then does the gold flood in behind the line. They begin
+ * apart and close into the monogram as they finish.
  *
- *   · once a visit, not once a page. Every link here is a full page load, so
- *     without a flag in sessionStorage this would play on every click.
- *   · never without JavaScript. The curtain is `display: none` until a script
- *     in the head says otherwise, so a reader with scripts off — or one whose
- *     script failed — never meets a screen that will not lift.
- *   · never against someone's wishes. Reduced motion skips it outright.
- *   · never longer than it promised. The same head script sets the timer that
- *     takes it away, so nothing that happens afterwards can strand it.
+ * Everything that keeps it a greeting rather than a toll is in the head script
+ * of the layout: once a visit, never without JavaScript, never against
+ * reduced motion, and never longer than the timer it sets for itself.
  *
- * The page underneath is complete in the markup the whole time — this is a
- * sheet laid over a finished page, not a gate in front of an empty one, so
- * search engines and screen readers are unaffected.
+ * The page underneath is complete in the markup throughout — a sheet laid over
+ * a finished page, not a gate in front of an empty one.
  */
 ---
 
 <div class="intro" aria-hidden="true">
   <div class="intro__in">
-    <img
-      class="intro__seal"
-      src="/brand/seal.webp"
-      width="96" height="96" alt=""
-      fetchpriority="high" decoding="sync"
-    />
+    <svg class="intro__mark" viewBox="-26 -653 1027 683" role="presentation" focusable="false">
+      {/* pathLength normalises each letter to 1, so one dash length draws
+          both however different their outlines are */}
+      <path class="intro__glyph intro__glyph--e" d="M415 0L2 0Q0 0 0-6Q0-12 2-12Q40-12 59-17Q78-22 84.50-37Q91-52 91-81L91-544Q91-573 84.50-587.50Q78-602 59-607.50Q40-613 2-613Q0-613 0-619Q0-625 2-625L398-625Q407-625 407-616L409-495Q409-492 403.50-492Q398-492 398-495Q398-547 371-576.50Q344-606 300-606L231-606Q194-606 175.50-601Q157-596 150.50-581.50Q144-567 144-538L144-85Q144-57 150.50-43Q157-29 175.50-24Q194-19 231-19L323-19Q363-19 392-54Q421-89 428-146Q428-149 434-148.50Q440-148 440-145Q436-119 433.50-82.50Q431-46 431-15Q431 0 415 0M359-235Q359-280 340-298Q321-316 273-316L119-316L119-335L276-335Q322-335 340-350.50Q358-366 358-404Q358-406 364-406Q370-406 370-404Q370-375 369.50-359Q369-343 369-325Q369-303 370-281.50Q371-260 371-235Q371-233 365-233Q359-233 359-235" pathLength="1" />
+      <path class="intro__glyph intro__glyph--d" d="M632.60 4Q604.60 4 563.60 1Q522.60-2 487.60-2Q455.60-2 425.60-1Q395.60 0 371.60 0Q369.60 0 369.60-6Q369.60-12 371.60-12Q409.60-12 429.10-17Q448.60-22 455.10-37Q461.60-52 461.60-81L461.60-544Q461.60-573 455.10-587.50Q448.60-602 429.60-607.50Q410.60-613 372.60-613Q370.60-613 370.60-619Q370.60-625 372.60-625Q396.60-625 426.10-623.50Q455.60-622 487.60-622Q519.60-622 556.10-624.50Q592.60-627 618.60-627Q725.60-627 805.60-587Q885.60-547 930.10-478Q974.60-409 974.60-323Q974.60-248 947.60-187.50Q920.60-127 873.10-84.50Q825.60-42 763.60-19Q701.60 4 632.60 4M622.60-9Q706.60-9 771.10-42.50Q835.60-76 872.60-141.50Q909.60-207 909.60-301Q909.60-389 875.10-459.50Q840.60-530 777.60-572Q714.60-614 627.60-614Q566.60-614 540.60-601.50Q514.60-589 514.60-542L514.60-92Q514.60-49 535.10-29Q555.60-9 622.60-9" pathLength="1" />
+    </svg>
+
     <p class="intro__name">Elite Evening</p>
     <p class="intro__sub">Design</p>
     <span class="intro__rule"></span>
@@ -63,27 +61,66 @@
     padding: 2rem;
     text-align: center;
     /* Everything inside leaves together, a breath before the ground does. */
-    animation: intro-content-out .42s var(--ease) 1.02s both;
+    animation: intro-content-out .38s var(--ease) 1.52s both;
   }
 
-  .intro__seal {
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    animation: intro-seal .72s var(--ease) .06s both;
+  /* ---- the monogram, written ---- */
+
+  .intro__mark {
+    width: clamp(112px, 30vw, 150px);
+    height: auto;
+    overflow: visible;
   }
+  .intro__glyph {
+    fill: var(--gold);
+    stroke: var(--gold-lit);
+    /* The line that writes the letter: a single dash as long as the whole
+       outline, pulled off from one end. `pathLength` made both letters 1 unit
+       long, so the same numbers write each of them. */
+    /* In user units, so it scales with the mark and stays a hairline. Left in
+       screen units it would be a seven-pixel slab across a mark drawn at a
+       hundred and fifty, and the letters would arrive already solid. */
+    stroke-width: 9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+  }
+  /* The E is written first and the D follows a beat later, the way a hand
+     would; each then slides in from where it began to where it belongs. */
+  .intro__glyph--e { animation: intro-write .55s linear .04s both, intro-close-e .46s var(--ease) .70s both, intro-flood .42s var(--ease) .76s both; }
+  .intro__glyph--d { animation: intro-write .55s linear .14s both, intro-close-d .46s var(--ease) .70s both, intro-flood .42s var(--ease) .76s both; }
+
+  @keyframes intro-write {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+  /* Apart while they are written, together once they are. */
+  @keyframes intro-close-e {
+    from { transform: translateX(-15%); }
+    to   { transform: translateX(0); }
+  }
+  @keyframes intro-close-d {
+    from { transform: translateX(15%); }
+    to   { transform: translateX(0); }
+  }
+  /* The gold rises behind the line, and the line settles into the letter. */
+  @keyframes intro-flood {
+    from { fill-opacity: 0; stroke-opacity: 1; }
+    to   { fill-opacity: 1; stroke-opacity: .5; }
+  }
+
+  /* ---- the name ---- */
 
   .intro__name {
-    margin: 0;
+    margin: .35rem 0 0;
     font-family: var(--serif);
     font-weight: 300;
     font-size: clamp(1.25rem, 4.4vw, 1.65rem);
     text-transform: uppercase;
     line-height: 1;
     /* The tracking settles as it arrives — the letters come to rest. */
-    animation: intro-name .82s var(--ease) .24s both;
+    animation: intro-name .58s var(--ease) .92s both;
   }
-
   .intro__sub {
     margin: 0;
     font-family: var(--sans);
@@ -93,27 +130,22 @@
     text-indent: .42em;
     text-transform: uppercase;
     color: var(--gold-lit);
-    animation: intro-fade .62s var(--ease) .44s both;
+    animation: intro-fade .5s var(--ease) 1.04s both;
   }
-
   .intro__rule {
     display: block;
     width: clamp(64px, 22vw, 110px);
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    margin-top: .35rem;
-    animation: intro-rule .66s var(--ease) .56s both;
+    margin-top: .3rem;
+    animation: intro-rule .48s var(--ease) 1.12s both;
   }
 
   /* The ground itself lifts away, revealing the page from the bottom up. */
   :global(html.is-intro) .intro {
-    animation: intro-lift .72s cubic-bezier(.76, 0, .24, 1) 1.16s both;
+    animation: intro-lift .68s cubic-bezier(.76, 0, .24, 1) 1.68s both;
   }
 
-  @keyframes intro-seal {
-    from { opacity: 0; transform: scale(.9); }
-    to   { opacity: 1; transform: scale(1); }
-  }
   @keyframes intro-name {
     from { opacity: 0; letter-spacing: .42em; transform: translateY(.5rem); }
     to   { opacity: 1; letter-spacing: .17em; transform: translateY(0); }

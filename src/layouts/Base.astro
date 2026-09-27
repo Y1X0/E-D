@@ -146,7 +146,7 @@ const graph = [organization, ...(Array.isArray(schema) ? schema : schema ? [sche
         var done = function () { html.classList.remove('is-intro'); };
         /* the curtain lifts on its own clock, so nothing below — a slow font,
            a failed script — can hold it up */
-        setTimeout(done, 1900);
+        setTimeout(done, 2400);
         /* and it never survives a page restored from the back/forward cache,
            where the timer above has long since run. Only `persisted` restores:
            `pageshow` also fires on an ordinary load, which would take the
