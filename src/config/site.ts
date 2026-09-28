@@ -92,6 +92,18 @@ export const site = {
    */
   paymentApi: (process.env.PAYMENT_API_URL ?? '').replace(/\/$/, ''),
 
+  /**
+   * The atelier's own hosted checkout, used when nothing more specific is set.
+   *
+   * Every boutique piece carries the same price, so a single payment page —
+   * its amount fixed at that price on the provider's side — serves the whole
+   * rail. The card is entered on that page and never on this site.
+   *
+   * A piece with a page of its own (its `payUrl` in the studio) and a provider
+   * configured in site settings both take precedence over this.
+   */
+  checkoutLink: 'https://app.upay.co.il/API6/s.php?m=bnNXdE1IRi9CSXV2a25IcjF5VlM0UT09',
+
   instagram: {
     handle: 'eliteevening.design',
     url: 'https://www.instagram.com/eliteevening.design/',
