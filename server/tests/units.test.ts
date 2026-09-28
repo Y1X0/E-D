@@ -82,6 +82,31 @@ describe('an order', () => {
       (err: unknown) => (err as OrderRejected).reason === 'too_many_lines');
   });
 
+  it('takes the order to where she wants it', () => {
+    const one = { sku: 'boutique-01', quantity: 1, locale: 'ar', customer } as any;
+
+    // Said nothing: collected, which is the answer that needs nothing further.
+    const silent = buildOrder(catalogue, one);
+    assert.equal(silent.fulfilment, 'PICKUP');
+    assert.equal(silent.deliveryAddress, null);
+
+    const delivered = buildOrder(catalogue, {
+      ...one, fulfilment: 'delivery', deliveryAddress: '  Herzl 40, Lod  ',
+    });
+    assert.equal(delivered.fulfilment, 'DELIVERY');
+    assert.equal(delivered.deliveryAddress, 'Herzl 40, Lod');
+
+    // An address typed and then the mind changed: not carried onto a collection.
+    const collected = buildOrder(catalogue, {
+      ...one, fulfilment: 'PICKUP', deliveryAddress: 'Herzl 40, Lod',
+    });
+    assert.equal(collected.fulfilment, 'PICKUP');
+    assert.equal(collected.deliveryAddress, null);
+
+    // Anything else is read as a collection rather than guessed at.
+    assert.equal(buildOrder(catalogue, { ...one, fulfilment: 'COURIER' }).fulfilment, 'PICKUP');
+  });
+
   it('refuses what it should', () => {
     const cases: Array<[string, any]> = [
       ['sku_unknown', { sku: 'not-for-sale', quantity: 1, customer }],
@@ -93,6 +118,8 @@ describe('an order', () => {
       ['name_missing', { sku: 'boutique-01', quantity: 1, customer: { phone: '+972500000000' } }],
       ['contact_missing', { sku: 'boutique-01', quantity: 1, customer: { name: 'Test' } }],
       ['email_invalid', { sku: 'boutique-01', quantity: 1, customer: { name: 'Test', email: 'not-an-email' } }],
+      ['address_missing', { sku: 'boutique-01', quantity: 1, customer, fulfilment: 'DELIVERY' }],
+      ['address_missing', { sku: 'boutique-01', quantity: 1, customer, fulfilment: 'DELIVERY', deliveryAddress: '   ' }],
     ];
     for (const [reason, request] of cases) {
       assert.throws(() => buildOrder(catalogue, request), (err: unknown) => {
@@ -205,7 +232,8 @@ describe('the Stripe adapter', () => {
           id: '1', reference: 'EED-ABCD1234', status: 'PENDING', title: 'x',
           items: [{ sku: 'boutique-01', title: 'x', quantity: 1, unitAmount: 250000, amount: 250000 }],
           amount: 250000, currency: 'ILS', locale: 'en',
-          customerName: 'x', customerEmail: null, customerPhone: null, statusToken: 't',
+          customerName: 'x', customerEmail: null, customerPhone: null,
+          fulfilment: 'PICKUP', deliveryAddress: null, statusToken: 't',
           createdAt: new Date(), updatedAt: new Date(), paidAt: null,
         },
         returnUrl: 'https://atelier.test/payment/success',

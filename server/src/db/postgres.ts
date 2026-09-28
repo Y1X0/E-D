@@ -30,6 +30,7 @@ const toOrder = (r: any, items: OrderItem[] = []): Order => ({
   id: r.id, reference: r.reference, status: r.status as PaymentState,
   items, title: r.title, amount: r.amount, currency: r.currency, locale: r.locale,
   customerName: r.customer_name, customerEmail: r.customer_email, customerPhone: r.customer_phone,
+  fulfilment: r.fulfilment, deliveryAddress: r.delivery_address,
   statusToken: r.status_token, createdAt: r.created_at, updatedAt: r.updated_at, paidAt: r.paid_at,
 });
 
@@ -63,10 +64,12 @@ export class PostgresStore implements Store {
       await client.query('begin');
       const { rows: [orderRow] } = await client.query(
         `insert into orders (reference, status, title, amount, currency, locale,
-                             customer_name, customer_email, customer_phone, status_token)
-         values ($1,'PENDING',$2,$3,$4,$5,$6,$7,$8,$9) returning *`,
+                             customer_name, customer_email, customer_phone,
+                             fulfilment, delivery_address, status_token)
+         values ($1,'PENDING',$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning *`,
         [input.reference, input.title, input.amount,
-         input.currency, input.locale, input.customerName, input.customerEmail, input.customerPhone, input.statusToken],
+         input.currency, input.locale, input.customerName, input.customerEmail, input.customerPhone,
+         input.fulfilment, input.deliveryAddress, input.statusToken],
       );
       for (const [i, item] of input.items.entries()) {
         await client.query(
@@ -165,10 +168,17 @@ export class PostgresStore implements Store {
 
   async listPayments(limit: number) {
     const { rows } = await this.#pool.query(
-      `select p.*, o.reference, o.title from payments p
+      `select p.*, o.reference, o.title, o.customer_name, o.customer_phone,
+              o.fulfilment, o.delivery_address
+         from payments p
          join orders o on o.id = p.order_id
         order by p.created_at desc limit $1`, [limit]);
-    return rows.map((r: any) => ({ ...toPayment(r), reference: r.reference, title: r.title }));
+    return rows.map((r: any) => ({
+      ...toPayment(r),
+      reference: r.reference, title: r.title,
+      customerName: r.customer_name, customerPhone: r.customer_phone,
+      fulfilment: r.fulfilment, deliveryAddress: r.delivery_address,
+    }));
   }
 
   async close() { await this.#pool.end(); }

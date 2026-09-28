@@ -90,7 +90,12 @@ export class MemoryStore implements Store {
       .slice(0, limit)
       .map((p) => {
         const order = this.#orders.get(p.orderId)!;
-        return { ...p, reference: order.reference, title: order.title };
+        return {
+          ...p,
+          reference: order.reference, title: order.title,
+          customerName: order.customerName, customerPhone: order.customerPhone,
+          fulfilment: order.fulfilment, deliveryAddress: order.deliveryAddress,
+        };
       });
   }
 

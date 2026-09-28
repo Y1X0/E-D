@@ -124,6 +124,9 @@ export interface Dict {
     eyebrow: string; title: string; accent: string;
     summary: string; piece: string; quantity: string; unitPrice: string; subtotal: string; total: string;
     details: string; name: string; phone: string; email: string; optional: string;
+    howEyebrow: string; pickup: string; pickupNote: string;
+    delivery: string; deliveryNote: string; address: string; addressHint: string;
+    errorAddress: string;
     pay: string; paying: string;
     secure: string; cards: string; noStore: string;
     errorTitle: string; errorGeneric: string; errorGateway: string; errorFields: string;

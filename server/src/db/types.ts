@@ -1,5 +1,8 @@
 import type { PaymentState } from '../domain/state.ts';
 
+/** How the dress reaches her: collected from the atelier, or delivered. */
+export type Fulfilment = 'PICKUP' | 'DELIVERY';
+
 /** One piece in an order, priced when the order was made. */
 export interface OrderItem {
   sku: string;
@@ -24,6 +27,9 @@ export interface Order {
   customerName: string | null;
   customerEmail: string | null;
   customerPhone: string | null;
+  fulfilment: Fulfilment;
+  /** Set when, and only when, the order is to be delivered. */
+  deliveryAddress: string | null;
   /** Secret handed to the buyer's own browser so it may read this order back. */
   statusToken: string;
   createdAt: Date;
@@ -58,6 +64,8 @@ export interface NewOrder {
   customerName: string | null;
   customerEmail: string | null;
   customerPhone: string | null;
+  fulfilment: Fulfilment;
+  deliveryAddress: string | null;
   statusToken: string;
 }
 
@@ -88,6 +96,11 @@ export interface Store {
   settle(paymentId: string, next: Settlement): Promise<{ payment: Payment; changed: boolean }>;
   /** True the first time this event is seen; false for every redelivery. */
   rememberEvent(provider: string, eventId: string): Promise<boolean>;
-  listPayments(limit: number): Promise<Array<Payment & { reference: string; title: string }>>;
+  /** The atelier's own list: a payment, and enough of its order to act on. */
+  listPayments(limit: number): Promise<Array<Payment & {
+    reference: string; title: string;
+    customerName: string | null; customerPhone: string | null;
+    fulfilment: Fulfilment; deliveryAddress: string | null;
+  }>>;
   close(): Promise<void>;
 }

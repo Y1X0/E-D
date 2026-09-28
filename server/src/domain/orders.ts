@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import type { Catalogue } from '../catalogue.ts';
 import { titleFor } from '../catalogue.ts';
-import type { NewOrder, OrderItem } from '../db/types.ts';
+import type { Fulfilment, NewOrder, OrderItem } from '../db/types.ts';
 
 export class OrderRejected extends Error {
   readonly reason: string;
@@ -25,6 +25,10 @@ export interface OrderRequest {
   quantity?: unknown;
   locale: unknown;
   customer?: { name?: unknown; email?: unknown; phone?: unknown };
+  /** 'PICKUP' or 'DELIVERY'. Absent means collected — the safer of the two. */
+  fulfilment?: unknown;
+  /** Required by a delivery, ignored by a collection. */
+  deliveryAddress?: unknown;
 }
 
 /** At most this many distinct pieces in one order — a basket, not a warehouse. */
@@ -101,6 +105,16 @@ export function buildOrder(catalogue: Catalogue, request: OrderRequest): NewOrde
   const phone = text(request.customer?.phone, 40);
   if (!phone && !email) throw new OrderRejected('contact_missing', 'A phone number or an email address is needed.');
 
+  // Collection is the default because it is the one that cannot go wrong: an
+  // order the atelier expects to hand over in the room needs nothing further,
+  // while a delivery with no address is an order nobody can complete.
+  const asksDelivery = String(request.fulfilment ?? 'PICKUP').toUpperCase() === 'DELIVERY';
+  const fulfilment: Fulfilment = asksDelivery ? 'DELIVERY' : 'PICKUP';
+  const address = asksDelivery ? text(request.deliveryAddress, 400) : null;
+  if (asksDelivery && !address) {
+    throw new OrderRejected('address_missing', 'An address is needed for a delivery.');
+  }
+
   const amount = items.reduce((sum, i) => sum + i.amount, 0);
   const extra = items.length - 1;
   return {
@@ -114,6 +128,8 @@ export function buildOrder(catalogue: Catalogue, request: OrderRequest): NewOrde
     customerName: name,
     customerEmail: email,
     customerPhone: phone,
+    fulfilment,
+    deliveryAddress: address,
     // the browser is given this once, at checkout, and must present it to read
     // the order back — so an order cannot be read by guessing a reference
     statusToken: randomUUID().replaceAll('-', ''),

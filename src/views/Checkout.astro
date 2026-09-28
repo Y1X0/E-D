@@ -63,6 +63,7 @@ const sellable = looks
           labels: {
             pay: dict.checkout.pay, paying: dict.checkout.paying,
             generic: dict.checkout.errorGeneric, gateway: dict.checkout.errorGateway, fields: dict.checkout.errorFields,
+            address: dict.checkout.errorAddress,
           },
         })}
       >
@@ -119,6 +120,37 @@ const sellable = looks
           <label class="co__field">
             <span>{dict.checkout.email} <em>{dict.checkout.optional}</em></span>
             <input name="email" type="email" autocomplete="email" />
+          </label>
+
+          {/* A gown is collected or delivered, and the atelier cannot act on a
+              paid order without knowing which. Collection is selected because
+              it is the answer that needs nothing further; the address appears
+              only once it is actually wanted. What delivery costs is settled
+              with the atelier afterwards — the page does not invent a figure. */}
+          <fieldset class="co__how">
+            <legend class="label eyebrow">{dict.checkout.howEyebrow}</legend>
+
+            <label class="co__choice">
+              <input type="radio" name="fulfilment" value="PICKUP" checked />
+              <span>
+                <strong>{dict.checkout.pickup}</strong>
+                <em>{dict.checkout.pickupNote}</em>
+              </span>
+            </label>
+
+            <label class="co__choice">
+              <input type="radio" name="fulfilment" value="DELIVERY" />
+              <span>
+                <strong>{dict.checkout.delivery}</strong>
+                <em>{dict.checkout.deliveryNote}</em>
+              </span>
+            </label>
+          </fieldset>
+
+          <label class="co__field" data-address hidden>
+            <span>{dict.checkout.address}</span>
+            <textarea name="deliveryAddress" rows="3" autocomplete="street-address"></textarea>
+            <em class="co__hint">{dict.checkout.addressHint}</em>
           </label>
 
           <p class="co__error" data-error hidden role="alert"></p>
@@ -194,6 +226,24 @@ const sellable = looks
   onBasketChange(render);
   render();
 
+  // The address is asked for exactly when it is needed, and cleared when it
+  // stops being needed, so a change of mind cannot leave a stale address on an
+  // order that is being collected.
+  const addressField = form.querySelector<HTMLElement>('[data-address]')!;
+  const addressInput = form.querySelector<HTMLTextAreaElement>('[name="deliveryAddress"]')!;
+  const chosen = () =>
+    (form.querySelector<HTMLInputElement>('[name="fulfilment"]:checked')?.value ?? 'PICKUP');
+
+  const reflectFulfilment = () => {
+    const delivering = chosen() === 'DELIVERY';
+    addressField.hidden = !delivering;
+    if (!delivering) addressInput.value = '';
+  };
+  for (const radio of form.querySelectorAll<HTMLInputElement>('[name="fulfilment"]')) {
+    radio.addEventListener('change', reflectFulfilment);
+  }
+  reflectFulfilment();
+
   const fail = (message: string) => {
     error.textContent = message;
     error.hidden = false;
@@ -212,6 +262,11 @@ const sellable = looks
     };
     if (!customer.name || (!customer.phone && !customer.email)) return fail(labels.fields);
 
+    const fulfilment = chosen();
+    const deliveryAddress = fulfilment === 'DELIVERY' ? addressInput.value.trim() : '';
+    // The service refuses this too; catching it here saves her a round trip.
+    if (fulfilment === 'DELIVERY' && !deliveryAddress) return fail(labels.address);
+
     const items = readBasket();
     if (!items.length) return;
 
@@ -222,7 +277,7 @@ const sellable = looks
       const response = await fetch(`${api}/api/checkout`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ items, locale, customer }),
+        body: JSON.stringify({ items, locale, customer, fulfilment, deliveryAddress }),
       });
       const body = await response.json().catch(() => ({}));
       if (response.status === 201 && body.redirectUrl) {
@@ -280,14 +335,16 @@ const sellable = looks
   .co__emptyh { font-size: var(--t-h3); margin: 0; }
   .co__emptyb { color: var(--ink-muted); margin: 0; }
 
-  select, input {
+  select, input, textarea {
     font: inherit; color: inherit; background: transparent;
     border: 1px solid var(--line-strong); border-radius: 0; padding: .6rem .7rem;
     /* Thumb-sized on a phone; unchanged to the eye on a laptop. */
     min-height: 44px;
   }
-  input { width: 100%; }
-  input:focus-visible, select:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
+  input, textarea { width: 100%; }
+  textarea { resize: vertical; line-height: 1.55; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible,
+  .co__choice input:focus-visible { outline: 2px solid var(--gold-ink); outline-offset: 2px; }
 
   .co__form { display: flex; flex-direction: column; gap: 1.1rem; }
   .co__field > span {
@@ -295,6 +352,28 @@ const sellable = looks
     font-size: var(--t-label); letter-spacing: var(--track-label); text-transform: uppercase; color: var(--ink-muted);
   }
   .co__field em { font-style: normal; opacity: .7; text-transform: none; letter-spacing: 0; }
+  .co__hint { display: block; margin-top: .4rem; font-size: var(--t-small); color: var(--ink-muted); }
+
+  /* Two answers to one question, so they are set as a pair rather than as two
+     stray controls: a hairline around them, and the chosen one marked in gold
+     the way the rest of the site marks what is current. */
+  .co__how { border: 1px solid var(--line); padding: 1rem 1.1rem 1.1rem; margin: 0; }
+  .co__how legend { padding-inline: .45rem; color: var(--gold-ink); }
+  .co__choice {
+    display: flex; align-items: flex-start; gap: .75rem;
+    padding-block: .55rem; cursor: pointer;
+  }
+  .co__choice + .co__choice { border-top: 1px solid var(--line); }
+  .co__choice input {
+    width: auto; min-height: 0; flex: none;
+    margin-top: .3rem; accent-color: var(--gold-ink);
+  }
+  .co__choice strong { display: block; font-weight: 400; }
+  .co__choice em {
+    display: block; margin-top: .25rem;
+    font-style: normal; font-size: var(--t-small); color: var(--ink-muted); line-height: 1.55;
+  }
+  .co__choice:has(input:checked) strong { color: var(--gold-ink); }
   .co__error { color: #8c2f2f; font-size: var(--t-small); margin: 0; }
   .co__pay { margin-top: .5rem; align-self: flex-start; }
   .co__pay[disabled] { opacity: .6; cursor: progress; }
