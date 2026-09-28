@@ -42,7 +42,7 @@ const checkout = look.price
       amount: look.price,
       returnTo: new URL(localePath(path, locale), site.url).href,
       locale,
-    }, look.payUrl) || site.checkoutLink || null
+    }, look.payUrl)
   : null;
 // Three ways to buy, in the order they are trusted. Our own basket, which
 // prices the order server-side and only calls it paid once the gateway's
