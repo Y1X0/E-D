@@ -9,3 +9,6 @@ dist/
 
 # scratch scripts used while working
 _*.mjs
+
+# git bundles: a copy of this history, made when a push was blocked
+*.bundle
