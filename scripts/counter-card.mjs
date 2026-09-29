@@ -1,12 +1,4 @@
 /**
- * Run:  npm i --no-save qrcode wawoff2 harfbuzzjs && node scripts/counter-card.mjs
- *       CARD_URL=https://your-domain.com node scripts/counter-card.mjs
- *
- * Deliberately not a dependency of the site: these three packages are needed
- * to redraw one printed card, and adding them to package.json would put them
- * in every deploy's install for nothing.
- */
-/**
  * The card that stands on the counter.
  *
  * Everything on it is vector and every letter is an outline, so a print shop
@@ -132,9 +124,9 @@ const N = qr.modules.size;
 const bit = (r, c) => qr.modules.data[r * N + c] === 1;
 
 const QUIET = 4;                                  // modules of clear paper, as the standard asks
-const PANEL = 82;                                 // mm of printed panel
+const PANEL = 84;                                 // mm of printed panel
 const m = PANEL / (N + QUIET * 2);                // one module
-const panelX = cx - PANEL / 2, panelY = 94;
+const panelX = cx - PANEL / 2, panelY = 89;
 const qrX = panelX + QUIET * m, qrY = panelY + QUIET * m;
 
 const FINDER = 7;
@@ -144,7 +136,7 @@ const inFinder = (r, c) =>
 // The seal sits in the middle over a cleared square. Error correction level H
 // recovers thirty per cent of the code; this clears a fraction of that, and the
 // decode at the end is what actually settles it.
-const clearSide = 2 * Math.floor((N * 0.12) / 2) + 1;    // odd, so it centres on a module
+const clearSide = 2 * Math.round(N * 0.09) + 1;          // odd, so it centres on a module
 const clearFrom = (N - clearSide) / 2, clearTo = clearFrom + clearSide;
 const cleared = (r, c) => r >= clearFrom && r < clearTo && c >= clearFrom && c < clearTo;
 const coverage = ((clearSide ** 2) / (N ** 2) * 100).toFixed(1);
@@ -186,17 +178,17 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg"
 
   <!-- a hairline frame, inside the trim -->
   <rect x="${BLEED + 7}" y="${BLEED + 7}" width="${W - 14}" height="${H - 14}"
-        fill="none" stroke="${GOLD}" stroke-width="0.22" opacity=".45"/>
+        fill="none" stroke="${GOLD}" stroke-width="0.35" opacity=".6"/>
 
   <!-- the house -->
-  ${mark(cx, 34, 26, GOLD_LIT)}
-  ${centred(cormorant, 'ELITE EVENING', 9.6, 1.5, 58, ON_INK)}
-  ${centred(jost, 'DESIGN', 3.5, 2.6, 66, GOLD_LIT)}
+  ${mark(cx, 34, 28, GOLD_LIT)}
+  ${centred(cormorant, 'ELITE EVENING', 11.2, 1.7, 58, ON_INK)}
+  ${centred(jost, 'DESIGN', 4.2, 3, 67, GOLD_LIT)}
   <g opacity=".5">
-    <line x1="${cx - 26}" y1="72" x2="${cx - 5}" y2="72" stroke="${GOLD}" stroke-width="0.3"/>
-    <line x1="${cx + 5}" y1="72" x2="${cx + 26}" y2="72" stroke="${GOLD}" stroke-width="0.3"/>
+    <line x1="${cx - 28}" y1="73.5" x2="${cx - 5}" y2="73.5" stroke="${GOLD}" stroke-width="0.4"/>
+    <line x1="${cx + 5}" y1="73.5" x2="${cx + 28}" y2="73.5" stroke="${GOLD}" stroke-width="0.4"/>
   </g>
-  ${centred(jost, 'WHERE ELEGANCE MEETS LUXURY', 2.9, 1.5, 80, ON_INK, 0.72)}
+  ${centred(jost, 'WHERE ELEGANCE MEETS LUXURY', 3.4, 1.7, 82, ON_INK, 0.9)}
 
   <!-- the code: dark on the house's own paper, with its quiet zone intact -->
   <rect x="${num(panelX - 2.2)}" y="${num(panelY - 2.2)}" width="${num(PANEL + 4.4)}" height="${num(PANEL + 4.4)}" rx="4" fill="none" stroke="${GOLD}" stroke-width="0.4" opacity=".8"/>
@@ -209,11 +201,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg"
   ${mark(sealX + sealSide / 2, sealY + sealSide / 2, sealSide * 0.62, GOLD_LIT)}
 
   <!-- what to do with it, in the three languages the shop speaks -->
-  ${centred(jost, 'SCAN TO VISIT OUR ATELIER ONLINE', 3.1, 1.35, 187, ON_INK)}
-  ${centred(amiri, 'امسحي الرمز لزيارة الأتيليه', 4.6, 0, 195.5, GOLD_LIT, 0.9)}
-  ${centred(frank, 'סרקו לביקור באתר', 3.6, 0, 202.5, GOLD_LIT, 0.9)}
+  ${centred(jost, 'SCAN TO VISIT OUR ATELIER ONLINE', 3.8, 1.5, 182, ON_INK)}
+  ${centred(amiri, 'امسحي الرمز لزيارة الأتيليه', 5.6, 0, 191, GOLD_LIT)}
+  ${centred(frank, 'סרקו לביקור באתר', 4.4, 0, 199, GOLD_LIT)}
 
-  ${centred(jost, URL_ENCODED.replace(/^https:\/\//, ''), 2.5, 0.7, 210.5, ON_INK, 0.55)}
+  ${centred(jost, URL_ENCODED.replace(/^https:\/\//, ''), 3, 0.9, 205.5, ON_INK, 0.8)}
 </svg>
 `;
 
