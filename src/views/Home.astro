@@ -43,28 +43,8 @@ const schema = {
 >
   <Hero locale={locale} />
 
-  <!-- ——— opening statement ——— -->
-  <section class="section--tight opening" id="opening" aria-labelledby="opening-h">
-    <div class="wrap opening__in reveal">
-      {/* Four of the seven sections opened with an eyebrow over a display
-          heading. Repeated that often the pattern stops marking importance:
-          the two sections that are genuinely the page's own voice — this one
-          and the closing invitation — keep it, the rest let their heading
-          speak. */}
-      <h2 class="t-display opening__h" id="opening-h">
-        {h.openingTitle} {h.openingAccent}
-      </h2>
-      <div class="opening__body">
-        {h.openingBody.map((p) => <p>{p}</p>)}
-        <a class="link opening__link" href={localePath('/about', locale)}>
-          {dict.ui.aboutAtelier} <span class="arw" aria-hidden="true">&#8594;</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ——— the three lines ——— -->
-  <section class="section lines" aria-labelledby="lines-h">
+  <!-- ——— what she is looking for: the first thing after the hero ——— -->
+  <section class="section--close lines" aria-labelledby="lines-h">
     <div class="wrap">
       <SectionHead
         title={`${h.linesTitle} ${h.linesAccent}`}
@@ -90,6 +70,26 @@ const schema = {
           </li>
         ))}
       </ul>
+    </div>
+  </section>
+
+  <!-- ——— opening statement ——— -->
+  <section class="section--tight opening" id="opening" aria-labelledby="opening-h">
+    <div class="wrap opening__in reveal">
+      {/* Four of the seven sections opened with an eyebrow over a display
+          heading. Repeated that often the pattern stops marking importance:
+          the two sections that are genuinely the page's own voice — this one
+          and the closing invitation — keep it, the rest let their heading
+          speak. */}
+      <h2 class="t-display opening__h" id="opening-h">
+        {h.openingTitle} {h.openingAccent}
+      </h2>
+      <div class="opening__body">
+        {h.openingBody.map((p) => <p>{p}</p>)}
+        <a class="link opening__link" href={localePath('/about', locale)}>
+          {dict.ui.aboutAtelier} <span class="arw" aria-hidden="true">&#8594;</span>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -173,14 +173,27 @@ const schema = {
     margin: clamp(3rem, 7vh, 5rem) 0 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Four lines, four columns: the whole choice in one row on a wide screen,
+       and nothing wrapping into a second row that reads as an afterthought. */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: clamp(1.5rem, 3vw, 2.75rem);
   }
-  .lines__item:nth-child(2) { margin-top: clamp(1.5rem, 5vw, 4rem); }
-  .lines__item:nth-child(3) { margin-top: clamp(3rem, 10vw, 8rem); }
+  /* The staggered offsets that used to lift the second and third cards were a
+     flourish for a section one scrolled past. This is now the page's decision
+     point, and a choice set at four different heights asks the eye to work out
+     an arrangement before it can compare four options. They sit level. */
 
   @media (hover: hover) { .lines__a:hover :global(.lines__plate img) { transform: scale(1.045); } }
   .lines__meta { margin-top: 1.35rem; display: flex; flex-direction: column; gap: .55rem; align-items: flex-start; }
+  .lines__grid { margin-top: clamp(1.75rem, 4vh, 3rem); }
+
+  /* The four covers are authored at the proportions that suit each photograph
+     on its own page — 2/3 for a full-length gown, 3/4 for the boutique rail.
+     Side by side as choices that reads as a ragged row, with one name sitting
+     above another for no reason the eye can explain. Here, and only here, they
+     are cut to one shape so the four read as four of the same thing; the focus
+     point each photograph carries decides what the crop keeps. */
+  .lines__a :global(.lines__plate) { aspect-ratio: 3 / 4; }
   .lines__name { margin: 0; }
   .lines__kicker { color: var(--ink-muted); font-size: var(--t-small); max-width: 30ch; }
   .lines__cta { margin-top: .5rem; color: var(--gold-ink); }
@@ -244,14 +257,22 @@ const schema = {
     .opening__body { grid-column: 1; grid-row: auto; }
     .bespoke__in { grid-template-columns: 1fr; }
     .lines__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .lines__item:nth-child(3) { margin-top: 0; }
   }
   @media (max-width: 900px) {
     .selected__grid { grid-template-columns: 1fr; gap: clamp(2.25rem, 7vw, 3rem); }
     .selected__grid > :global(.lookcard:last-child) { margin-top: 0; }
   }
+  /* Four choices stacked one per screen is not a choice; it is four screens of
+     scrolling before she knows what the atelier even offers. Two across holds
+     all four in roughly one, which is the whole point of putting them first. */
   @media (max-width: 640px) {
-    .lines__grid { grid-template-columns: 1fr; gap: 2.75rem; }
-    .lines__item:nth-child(n) { margin-top: 0; }
+    .lines__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1.1rem; }
+    .lines__meta { margin-top: .85rem; gap: .35rem; }
+    .lines__name { font-size: var(--t-h4, 1.15rem); }
+    /* At this size the kicker is a second line under every name, and four of
+       them turn a grid of choices back into a wall of text. The name is the
+       choice; the line's own page says the rest. */
+    .lines__kicker { display: none; }
+    .lines__cta { margin-top: .15rem; font-size: var(--t-label); }
   }
 </style>

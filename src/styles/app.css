@@ -328,12 +328,21 @@ h1, h2, h3, h4 {
    apart, so inside a card the panel keeps a card's proportion — shallower than
    a photograph, but still a card. */
 @media (min-width: 721px) {
-  .lines__plate.plate--empty,
   .lookcard__plate.plate--empty,
   .coll__plate.plate--empty {
     aspect-ratio: 4 / 5;
     height: auto;
   }
+}
+
+/* The chooser at the top of the home page is the exception at every width.
+   Four lines are offered there as four equal choices, and a line that has not
+   been photographed yet is no less on offer than one that has: made short, it
+   reads as the lesser option rather than the unphotographed one. It keeps the
+   panel's own tone and seal, so it still says plainly that there is no
+   photograph here — it simply does not say it by being smaller. */
+.lines__plate.plate--empty {
+  height: auto;
 }
 
 /* inset hairline frame */
